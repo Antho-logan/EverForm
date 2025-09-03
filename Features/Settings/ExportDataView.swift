@@ -42,7 +42,7 @@ struct ExportDataView: View {
                         ForEach(["Workouts","Meals","Hydration","Sleep","Chat"], id: \.self) { item in
                             Toggle(item, isOn: Binding(
                                 get: { include.contains(item) },
-                                set: { $0 ? include.insert(item) : include.remove(item) }
+                                set: { if $0 { include.insert(item) } else { include.remove(item) } }
                             ))
                             .padding().background(DSColor.surface)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))

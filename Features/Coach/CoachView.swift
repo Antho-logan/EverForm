@@ -29,50 +29,59 @@ final class CoachViewModel: ObservableObject {
 struct CoachView: View {
     @StateObject private var vm = CoachViewModel()
     @Environment(\.colorScheme) private var scheme
-    @State private var draft = ""
+    @State private var messageText: String = ""
+    @ObservedObject private var voice = EFVoiceCapture.shared
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 10) {
-                    ForEach(vm.messages) { msg in
-                        HStack {
-                            if msg.isBot {
-                                bubble(text: msg.text, isBot: true)
-                                Spacer(minLength: 30)
-                            } else {
-                                Spacer(minLength: 30)
-                                bubble(text: msg.text, isBot: false)
+        VStack(spacing: 0) {
+            // Big page title (consistent with Overview/Progress)
+            Text("Coach")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            // Conversation area
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 10) {
+                        ForEach(vm.messages) { msg in
+                            HStack {
+                                if msg.isBot {
+                                    bubble(text: msg.text, isBot: true)
+                                    Spacer(minLength: 30)
+                                } else {
+                                    Spacer(minLength: 30)
+                                    bubble(text: msg.text, isBot: false)
+                                }
                             }
+                            .id(msg.id)
                         }
-                        .id(msg.id)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
+                    .padding(.bottom, 24) // Space for input bar
+                }
+                .onChange(of: vm.messages.count) {
+                    if let last = vm.messages.last {
+                        withAnimation {
+                            proxy.scrollTo(last.id, anchor: .bottom)
+                        }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
-                .padding(.bottom, 80) // Space for input bar
             }
-            .onChange(of: vm.messages.count) {
-                if let last = vm.messages.last {
-                    withAnimation {
-                        proxy.scrollTo(last.id, anchor: .bottom)
-                    }
-                }
+
+            // Voice HUD while listening
+            if voice.isRecording {
+                VoiceHUD()
+                    .padding(.bottom, 8)
+            }
+
+            CoachInputBar(text: $messageText) { text, images in
+                vm.send(text: text, images: images)
             }
         }
         .background(DSColor.appBackground.ignoresSafeArea())
-        .navigationTitle("Coach")
-        .navigationBarTitleDisplayMode(.large)
-        .toolbarBackground(DSColor.appBackground, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            EFChatInputBar(text: $draft) { text, images in
-                vm.send(text: text, images: images)
-            }
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-            .background(DSColor.appBackground.ignoresSafeArea(edges: .bottom))
-        }
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {

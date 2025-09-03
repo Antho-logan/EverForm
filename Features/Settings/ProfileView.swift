@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @State private var name: String = "Your Name"
     @State private var email: String = "you@example.com"
     @State private var heightCM: Double = 180
@@ -31,7 +32,7 @@ struct ProfileView: View {
                 .frame(maxWidth: .infinity)
                 .background(DSColor.card)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.black.opacity(ColorScheme.current == .light ? 0.06 : 0), radius: 12, x: 0, y: 6)
+                .shadow(color: Color.black.opacity(colorScheme == .light ? 0.06 : 0), radius: 12, x: 0, y: 6)
 
                 SettingsSectionCard(title: "Basics") {
                     VStack(spacing: 12) {
