@@ -34,7 +34,6 @@ struct CoachView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Big page title (consistent with Overview/Progress)
             Text("Coach")
                 .font(.system(.largeTitle, weight: .bold))
                 .frame(maxWidth: .infinity, alignment: .leading)

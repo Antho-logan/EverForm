@@ -6,46 +6,45 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct SecuritySettingsView: View {
-    @State private var useFaceID = true
-    @State private var twoFA = false
+    @AppStorage("sec.requireBio") private var requireBio: Bool = false
+    @AppStorage("sec.hideTiles") private var hideTiles: Bool = false
+    @AppStorage("sec.requireBioForCoach") private var requireCoachBio: Bool = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                SettingsSectionCard(title: "Sign-in & Auth") {
-                    VStack(spacing: 12) {
-                        SettingsRow(icon: "applelogo", title: "Sign in with Apple", subtitle: "Connected") {
-                            Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
-                        }
-                        SettingsRow(icon: "key.fill", title: "Change Password", subtitle: "If using email login") {
-                            Image(systemName: "chevron.right").foregroundStyle(DSColor.textSecondary)
-                        }
-                        Toggle("Face ID / Touch ID", isOn: $useFaceID)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        Toggle("Two-Factor Authentication", isOn: $twoFA)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
+        VStack(spacing: 0) {
+            Text("Security")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
 
-                SettingsSectionCard(title: "Sessions") {
-                    VStack(spacing: 12) {
-                        SettingsRow(icon: "iphone.gen3", title: "This iPhone", subtitle: "Active now") { EmptyView() }
-                        SettingsRow(icon: "laptopcomputer", title: "MacBook (last week)", subtitle: "Signed out") { EmptyView() }
-                        Button(role: .destructive) { /* sign out all - stub */ } label: {
-                            Text("Sign Out of All Devices").frame(maxWidth: .infinity)
+            ScrollView {
+                VStack(spacing: 16) {
+                    EFCard {
+                        VStack(spacing: 12) {
+                            Toggle("Require Face ID / Touch ID to open app", isOn: $requireBio)
+                            Toggle("Require biometrics before sending Coach messages", isOn: $requireCoachBio)
+                            Toggle("Hide sensitive tiles on Overview", isOn: $hideTiles)
                         }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     }
-                }
+                    EFCard {
+                        HStack {
+                            Image(systemName: "info.circle")
+                            Text(bioAvailable() ? "Biometrics available" : "Biometrics not available")
+                            Spacer()
+                        }.foregroundStyle(DSColor.textSecondary)
+                    }
+                }.padding(20)
             }
-            .padding(20)
         }
-        .navigationTitle("Security")
         .background(DSColor.appBackground.ignoresSafeArea())
+    }
+
+    private func bioAvailable() -> Bool {
+        var err: NSError?
+        return LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
     }
 }

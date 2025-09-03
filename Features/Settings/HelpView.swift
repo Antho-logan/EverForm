@@ -9,30 +9,65 @@ import SwiftUI
 
 struct HelpView: View {
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                SettingsSectionCard(title: "Get Help") {
-                    VStack(spacing: 12) {
-                        SettingsRow(icon: "questionmark.circle.fill", title: "FAQ", subtitle: "Common questions") {
-                            Image(systemName: "chevron.right").foregroundStyle(DSColor.textSecondary)
-                        }
-                        SettingsRow(icon: "envelope.fill", title: "Contact Support", subtitle: "support@everform.app") {
-                            Image(systemName: "arrow.up.right").foregroundStyle(DSColor.textSecondary)
-                        }
-                        SettingsRow(icon: "doc.text.fill", title: "Terms & Privacy", subtitle: nil) {
-                            Image(systemName: "chevron.right").foregroundStyle(DSColor.textSecondary)
+        VStack(spacing: 0) {
+            Text("Help")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    EFCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Frequently Asked Questions").font(.headline)
+                            FAQRow(q: "How do I log a meal?", a: "Use Scan → Calorie or the Nutrition quick action.")
+                            FAQRow(q: "Can I change units?", a: "Yes, in Profile → Units.")
+                            FAQRow(q: "Dark mode?", a: "Settings → Display.")
                         }
                     }
-                }
-                SettingsSectionCard(title: "Diagnostics") {
-                    Toggle("Include anonymous logs in bug reports", isOn: .constant(false))
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    EFCard {
+                        Button {
+                            if let url = URL(string: "mailto:support@everform.app") {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            Text("Contact support").bold().frame(maxWidth: .infinity).padding(.vertical, 14)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .accessibilityLabel("Contact support by email")
+                    }
+                    EFCard {
+                        Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—")")
+                            .foregroundStyle(DSColor.textSecondary)
+                    }
+                }.padding(20)
+            }
+        }
+        .background(DSColor.appBackground.ignoresSafeArea())
+    }
+}
+
+private struct FAQRow: View {
+    let q: String; let a: String
+    @State private var open = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                withAnimation(.easeInOut) { open.toggle() }
+            } label: {
+                HStack {
+                    Text(q).font(.headline)
+                    Spacer()
+                    Image(systemName: open ? "chevron.up" : "chevron.down").font(.footnote)
                 }
             }
-            .padding(20)
+            if open {
+                Text(a).foregroundStyle(DSColor.textSecondary)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
+            }
         }
-        .navigationTitle("Help")
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .padding(.vertical, 6)
     }
 }

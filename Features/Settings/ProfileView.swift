@@ -8,104 +8,105 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @Environment(\.colorScheme) private var colorScheme
-    @State private var name: String = "Your Name"
+    @State private var fullName: String = "Your Name"
     @State private var email: String = "you@example.com"
-    @State private var heightCM: Double = 180
-    @State private var weightKG: Double = 75
-    @State private var birthdate: Date = Calendar.current.date(byAdding: .year, value: -25, to: .now) ?? .now
-    @State private var unitsMetric: Bool = true
-    @State private var dailyStepGoal: Int = 8000
-    @State private var dailyCalGoal: Int = 2600
+    @State private var unit: String = "Metric"
+    @State private var dob = Date(timeIntervalSince1970: 0)
+    @State private var height: String = ""
+    @State private var weight: String = ""
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                // Header card
-                VStack(spacing: 12) {
-                    Circle().fill(DSColor.cardElevated).frame(width: 88, height: 88)
-                        .overlay(Image(systemName: "person.fill").font(.system(size: 36)).foregroundStyle(DSColor.textPrimary))
-                    Text(name).font(.title2).foregroundStyle(DSColor.textPrimary)
-                    Text(email).foregroundStyle(DSColor.textSecondary)
+        VStack(spacing: 0) {
+            Text("Profile")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    AvatarCard()
+                    EFCard {
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("Full name").frame(width: 110, alignment: .leading)
+                                TextField("Full name", text: $fullName)
+                                    .textFieldStyle(.plain)
+                                    .padding(.horizontal, 12).padding(.vertical, 10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                            Divider()
+                            HStack {
+                                Text("Email").frame(width: 110, alignment: .leading)
+                                TextField("Email", text: $email)
+                                    .keyboardType(.emailAddress)
+                                    .textInputAutocapitalization(.never)
+                                    .textFieldStyle(.plain)
+                                    .padding(.horizontal, 12).padding(.vertical, 10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                        }
+                    }
+                    EFCard {
+                        Picker("Units", selection: $unit) {
+                            Text("Metric").tag("Metric")
+                            Text("Imperial").tag("Imperial")
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    EFCard {
+                        VStack(spacing: 12) {
+                            DatePicker("Date of birth", selection: $dob, displayedComponents: .date)
+                            Divider()
+                            HStack {
+                                Text("Height").frame(width: 110, alignment: .leading)
+                                TextField(unit == "Metric" ? "cm" : "in", text: $height)
+                                    .keyboardType(.decimalPad)
+                                    .textFieldStyle(.plain)
+                                    .padding(.horizontal, 12).padding(.vertical, 10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                            Divider()
+                            HStack {
+                                Text("Weight").frame(width: 110, alignment: .leading)
+                                TextField(unit == "Metric" ? "kg" : "lb", text: $weight)
+                                    .keyboardType(.decimalPad)
+                                    .textFieldStyle(.plain)
+                                    .padding(.horizontal, 12).padding(.vertical, 10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                        }
+                    }
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        dismiss()
+                    } label: {
+                        Text("Save changes").bold().frame(maxWidth: .infinity).padding(.vertical, 14)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 .padding(20)
-                .frame(maxWidth: .infinity)
-                .background(DSColor.card)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-                .shadow(color: Color.black.opacity(colorScheme == .light ? 0.06 : 0), radius: 12, x: 0, y: 6)
-
-                SettingsSectionCard(title: "Basics") {
-                    VStack(spacing: 12) {
-                        TextField("Name", text: $name)
-                            .textInputAutocapitalization(.words)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        TextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .textInputAutocapitalization(.never)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        DatePicker("Birthdate", selection: $birthdate, displayedComponents: .date)
-                            .tint(.green)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Toggle(isOn: $unitsMetric) {
-                            Text("Use Metric Units").foregroundStyle(DSColor.textPrimary)
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-
-                SettingsSectionCard(title: "Body") {
-                    VStack(spacing: 12) {
-                        Stepper(value: $heightCM, in: 120...220, step: 1) {
-                            Text("Height: \(Int(heightCM)) cm")
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Stepper(value: $weightKG, in: 40...160, step: 1) {
-                            Text("Weight: \(Int(weightKG)) kg")
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-
-                SettingsSectionCard(title: "Goals") {
-                    VStack(spacing: 12) {
-                        Stepper(value: $dailyStepGoal, in: 1000...25000, step: 500) {
-                            Text("Daily Step Goal: \(dailyStepGoal)")
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Stepper(value: $dailyCalGoal, in: 1200...4500, step: 50) {
-                            Text("Daily Calorie Target: \(dailyCalGoal) kcal")
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
-
-                SettingsSectionCard(title: "Connected Services") {
-                    VStack(spacing: 12) {
-                        SettingsRow(icon: "heart.fill", title: "Apple Health", subtitle: "Sync steps, sleep & hydration") {
-                            Toggle("", isOn: .constant(true)).labelsHidden()
-                        }
-                        SettingsRow(icon: "figure.run.circle.fill", title: "Strava", subtitle: "Import workouts") {
-                            Image(systemName: "chevron.right").foregroundStyle(DSColor.textSecondary)
-                        }
-                    }
-                }
             }
-            .padding(20)
         }
-        .navigationTitle("Profile")
         .background(DSColor.appBackground.ignoresSafeArea())
+    }
+}
+
+private struct AvatarCard: View {
+    var body: some View {
+        EFCard {
+            HStack(spacing: 16) {
+                Circle().fill(Color.gray.opacity(0.2)).frame(width: 56, height: 56)
+                    .overlay(Image(systemName: "person.fill").font(.title2).foregroundStyle(.secondary))
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Your profile").font(.headline)
+                    Text("Tap Save to persist changes").foregroundStyle(DSColor.textSecondary)
+                        .font(.subheadline)
+                }
+                Spacer()
+            }
+        }
     }
 }

@@ -6,47 +6,66 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ReportBugView: View {
     @State private var title: String = ""
     @State private var details: String = ""
-    @State private var includeScreenshot = false
-    @State private var sent = false
+    @State private var includeLogs: Bool = true
+    @State private var showCopied: Bool = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                SettingsSectionCard(title: "Describe the issue") {
-                    VStack(spacing: 12) {
-                        TextField("Short title", text: $title)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        TextEditor(text: $details)
-                            .frame(minHeight: 140)
-                            .padding(8).background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                        Toggle("Attach recent screenshot (if available)", isOn: $includeScreenshot)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
+        VStack(spacing: 0) {
+            Text("Report a Bug")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
 
-                Button {
-                    sent = true
-                } label: {
-                    Text("Send Report").fontWeight(.semibold).frame(maxWidth: .infinity)
+            ScrollView {
+                VStack(spacing: 16) {
+                    EFCard {
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("Title").frame(width: 110, alignment: .leading)
+                                TextField("Title", text: $title)
+                                    .textFieldStyle(.plain)
+                                    .padding(.horizontal, 12).padding(.vertical, 10)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                            Divider()
+                            VStack(alignment: .leading) {
+                                Text("Details").font(.headline)
+                                TextEditor(text: $details)
+                                    .frame(minHeight: 120)
+                                    .padding(12)
+                                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            }
+                            Toggle("Include anonymized logs", isOn: $includeLogs)
+                        }
+                    }
+                    Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        let body = """
+                        [Bug] \(title)
+
+                        Details:
+                        \(details)
+
+                        Include logs: \(includeLogs ? "Yes" : "No")
+                        """
+                        UIPasteboard.general.setValue(body, forPasteboardType: UTType.utf8PlainText.identifier)
+                        showCopied = true
+                    } label: {
+                        Text("Send").bold().frame(maxWidth: .infinity).padding(.vertical, 14)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .alert("Copied bug report to clipboard", isPresented: $showCopied) { Button("OK", role: .cancel) {} }
                 }
-                .padding(16).background(DSColor.cardElevated)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .alert("Thanks!", isPresented: $sent) {
-                    Button("OK") { }
-                } message: {
-                    Text("Your report was submitted. We'll take a look soon.")
-                }
+                .padding(20)
             }
-            .padding(20)
         }
-        .navigationTitle("Report a Bug")
         .background(DSColor.appBackground.ignoresSafeArea())
     }
 }

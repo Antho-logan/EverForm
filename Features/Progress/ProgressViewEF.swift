@@ -7,12 +7,15 @@ struct ProgressViewEF: View {
     @State private var range: RangeOpt = .d7
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                Text("Progress")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            Text("Progress")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 16) {
 
                 RangePicker(selection: $range)
 
@@ -25,14 +28,15 @@ struct ProgressViewEF: View {
                     Summary("Hydration", "1.7k ml",  .cyan,   "drop.fill")
                 }
 
-                ChartCard(title: "Training", tint: .green,  range: range)
-                ChartCard(title: "Nutrition", tint: .orange, range: range)
-                ChartCard(title: "Mobility", tint: .purple,  range: range)
-                ChartCard(title: "Recovery", tint: .blue,    range: range)
-                ChartCard(title: "Hydration", tint: .cyan,   range: range)
+                    ChartCard(title: "Training", tint: .green,  range: range)
+                    ChartCard(title: "Nutrition", tint: .orange, range: range)
+                    ChartCard(title: "Mobility", tint: .purple,  range: range)
+                    ChartCard(title: "Recovery", tint: .blue,    range: range)
+                    ChartCard(title: "Hydration", tint: .cyan,   range: range)
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
     }

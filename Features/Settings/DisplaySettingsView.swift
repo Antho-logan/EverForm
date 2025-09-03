@@ -9,62 +9,62 @@ import SwiftUI
 
 struct DisplaySettingsView: View {
     @ObservedObject private var theme = EFTheme.shared
-    @State private var textSize: Double = 0 // 0=default, 1=+1, 2=+2
-    @State private var reduceMotion = false
-    @State private var haptics = true
-    @State private var cardDensity = 0 // 0 comfortable, 1 compact
+    @AppStorage("ef.textScale") private var textScale: Double = 1.0
+    @AppStorage("ef.compactCards") private var compactCards: Bool = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 24) {
-                SettingsSectionCard(title: "Appearance") {
-                    HStack(spacing: 12) {
-                        ForEach([EFUserTheme.system, .light, .dark], id: \.rawValue) { opt in
-                            Button {
-                                theme.set(opt)
-                            } label: {
-                                Text(opt.rawValue.capitalized)
-                                    .fontWeight(theme.selection == opt ? .semibold : .regular)
-                                    .padding(.vertical, 10).frame(maxWidth: .infinity)
-                                    .background(theme.selection == opt ? DSColor.cardElevated : DSColor.surface)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        VStack(spacing: 0) {
+            Text("Display")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 16) {
+                    EFCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Appearance").font(.headline)
+                            Picker("", selection: $theme.selection) {
+                                Text("System").tag(EFUserTheme.system)
+                                Text("Light").tag(EFUserTheme.light)
+                                Text("Dark").tag(EFUserTheme.dark)
                             }
+                            .pickerStyle(.segmented)
+                            .padding(.top, 8)
+                            Text("This overrides the app's appearance immediately.")
+                                .font(.footnote).foregroundStyle(DSColor.textSecondary)
+                        }
+                    }
+                    EFCard {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Text size").font(.headline)
+                            HStack {
+                                Image(systemName: "textformat.size.smaller")
+                                Slider(value: $textScale, in: 0.9...1.3, step: 0.05)
+                                Image(systemName: "textformat.size.larger")
+                            }
+                            .onChange(of: textScale) { _, v in
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            }
+                            Toggle("Compact cards", isOn: $compactCards)
                         }
                     }
                 }
-
-                SettingsSectionCard(title: "Interface") {
-                    VStack(spacing: 12) {
-                        HStack {
-                            Text("Text Size").foregroundStyle(DSColor.textPrimary)
-                            Spacer()
-                            Slider(value: $textSize, in: 0...2, step: 1)
-                                .frame(width: 160)
-                        }
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Picker("Card Density", selection: $cardDensity) {
-                            Text("Comfortable").tag(0)
-                            Text("Compact").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding().background(DSColor.surface)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Toggle("Haptics", isOn: $haptics)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
-                        Toggle("Reduce Motion", isOn: $reduceMotion)
-                            .padding().background(DSColor.surface)
-                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    }
-                }
+                .padding(20)
             }
-            .padding(20)
         }
-        .navigationTitle("Display")
+        .environment(\.sizeCategory, sizeCategory(from: textScale))
         .background(DSColor.appBackground.ignoresSafeArea())
     }
+
+    private func sizeCategory(from scale: Double) -> ContentSizeCategory {
+        if scale < 0.95 { return .small }
+        if scale < 1.05 { return .medium }
+        if scale < 1.15 { return .large }
+        return .extraLarge
+    }
 }
+
+

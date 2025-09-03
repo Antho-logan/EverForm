@@ -2,12 +2,15 @@ import SwiftUI
 
 struct ScanView: View {
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("Scan Food")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            Text("Scan Food")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 20) {
 
                 SegmentedTabs()
 
@@ -35,9 +38,10 @@ struct ScanView: View {
                         Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(DSColor.textSecondary)
                     }.frame(maxWidth: .infinity)
                 }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
     }
