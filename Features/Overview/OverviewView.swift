@@ -8,7 +8,7 @@ struct OverviewView: View {
             VStack(spacing: 20) {
                 Text("Overview")
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(EFTheme.text(scheme))
+                    .foregroundStyle(DSColor.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 // KPI grid (4 tiles)
@@ -42,12 +42,11 @@ struct OverviewView: View {
             .padding(.horizontal, 20)
             .padding(.top, 8)
         }
-        .background(EFTheme.background(scheme).ignoresSafeArea())
+        .background(DSColor.appBackground.ignoresSafeArea())
     }
 }
 
 private struct KPICard: View {
-    @Environment(\.colorScheme) private var scheme
     let icon: String, title: String, subtitle: String
     var body: some View {
         EFCard {
@@ -55,24 +54,23 @@ private struct KPICard: View {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
                     .foregroundStyle(.green)
-                Text(title).font(.title3.weight(.semibold)).foregroundStyle(EFTheme.text(scheme))
-                Text(subtitle).font(.caption).foregroundStyle(EFTheme.muted(scheme))
+                Text(title).font(.title3.weight(.semibold)).foregroundStyle(DSColor.textPrimary)
+                Text(subtitle).font(.caption).foregroundStyle(DSColor.textSecondary)
             }
         }
     }
 }
 
 private struct PlanCard: View {
-    @Environment(\.colorScheme) private var scheme
     let color: Color, sf: String, title: String, subtitle: String, buttonTitle: String
     var body: some View {
         EFCard {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(spacing: 10) {
                     Image(systemName: sf).foregroundStyle(color).font(.system(size: 18, weight: .bold))
-                    Text(title).font(.headline).foregroundStyle(EFTheme.text(scheme))
+                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
                 }
-                Text(subtitle).font(.subheadline).foregroundStyle(EFTheme.muted(scheme))
+                Text(subtitle).font(.subheadline).foregroundStyle(DSColor.textSecondary)
                 Button(buttonTitle) {}
                     .font(.subheadline.weight(.semibold))
                     .padding(.vertical, 8).padding(.horizontal, 14)
@@ -86,13 +84,12 @@ private struct PlanCard: View {
 }
 
 private struct QuickActionCard: View {
-    @Environment(\.colorScheme) private var scheme
     let icon: String, title: String, tint: Color
     var body: some View {
         EFCard {
             VStack(spacing: 8) {
                 Image(systemName: icon).font(.system(size: 18, weight: .bold)).foregroundStyle(tint)
-                Text(title).font(.caption).foregroundStyle(EFTheme.text(scheme))
+                Text(title).font(.caption).foregroundStyle(DSColor.textPrimary)
             }.frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity)

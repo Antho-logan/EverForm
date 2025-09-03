@@ -4,7 +4,6 @@ import Charts
 #endif
 
 struct ProgressViewEF: View {
-    @Environment(\.colorScheme) private var scheme
     @State private var range: RangeOpt = .d7
 
     var body: some View {
@@ -12,7 +11,7 @@ struct ProgressViewEF: View {
             VStack(spacing: 16) {
                 Text("Progress")
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(EFTheme.text(scheme))
+                    .foregroundStyle(DSColor.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                 RangePicker(selection: $range)
@@ -35,23 +34,22 @@ struct ProgressViewEF: View {
             .padding(.horizontal, 20)
             .padding(.top, 8)
         }
-        .background(EFTheme.background(scheme).ignoresSafeArea())
+        .background(DSColor.appBackground.ignoresSafeArea())
     }
 }
 
 private enum RangeOpt: String, CaseIterable { case d1="1D", d7="7D", m1="1M", m3="3M" }
 
 private struct RangePicker: View {
-    @Environment(\.colorScheme) private var scheme
     @Binding var selection: RangeOpt
     var body: some View {
         HStack(spacing: 8) {
             ForEach(RangeOpt.allCases, id: \.rawValue) { r in
                 Text(r.rawValue)
                     .font(.subheadline.weight(selection == r ? .bold : .regular))
-                    .foregroundStyle(selection == r ? EFTheme.text(scheme) : EFTheme.muted(scheme))
+                    .foregroundStyle(selection == r ? DSColor.textPrimary : DSColor.textSecondary)
                     .padding(.vertical, 8).padding(.horizontal, 12)
-                    .background(EFTheme.surface(scheme).opacity(selection == r ? 1 : 0.8))
+                    .background(DSColor.surface.opacity(selection == r ? 1 : 0.8))
                     .clipShape(Capsule())
                     .onTapGesture { selection = r }
             }
@@ -60,7 +58,6 @@ private struct RangePicker: View {
 }
 
 private struct Summary: View {
-    @Environment(\.colorScheme) private var scheme
     let title: String, value: String, tint: Color, icon: String
     init(_ t: String, _ v: String, _ tint: Color, _ icon: String) {
         self.title = t; self.value = v; self.tint = tint; self.icon = icon
@@ -70,8 +67,8 @@ private struct Summary: View {
             HStack(spacing: 12) {
                 Image(systemName: icon).foregroundStyle(tint).font(.system(size: 18, weight: .bold))
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.headline).foregroundStyle(EFTheme.text(scheme))
-                    Text(value).font(.subheadline).foregroundStyle(EFTheme.muted(scheme))
+                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
+                    Text(value).font(.subheadline).foregroundStyle(DSColor.textSecondary)
                 }
                 Spacer()
             }
@@ -80,7 +77,6 @@ private struct Summary: View {
 }
 
 private struct ChartCard: View {
-    @Environment(\.colorScheme) private var scheme
     let title: String, tint: Color
     let range: RangeOpt
 
@@ -96,7 +92,7 @@ private struct ChartCard: View {
     var body: some View {
         EFCard {
             VStack(alignment: .leading, spacing: 8) {
-                Text(title).font(.headline).foregroundStyle(EFTheme.text(scheme))
+                Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
                 #if canImport(Charts)
                 Chart {
                     ForEach(data.indices, id: \.self) { i in
@@ -106,7 +102,7 @@ private struct ChartCard: View {
                 }
                 .frame(height: 220)
                 #else
-                Text("Charts unavailable on this SDK").foregroundStyle(EFTheme.muted(scheme)).frame(height: 120)
+                Text("Charts unavailable on this SDK").foregroundStyle(DSColor.textSecondary).frame(height: 120)
                 #endif
             }
         }

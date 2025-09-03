@@ -1,17 +1,16 @@
 import SwiftUI
 
 struct CoachView: View {
-    @Environment(\.colorScheme) private var scheme
     @State private var message: String = ""
 
     var body: some View {
         ZStack {
-            EFTheme.background(scheme).ignoresSafeArea()
+            DSColor.appBackground.ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Text("Coach")
                     .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(EFTheme.text(scheme))
+                    .foregroundStyle(DSColor.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
@@ -37,13 +36,12 @@ struct CoachView: View {
                     Button { } label: { Image(systemName: "paperplane.fill") }
                 }
                 .padding(12)
-                .background(EFTheme.surface(scheme))
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(EFTheme.cardStroke(scheme)))
+                .background(DSColor.surface)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
                 .background(
-                    EFTheme.background(scheme)
+                    DSColor.appBackground
                         .ignoresSafeArea(edges: .bottom)
                 )
             }
