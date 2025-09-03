@@ -7,16 +7,17 @@ fileprivate struct CoachChatMessage: Identifiable, Equatable {
 }
 
 final class CoachViewModel: ObservableObject {
-    @Published var input: String = ""
     @Published fileprivate var messages: [CoachChatMessage] = [
         .init(text: "Hi! I'm your EverForm coach. How can I help you today?", isBot: true)
     ]
 
-    func send() {
-        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        input = ""
-        messages.append(.init(text: trimmed, isBot: false))
+    func send(text: String, images: [UIImage]) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty || !images.isEmpty else { return }
+
+        // Add user message
+        let messageText = trimmed.isEmpty ? "Sent \(images.count) image(s)" : trimmed
+        messages.append(.init(text: messageText, isBot: false))
 
         // TEMP echo until backend wires in
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -28,60 +29,50 @@ final class CoachViewModel: ObservableObject {
 struct CoachView: View {
     @StateObject private var vm = CoachViewModel()
     @Environment(\.colorScheme) private var scheme
+    @State private var draft = ""
 
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 10) {
-                        ForEach(vm.messages) { msg in
-                            HStack {
-                                if msg.isBot {
-                                    bubble(text: msg.text, isBot: true)
-                                    Spacer(minLength: 30)
-                                } else {
-                                    Spacer(minLength: 30)
-                                    bubble(text: msg.text, isBot: false)
-                                }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    ForEach(vm.messages) { msg in
+                        HStack {
+                            if msg.isBot {
+                                bubble(text: msg.text, isBot: true)
+                                Spacer(minLength: 30)
+                            } else {
+                                Spacer(minLength: 30)
+                                bubble(text: msg.text, isBot: false)
                             }
-                            .id(msg.id)
                         }
+                        .id(msg.id)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)
-                    .padding(.bottom, 8)
                 }
-                .onChange(of: vm.messages.count) {
-                    if let last = vm.messages.last { withAnimation { proxy.scrollTo(last.id, anchor: .bottom) } }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 80) // Space for input bar
+            }
+            .onChange(of: vm.messages.count) {
+                if let last = vm.messages.last {
+                    withAnimation {
+                        proxy.scrollTo(last.id, anchor: .bottom)
+                    }
                 }
             }
-
-            // Input bar
-            HStack(spacing: 10) {
-                TextField("Message", text: $vm.input, axis: .vertical)
-                    .textFieldStyle(.roundedBorder)
-                    .foregroundStyle(DSColor.textPrimary)
-
-                Button {
-                    vm.send()
-                } label: {
-                    Image(systemName: "paperplane.fill")
-                        .font(.system(size: 17, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 8)
-                        .background(DSColor.brand, in: Capsule())
-                }
-                .disabled(vm.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            }
-            .padding(12)
-            .background(DSColor.surface)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
         .navigationTitle("Coach")
         .navigationBarTitleDisplayMode(.large)
         .toolbarBackground(DSColor.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            EFChatInputBar(text: $draft) { text, images in
+                vm.send(text: text, images: images)
+            }
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+            .background(DSColor.appBackground.ignoresSafeArea(edges: .bottom))
+        }
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {
