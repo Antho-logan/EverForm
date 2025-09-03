@@ -27,4 +27,4 @@ struct RecoveryPlanView: View { var body: some View { PlaceholderScreen(title: "
 struct MobilityPlanView: View { var body: some View { PlaceholderScreen(title: "Mobility") } }
 struct AddWaterView: View { var body: some View { PlaceholderScreen(title: "Add Water") } }
 
-struct ProfileView: View { var body: some View { PlaceholderScreen(title: "Profile") } }
+

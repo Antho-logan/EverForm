@@ -125,7 +125,7 @@ struct OverviewView: View {
         case .display:         NavigationStack { DisplaySettingsView() }
         case .security:        NavigationStack { SecuritySettingsView() }
         case .export:          NavigationStack { ExportDataView() }
-        case .help:            NavigationStack { HelpCenterView() }
+        case .help:            NavigationStack { HelpView() }
         case .report:          NavigationStack { ReportBugView() }
         }
     }
