@@ -34,7 +34,7 @@ struct EFDisplaySettingsView: View {
             }
         }
         .navigationTitle("Display")
-        .background(Theme.Colors.efBackground.ignoresSafeArea())
+        .background(DSColor.appBackground.ignoresSafeArea())
     }
 }
 
