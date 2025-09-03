@@ -3,6 +3,7 @@ import SwiftUI
 struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
+    @Environment(HydrationService.self) private var hydrationService
 
     var body: some View {
         NavigationStack {
@@ -15,7 +16,7 @@ struct OverviewView: View {
                         KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
                         KPICard(icon: "drop.fill", title: "1850 / 2661", subtitle: "CALORIES")
                         KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
-                        KPICard(icon: "drop", title: "0 ml", subtitle: "HYDRATION")
+                        KPICard(icon: "drop", title: "\(hydrationService.todayMl) ml", subtitle: "HYDRATION")
                     }
                     .padding(.horizontal, 20)
 
@@ -41,13 +42,30 @@ struct OverviewView: View {
                     .padding(.horizontal, 20)
 
                     // ------- Quick Actions -------
-                    HStack(spacing: 14) {
-                        actionPill(title: "Add Water", system: "drop.fill") { route = .addWater }
-                        actionPill(title: "Breathwork", system: "wind") { route = .breathwork }
-                        actionPill(title: "Fix Pain", system: "cross.case.fill") { route = .fixPain }
-                        actionPill(title: "Ask Coach", system: "brain.head.profile") { route = .askCoach }
+                    VStack(spacing: 12) {
+                        Text("Quick Actions")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(DSColor.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 20)
+
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                            QuickActionTile(icon: "drop.fill", title: "Add Water", style: .water) {
+                                hydrationService.addWater(ml: 250)
+                            }
+                            QuickActionTile(icon: "wind", title: "Breathwork", style: .success) {
+                                route = .breathwork
+                            }
+                            QuickActionTile(icon: "cross.case.fill", title: "Fix Pain", style: .danger) {
+                                route = .fixPain
+                            }
+                            QuickActionTile(icon: "brain.head.profile", title: "Ask Coach", style: .info) {
+                                route = .askCoach
+                            }
+                        }
+                        .padding(.horizontal, 20)
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
                     .padding(.bottom, 24)
                 }
                 .padding(.top, 8)
@@ -79,6 +97,17 @@ struct OverviewView: View {
             }
             .sheet(item: $route) {
                 sheet(for: $0)
+            }
+            .overlay(alignment: .bottom) {
+                if hydrationService.showToast {
+                    Text("+\(hydrationService.lastAdded) ml")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(Capsule().fill(Color.teal))
+                        .padding(.bottom, 24)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
     }
@@ -132,19 +161,7 @@ struct OverviewView: View {
         }
     }
 
-    private func actionPill(title: String, system: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: system)
-                Text(title)
-                    .font(.callout.weight(.semibold))
-            }
-            .foregroundStyle(DSColor.textPrimary)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-        }
-    }
+
 }
 
 private struct KPICard: View {
