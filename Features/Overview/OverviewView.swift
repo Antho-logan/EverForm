@@ -1,48 +1,148 @@
 import SwiftUI
 
 struct OverviewView: View {
-    @Environment(\.colorScheme) private var scheme
+    @State private var route: LocalRoute?
+    @State private var showProfileMenu = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("Overview")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 18) {
 
-                // KPI grid (4 tiles)
-                LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 16), count: 2), spacing: 16) {
-                    KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
-                    KPICard(icon: "drop.fill", title: "1850 / 2661", subtitle: "CALORIES")
-                    KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
-                    KPICard(icon: "drop", title: "0 ml", subtitle: "HYDRATION")
+                    // ------- Stats Grid (existing cards) -------
+                    // KPI grid (4 tiles)
+                    LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 16), count: 2), spacing: 16) {
+                        KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
+                        KPICard(icon: "drop.fill", title: "1850 / 2661", subtitle: "CALORIES")
+                        KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
+                        KPICard(icon: "drop", title: "0 ml", subtitle: "HYDRATION")
+                    }
+                    .padding(.horizontal, 20)
+
+                    Section {
+                        VStack(spacing: 14) {
+                            HStack(spacing: 16) {
+                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", action: { route = .training })
+                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", action: { route = .nutrition })
+                            }
+                            HStack(spacing: 16) {
+                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", action: { route = .recovery })
+                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", action: { route = .mobility })
+                            }
+                        }
+                    } header: {
+                        Text("Today's Plan")
+                            .font(.title2.bold())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .foregroundStyle(DSColor.textPrimary)
+                            .padding(.horizontal, 20)
+                            .padding(.top, 8)
+                    }
+                    .padding(.horizontal, 20)
+
+                    // ------- Quick Actions -------
+                    HStack(spacing: 14) {
+                        actionPill(title: "Add Water", system: "drop.fill") { route = .addWater }
+                        actionPill(title: "Breathwork", system: "wind") { route = .breathwork }
+                        actionPill(title: "Fix Pain", system: "cross.case.fill") { route = .fixPain }
+                        actionPill(title: "Ask Coach", system: "brain.head.profile") { route = .askCoach }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
                 }
-
-                EFSectionHeader(title: "Today's Plan")
-
-                // Plan 2x2
-                LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 16), count: 2), spacing: 16) {
-                    PlanCard(color: .green,  sf: "dumbbell.fill",   title: "Training",  subtitle: "Upper Body",    buttonTitle: "Start Workout")
-                    PlanCard(color: .orange, sf: "fork.knife",      title: "Nutrition", subtitle: "2661 kcal target", buttonTitle: "Log Meal")
-                    PlanCard(color: .blue,   sf: "moon.stars.fill", title: "Recovery",  subtitle: "Bedtime 22:30", buttonTitle: "Open")
-                    PlanCard(color: .purple, sf: "figure.run",      title: "Mobility",  subtitle: "Hips & Shoulders • 8 min", buttonTitle: "Start")
-                }
-
-                EFSectionHeader(title: "Quick Actions")
-
-                // Actions row (single row, same vibe)
-                HStack(spacing: 16) {
-                    QuickActionCard(icon: "drop.fill",     title: "Add Water", tint: .cyan)
-                    QuickActionCard(icon: "wind",           title: "Breathwork", tint: .green)
-                    QuickActionCard(icon: "cross.case.fill",title: "Fix Pain",  tint: .red)
-                    QuickActionCard(icon: "brain.head.profile", title: "Ask Coach", tint: .blue)
+                .padding(.top, 8)
+            }
+            .background(DSColor.appBackground.ignoresSafeArea())
+            .navigationTitle("Overview")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(DSColor.appBackground, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Menu {
+                        Button("Profile", action: { route = .profile })
+                        Button("Display", action: { route = .display })
+                        Button("Security", action: { route = .security })
+                        Button("Export Data", action: { route = .export })
+                        Button("Help", action: { route = .help })
+                        Button("Report a Bug", action: { route = .report })
+                    } label: {
+                        ZStack {
+                            Circle().fill(DSColor.card)
+                                .frame(width: 30, height: 30)
+                            Image(systemName: "person.fill")
+                                .foregroundStyle(DSColor.brand)
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                    }
                 }
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
+            .sheet(item: $route) {
+                sheet(for: $0)
+            }
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
+    }
+
+    @ViewBuilder private func sheet(for r: LocalRoute) -> some View {
+        switch r {
+        case .training:        NavigationStack { TrainingStartView() }
+        case .nutrition:       NavigationStack { NutritionLogView() }
+        case .recovery:        NavigationStack { RecoveryPlanView() }
+        case .mobility:        NavigationStack { MobilityPlanView() }
+        case .addWater:        NavigationStack { AddWaterView() }
+        case .breathwork:      NavigationStack { BreathworkView() }
+        case .fixPain:         NavigationStack { FixPainView() }
+        case .askCoach:        NavigationStack { CoachView() }
+        case .profile:         NavigationStack { ProfileView() }
+        case .display:         NavigationStack { DisplaySettingsView() }
+        case .security:        NavigationStack { SecuritySettingsView() }
+        case .export:          NavigationStack { ExportDataView() }
+        case .help:            NavigationStack { HelpCenterView() }
+        case .report:          NavigationStack { ReportBugView() }
+        }
+    }
+
+    // MARK: UI helpers
+
+    private func planCard(title: String, subtitle: String, system: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    Image(systemName: system)
+                        .foregroundStyle(DSColor.brand)
+                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
+                }
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+                HStack {
+                    Spacer()
+                    Text(title == "Training" ? "Start Workout" : (title == "Nutrition" ? "Log Meal" : (title == "Recovery" ? "Open" : "Start")))
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(DSColor.brand)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(DSColor.brand.opacity(0.12), in: Capsule())
+                }
+            }
+            .padding(16)
+            .background(DSColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: DSColor.black.opacity(0.06), radius: 10, y: 6)
+        }
+    }
+
+    private func actionPill(title: String, system: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Image(systemName: system)
+                Text(title)
+                    .font(.callout.weight(.semibold))
+            }
+            .foregroundStyle(DSColor.textPrimary)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
     }
 }
 
@@ -53,45 +153,10 @@ private struct KPICard: View {
             VStack(alignment: .leading, spacing: 8) {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(DSColor.brand)
                 Text(title).font(.title3.weight(.semibold)).foregroundStyle(DSColor.textPrimary)
                 Text(subtitle).font(.caption).foregroundStyle(DSColor.textSecondary)
             }
         }
-    }
-}
-
-private struct PlanCard: View {
-    let color: Color, sf: String, title: String, subtitle: String, buttonTitle: String
-    var body: some View {
-        EFCard {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack(spacing: 10) {
-                    Image(systemName: sf).foregroundStyle(color).font(.system(size: 18, weight: .bold))
-                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
-                }
-                Text(subtitle).font(.subheadline).foregroundStyle(DSColor.textSecondary)
-                Button(buttonTitle) {}
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.vertical, 8).padding(.horizontal, 14)
-                    .background(color.opacity(0.15))
-                    .overlay(RoundedRectangle(cornerRadius: 14).stroke(color.opacity(0.4)))
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    .foregroundStyle(color)
-            }
-        }
-    }
-}
-
-private struct QuickActionCard: View {
-    let icon: String, title: String, tint: Color
-    var body: some View {
-        EFCard {
-            VStack(spacing: 8) {
-                Image(systemName: icon).font(.system(size: 18, weight: .bold)).foregroundStyle(tint)
-                Text(title).font(.caption).foregroundStyle(DSColor.textPrimary)
-            }.frame(maxWidth: .infinity)
-        }
-        .frame(maxWidth: .infinity)
     }
 }

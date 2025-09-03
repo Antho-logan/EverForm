@@ -15,5 +15,7 @@ struct RootTabView: View {
             ProgressViewEF()
                 .tabItem { Label("Progress", systemImage: "chart.bar.fill") }
         }
+        .tint(DSColor.brand)
+        .background(DSColor.appBackground.ignoresSafeArea())
     }
 }

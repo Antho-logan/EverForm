@@ -309,6 +309,14 @@ public struct DSColor {
     public static var cardElevated: Color  { Color("CardElevated") }
     public static var textPrimary: Color   { Color("TextPrimary") }
     public static var textSecondary: Color { Color("TextSecondary") }
+
+    // Brand and chat tokens
+    public static var brand: Color { Color("Brand") }                 // green for tint
+    public static var chatBot: Color { Color("ChatBubbleBot") }       // bot bubble
+    public static var chatUser: Color { Color("ChatBubbleUser") }     // user bubble (neutral)
+
+    // Utility colors
+    public static var black: Color { Color.black }
 }
 
 // MARK: - New Theme Manager
