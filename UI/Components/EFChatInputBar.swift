@@ -14,6 +14,10 @@ struct EFChatInputBar: View {
     @State private var attachments: [UIImage] = []
     @StateObject private var recorder = EFAudioRecorder()
     @FocusState private var isTextFieldFocused: Bool
+
+    // Computed properties for send state
+    private var trimmedText: String { text.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var hasSendable: Bool { !trimmedText.isEmpty || !attachments.isEmpty }
     
     var body: some View {
         VStack(spacing: 8) {
@@ -52,18 +56,39 @@ struct EFChatInputBar: View {
     }
     
     private var textInputView: some View {
-        TextField("Message", text: $text, axis: .vertical)
-            .focused($isTextFieldFocused)
-            .font(.body)
-            .foregroundStyle(DSColor.textPrimary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
-            .background(DSColor.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
-            .lineLimit(1...4)
-            .onSubmit {
-                sendMessage()
+        // Idle composer content (not recording)
+        ZStack(alignment: .trailing) {
+            TextField("Message", text: $text, axis: .vertical)
+                .textFieldStyle(.plain)
+                .lineLimit(1...4)
+                .padding(.vertical, 12)
+                .padding(.leading, 16)
+                .padding(.trailing, hasSendable ? 48 : 16)   // make space for arrow when visible
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .foregroundStyle(DSColor.textPrimary)
+                .onSubmit {
+                    if hasSendable { send() }
+                }
+
+            // Trailing send arrow (appears only when there is text or attachments)
+            if hasSendable {
+                Button {
+                    send()
+                } label: {
+                    Image(systemName: "paperplane.fill")  // rotated looks like OpenAI send
+                        .rotationEffect(.degrees(45))
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color.white)
+                        .frame(width: 28, height: 28)
+                        .background(Color.accentColor, in: Circle())
+                        .shadow(radius: 1, y: 1)
+                        .accessibilityLabel("Send message")
+                }
+                .padding(.trailing, 8)
+                .transition(.scale.combined(with: .opacity))
+                .animation(.spring(response: 0.25, dampingFraction: 0.9), value: hasSendable)
             }
+        }
     }
     
     private var recordingView: some View {
@@ -150,24 +175,38 @@ struct EFChatInputBar: View {
     private func sendRecording() {
         let transcript = recorder.transcript.trimmingCharacters(in: .whitespacesAndNewlines)
         let _ = recorder.stop()
-        
+
         if !transcript.isEmpty {
             text = transcript
         }
-        
-        sendMessage()
+
+        send()
     }
     
+    private func send() {
+        guard hasSendable else { return }
+        let textToSend = trimmedText
+        let imagesToSend = attachments
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        onSend(textToSend, imagesToSend)
+        text = ""
+        attachments.removeAll()
+        // End editing so return key dismisses cleanly
+        #if canImport(UIKit)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
+    }
+
     private func sendMessage() {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty || !attachments.isEmpty else { return }
-        
+
         onSend(trimmedText, attachments)
-        
+
         // Clear inputs
         text = ""
         attachments = []
-        
+
         let impact = UIImpactFeedbackGenerator(style: .medium)
         impact.impactOccurred()
     }
