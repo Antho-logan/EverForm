@@ -44,7 +44,6 @@ struct ScanView: View {
 }
 
 private struct SegmentedTabs: View {
-    @Environment(\.colorScheme) private var scheme
     @State private var idx = 0
     let items = ["Calorie","Ingredients","Plate AI"]
     var body: some View {
@@ -52,9 +51,9 @@ private struct SegmentedTabs: View {
             ForEach(items.indices, id: \.self) { i in
                 Text(items[i])
                     .font(.subheadline.weight(i == idx ? .bold : .regular))
-                    .foregroundStyle(i == idx ? EFTheme.text(scheme) : EFTheme.muted(scheme))
+                    .foregroundStyle(i == idx ? DSColor.textPrimary : DSColor.textSecondary)
                     .padding(.vertical, 8).padding(.horizontal, 14)
-                    .background(EFTheme.surface(scheme).opacity(i == idx ? 1 : 0.7))
+                    .background(DSColor.surface.opacity(i == idx ? 1 : 0.7))
                     .clipShape(Capsule())
                     .onTapGesture { idx = i }
             }
