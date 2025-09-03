@@ -56,39 +56,51 @@ struct EFChatInputBar: View {
     }
     
     private var textInputView: some View {
-        // Idle composer content (not recording)
+        // Idle composer content
         ZStack(alignment: .trailing) {
             TextField("Message", text: $text, axis: .vertical)
                 .textFieldStyle(.plain)
                 .lineLimit(1...4)
                 .padding(.vertical, 12)
                 .padding(.leading, 16)
-                .padding(.trailing, hasSendable ? 48 : 16)   // make space for arrow when visible
+                .padding(.trailing, hasSendable ? 48 : 16) // make space for arrow
                 .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
                 .foregroundStyle(DSColor.textPrimary)
-                .onSubmit {
-                    if hasSendable { send() }
-                }
+                .onSubmit { if hasSendable { send() } }
 
-            // Trailing send arrow (appears only when there is text or attachments)
-            if hasSendable {
-                Button {
-                    send()
-                } label: {
-                    Image(systemName: "paperplane.fill")  // rotated looks like OpenAI send
-                        .rotationEffect(.degrees(45))
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Color.white)
-                        .frame(width: 28, height: 28)
-                        .background(Color.accentColor, in: Circle())
-                        .shadow(radius: 1, y: 1)
-                        .accessibilityLabel("Send message")
+            // Trailing SEND arrow
+            Group {
+                if hasSendable {
+                    Button(action: { send() }) {
+                        Image(systemName: "paperplane.fill")
+                            .rotationEffect(.degrees(45))
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(Color.white)
+                            .frame(width: 28, height: 28)
+                            .background(Color.accentColor, in: Circle())
+                            .shadow(radius: 1, y: 1)
+                            .accessibilityLabel("Send message")
+                    }
+                    .transition(.scale.combined(with: .opacity))
+                } else {
+                    // Safety fallback: uncomment to ALWAYS show a disabled arrow
+                    // Button(action: {}) {
+                    //   Image(systemName: "paperplane.fill")
+                    //     .rotationEffect(.degrees(45))
+                    //     .font(.system(size: 14, weight: .semibold))
+                    //     .foregroundStyle(DSColor.textSecondary)
+                    //     .frame(width: 28, height: 28)
+                    //     .background(DSColor.card, in: Circle())
+                    //     .opacity(0.6)
+                    // }
+                    // .allowsHitTesting(false)
+                    EmptyView()
                 }
-                .padding(.trailing, 8)
-                .transition(.scale.combined(with: .opacity))
-                .animation(.spring(response: 0.25, dampingFraction: 0.9), value: hasSendable)
             }
+            .padding(.trailing, 8)
+            .animation(.spring(response: 0.25, dampingFraction: 0.9), value: hasSendable)
         }
+        .zIndex(1)
     }
     
     private var recordingView: some View {
@@ -197,19 +209,7 @@ struct EFChatInputBar: View {
         #endif
     }
 
-    private func sendMessage() {
-        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty || !attachments.isEmpty else { return }
 
-        onSend(trimmedText, attachments)
-
-        // Clear inputs
-        text = ""
-        attachments = []
-
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
-    }
 }
 
 #Preview {
