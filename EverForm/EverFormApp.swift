@@ -10,6 +10,7 @@ import Observation
 
 @main
 struct EverFormApp: App {
+    @StateObject private var theme = EFTheme.shared
     @State private var appearance = AppearanceStore()
     @State private var themeManager = ThemeManager()
 
@@ -40,10 +41,10 @@ struct EverFormApp: App {
                 // ALSO inject as EnvironmentObject for any store that conforms to ObservableObject.
                 // CoachCoordinator uses singleton pattern, so we don't inject it here
                 .environmentObject(CoachCoordinator.shared)
-                .background(themeManager.beigeBackground.ignoresSafeArea())
-                .preferredColorScheme(themeManager.selectedTheme.colorScheme)
+                .environmentObject(theme)
+                .preferredColorScheme(theme.preferredScheme)
 
-                .onAppear { 
+                .onAppear {
                     print("EverForm launched; stores injected")
                     checkOnboardingStatus()
                 }

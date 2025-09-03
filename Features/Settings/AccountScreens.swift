@@ -17,15 +17,18 @@ struct ProfileSettingsView: View {
 }
 
 struct DisplaySettingsView: View {
-    @StateObject private var themeManager = EFThemeManager()
+    @EnvironmentObject private var theme: EFTheme
 
     var body: some View {
         Form {
             Section("Appearance") {
-                Picker("Mode", selection: $themeManager.stored) {
-                    Text("System").tag(EFAppearance.system.rawValue)
-                    Text("Light").tag(EFAppearance.light.rawValue)
-                    Text("Dark").tag(EFAppearance.dark.rawValue)
+                Picker("Mode", selection: Binding(
+                    get: { theme.selection },
+                    set: { theme.set($0) }
+                )) {
+                    Text("System").tag(EFUserTheme.system)
+                    Text("Light").tag(EFUserTheme.light)
+                    Text("Dark").tag(EFUserTheme.dark)
                 }
                 .pickerStyle(.segmented)
                 Text("This overrides the app's appearance immediately.").font(.footnote).foregroundStyle(.secondary)

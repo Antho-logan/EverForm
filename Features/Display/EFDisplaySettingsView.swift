@@ -1,16 +1,19 @@
 import SwiftUI
 
 struct EFDisplaySettingsView: View {
-    @StateObject private var themeManager = EFThemeManager()
+    @EnvironmentObject private var theme: EFTheme
     @State private var color = 0 // 0 green, 1 teal, 2 orange
 
     var body: some View {
         Form {
             Section(header: Text("Appearance")) {
-                Picker("Theme", selection: $themeManager.stored) {
-                    Text("System").tag(EFAppearance.system.rawValue)
-                    Text("Light").tag(EFAppearance.light.rawValue)
-                    Text("Dark").tag(EFAppearance.dark.rawValue)
+                Picker("Theme", selection: Binding(
+                    get: { theme.selection },
+                    set: { theme.set($0) }
+                )) {
+                    Text("System").tag(EFUserTheme.system)
+                    Text("Light").tag(EFUserTheme.light)
+                    Text("Dark").tag(EFUserTheme.dark)
                 }
                 .pickerStyle(.segmented)
                 .padding(.vertical, 6)

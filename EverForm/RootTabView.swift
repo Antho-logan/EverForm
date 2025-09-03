@@ -1,8 +1,6 @@
 import SwiftUI
 
 struct RootTabView: View {
-    @StateObject private var theme = EFThemeManager()
-
     var body: some View {
         TabView {
             OverviewView()
@@ -17,7 +15,5 @@ struct RootTabView: View {
             ProgressViewEF()
                 .tabItem { Label("Progress", systemImage: "chart.bar.fill") }
         }
-        .environmentObject(theme)
-        .preferredColorScheme(theme.overrideScheme) // keeps manual Light/Dark working
     }
 }
