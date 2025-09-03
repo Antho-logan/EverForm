@@ -28,15 +28,15 @@ struct CoachInputBar: View {
 
                 if hasText {
                     Button {
-                        // TODO: hook up send action to your chat pipeline
                         onSend(text, [])
                         text = ""
                     } label: {
-                        Image(systemName: "arrow.up.circle.fill")
-                            .font(.title) // bigger
-                            .padding(.trailing, 8)
+                        Image(systemName: "paperplane.fill")
+                            .rotationEffect(.degrees(45))
+                            .font(.system(size: 18, weight: .semibold))
                     }
-                    .transition(.opacity.combined(with: .scale))
+                    .padding(.trailing, 8)
+                    .transition(.scale.combined(with: .opacity))
                 }
             }
 

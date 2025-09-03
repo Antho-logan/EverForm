@@ -4,6 +4,12 @@ struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
     @Environment(HydrationService.self) private var hydrationService
+    @State private var showWaterOptions = false
+    @State private var showWeightSheet = false
+    @State private var showCustomWaterSheet = false
+    @State private var toastText: String? = nil
+    @State private var customMl: String = ""
+    @AppStorage("profile.weight") private var lastWeight: String = ""
 
     var body: some View {
         NavigationStack {
@@ -52,15 +58,21 @@ struct OverviewView: View {
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
                             QuickActionTile(icon: "drop.fill", title: "Add Water", style: .water) {
                                 hydrationService.addWater(ml: 250)
+                                toastText = "+250 ml"
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
                             }
+                            .onLongPressGesture { showWaterOptions = true }
+
                             QuickActionTile(icon: "wind", title: "Breathwork", style: .success) {
                                 route = .breathwork
                             }
+
                             QuickActionTile(icon: "cross.case.fill", title: "Fix Pain", style: .danger) {
                                 route = .fixPain
                             }
-                            QuickActionTile(icon: "brain.head.profile", title: "Ask Coach", style: .info) {
-                                route = .askCoach
+
+                            QuickActionTile(icon: "scalemass.fill", title: "Log Weight", style: .info) {
+                                showWeightSheet = true
                             }
                         }
                         .padding(.horizontal, 20)
@@ -99,15 +111,78 @@ struct OverviewView: View {
                 sheet(for: $0)
             }
             .overlay(alignment: .bottom) {
-                if hydrationService.showToast {
-                    Text("+\(hydrationService.lastAdded) ml")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 14).padding(.vertical, 8)
-                        .background(Capsule().fill(Color.teal))
-                        .padding(.bottom, 24)
+                if let toastText = toastText {
+                    Text(toastText)
+                        .font(.subheadline).bold()
+                        .padding(.horizontal, 14).padding(.vertical, 10)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(.bottom, 8)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
+            }
+            .confirmationDialog("Add water", isPresented: $showWaterOptions, titleVisibility: .visible) {
+                Button("+250 ml") {
+                    hydrationService.addWater(ml: 250)
+                    toastText = "+250 ml"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
+                }
+                Button("+330 ml") {
+                    hydrationService.addWater(ml: 330)
+                    toastText = "+330 ml"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
+                }
+                Button("+500 ml") {
+                    hydrationService.addWater(ml: 500)
+                    toastText = "+500 ml"
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
+                }
+                Button("Custom…") {
+                    showCustomWaterSheet = true
+                }
+                Button("Cancel", role: .cancel) {}
+            }
+            .sheet(isPresented: $showCustomWaterSheet) {
+                VStack(spacing: 20) {
+                    Text("Add Water").font(.title2).bold()
+                    TextField("Amount (ml)", text: $customMl)
+                        .keyboardType(.numberPad)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                    Button("Add") {
+                        if let ml = Int(customMl.trimmingCharacters(in: .whitespaces)), ml > 0 {
+                            hydrationService.addWater(ml: ml)
+                            toastText = "+\(ml) ml"
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
+                        }
+                        customMl = ""
+                        showCustomWaterSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancel", role: .cancel) { showCustomWaterSheet = false }
+                    Spacer()
+                }
+                .padding()
+                .presentationDetents([.height(260), .medium])
+            }
+            .sheet(isPresented: $showWeightSheet) {
+                VStack(spacing: 20) {
+                    Text("Log Weight").font(.title2).bold()
+                    TextField("e.g. 74.2", text: $lastWeight)
+                        .keyboardType(.decimalPad)
+                        .textFieldStyle(.roundedBorder)
+                        .padding(.horizontal)
+                    Button("Save") {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        toastText = "Saved \(lastWeight) \(unitLabel())"
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
+                        showWeightSheet = false
+                    }
+                    .buttonStyle(.borderedProminent)
+                    Button("Cancel", role: .cancel) { showWeightSheet = false }
+                    Spacer()
+                }
+                .padding()
+                .presentationDetents([.height(260), .medium])
             }
         }
     }
@@ -120,7 +195,7 @@ struct OverviewView: View {
         case .addWater:        NavigationStack { AddWaterView() }
         case .breathwork:      NavigationStack { BreathworkView() }
         case .fixPain:         NavigationStack { FixPainView() }
-        case .askCoach:        NavigationStack { CoachView() }
+
         case .profile:         NavigationStack { ProfileView() }
         case .display:         NavigationStack { DisplaySettingsView() }
         case .security:        NavigationStack { SecuritySettingsView() }
@@ -128,6 +203,11 @@ struct OverviewView: View {
         case .help:            NavigationStack { HelpView() }
         case .report:          NavigationStack { ReportBugView() }
         }
+    }
+
+    private func unitLabel() -> String {
+        // Optional: infer from Profile units; fallback to kg
+        return UserDefaults.standard.string(forKey: "ef.units") == "Imperial" ? "lb" : "kg"
     }
 
     // MARK: UI helpers
