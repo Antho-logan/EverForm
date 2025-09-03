@@ -22,12 +22,12 @@ struct OverviewView: View {
                     Section {
                         VStack(spacing: 14) {
                             HStack(spacing: 16) {
-                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", action: { route = .training })
-                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", action: { route = .nutrition })
+                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: DSColor.accentTraining, destination: TrainingDetailView())
+                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: DSColor.accentNutrition, destination: NutritionDetailView())
                             }
                             HStack(spacing: 16) {
-                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", action: { route = .recovery })
-                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", action: { route = .mobility })
+                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: DSColor.accentRecovery, destination: RecoveryDetailView())
+                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: DSColor.accentMobility, destination: MobilityDetailView())
                             }
                         }
                     } header: {
@@ -85,10 +85,9 @@ struct OverviewView: View {
 
     @ViewBuilder private func sheet(for r: LocalRoute) -> some View {
         switch r {
-        case .training:        NavigationStack { TrainingStartView() }
-        case .nutrition:       NavigationStack { NutritionLogView() }
-        case .recovery:        NavigationStack { RecoveryPlanView() }
-        case .mobility:        NavigationStack { MobilityPlanView() }
+        case .training, .nutrition, .recovery, .mobility:
+            // These now use NavigationLink instead of sheets
+            EmptyView()
         case .addWater:        NavigationStack { AddWaterView() }
         case .breathwork:      NavigationStack { BreathworkView() }
         case .fixPain:         NavigationStack { FixPainView() }
@@ -104,12 +103,14 @@ struct OverviewView: View {
 
     // MARK: UI helpers
 
-    private func planCard(title: String, subtitle: String, system: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+    private func planCard<Destination: View>(title: String, subtitle: String, system: String, color: Color, destination: Destination) -> some View {
+        NavigationLink {
+            destination
+        } label: {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Image(systemName: system)
-                        .foregroundStyle(DSColor.brand)
+                        .foregroundStyle(color)
                     Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
                 }
                 Text(subtitle)
@@ -119,10 +120,10 @@ struct OverviewView: View {
                     Spacer()
                     Text(title == "Training" ? "Start Workout" : (title == "Nutrition" ? "Log Meal" : (title == "Recovery" ? "Open" : "Start")))
                         .font(.callout.weight(.semibold))
-                        .foregroundStyle(DSColor.brand)
+                        .foregroundStyle(color)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(DSColor.brand.opacity(0.12), in: Capsule())
+                        .background(color.opacity(0.12), in: Capsule())
                 }
             }
             .padding(16)

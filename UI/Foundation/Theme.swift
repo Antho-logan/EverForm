@@ -315,6 +315,12 @@ public struct DSColor {
     public static var chatBot: Color { Color("ChatBubbleBot") }       // bot bubble
     public static var chatUser: Color { Color("ChatBubbleUser") }     // user bubble (neutral)
 
+    // Section Accent Colors
+    public static var accentTraining: Color  { Color(uiColor: .systemGreen)  }   // Training
+    public static var accentNutrition: Color { Color(uiColor: .systemOrange) }   // Nutrition (orange)
+    public static var accentRecovery: Color  { Color(uiColor: .systemBlue)   }   // Recovery (blue)
+    public static var accentMobility: Color  { Color(uiColor: .systemPurple) }   // Mobility (purple)
+
     // Utility colors
     public static var black: Color { Color.black }
 }
