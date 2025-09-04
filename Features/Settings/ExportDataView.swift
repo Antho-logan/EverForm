@@ -8,66 +8,59 @@
 import SwiftUI
 
 struct ExportDataView: View {
-    @State private var showingShare: Bool = false
-    @State private var exportURL: URL?
+    @State private var presentShare = false
+    @AppStorage("ef.profile.name") private var name: String = ""
+    @AppStorage("ef.profile.age") private var age: Int = 29
+    @AppStorage("ef.profile.height_cm") private var heightCM: Int = 178
+    @AppStorage("ef.profile.weight_kg") private var weightKG: Double = 76
+    @AppStorage("ef.profile.units") private var units: String = "Metric"
+
+    var exportPayload: String {
+        let dict: [String: Any] = [
+            "profile": [
+                "name": name, "age": age,
+                "height_cm": heightCM, "weight_kg": weightKG,
+                "units": units
+            ],
+            "meta": [
+                "exported_at": ISO8601DateFormatter().string(from: Date()),
+                "app": "EverForm"
+            ]
+        ]
+        let data = try! JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted])
+        return String(data: data, encoding: .utf8) ?? "{}"
+    }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("Export Data")
-                .font(.system(.largeTitle, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
+        ScrollView {
+            VStack(spacing: 16) {
+                HStack(spacing: 10) {
+                    Image(systemName: "square.and.arrow.up.on.square.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.green)
+                    Text("Export Data").font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
+                    Spacer()
+                }.padding(.horizontal, 4)
 
-            ScrollView {
-                VStack(spacing: 16) {
-                    EFCard {
-                        VStack(spacing: 12) {
-                            Text("Choose a format to export your activity data.")
-                                .foregroundStyle(DSColor.textSecondary)
-                            HStack {
-                                Button {
-                                    export(.csv)
-                                } label: {
-                                    Text("Export CSV").bold().frame(maxWidth: .infinity).padding(.vertical, 14)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                EFCard {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("Download your data").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Text("We'll package profile info and basic app meta into a JSON file. More sources will be added later.")
+                            .foregroundStyle(DSColor.textPrimary)
 
-                                Button {
-                                    export(.pdf)
-                                } label: {
-                                    Text("Export PDF").frame(maxWidth: .infinity).padding(.vertical, 14)
-                                }
-                                .buttonStyle(.bordered)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            }
+                        Button("Generate & Share JSON") {
+                            presentShare = true
                         }
+                        .buttonStyle(.borderedProminent)
+
                     }
-                }.padding(20)
-            }
+                }
+            }.padding(16)
+        }
+        .sheet(isPresented: $presentShare) {
+            ShareSheet(items: [exportPayload.data(using: .utf8) as Any, "everform-export.json"])
         }
         .background(DSColor.appBackground.ignoresSafeArea())
-        .sheet(isPresented: $showingShare) {
-            if let url = exportURL {
-                ActivityViewController(activityItems: [url])
-            }
-        }
+        .navigationBarTitleDisplayMode(.inline)
     }
-
-    enum Format { case csv, pdf }
-    private func export(_ format: Format) {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        let tmp = FileManager.default.temporaryDirectory
-        let url = tmp.appendingPathComponent(format == .csv ? "everform_export.csv" : "everform_export.pdf")
-        try? "Sample export placeholder\n".write(to: url, atomically: true, encoding: .utf8)
-        exportURL = url
-        showingShare = true
-    }
-}
-
-struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController { UIActivityViewController(activityItems: activityItems, applicationActivities: nil) }
-    func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }

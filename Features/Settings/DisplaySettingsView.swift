@@ -9,61 +9,60 @@ import SwiftUI
 
 struct DisplaySettingsView: View {
     @ObservedObject private var theme = EFTheme.shared
-    @AppStorage("ef.textScale") private var textScale: Double = 1.0
-    @AppStorage("ef.compactCards") private var compactCards: Bool = false
-    @Environment(\.dismiss) private var dismiss
+    @AppStorage("ef.display.reduceMotion") private var reduceMotion = false
+    @AppStorage("ef.display.contentSize") private var contentSize: Double = 1.0 // 0.9...1.3
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("Display")
-                .font(.system(.largeTitle, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
+        ScrollView {
+            VStack(spacing: 16) {
+                HStack(spacing: 10) {
+                    Image(systemName: "paintpalette.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.green)
+                    Text("Display").font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
+                    Spacer()
+                }.padding(.horizontal, 4)
 
-            ScrollView {
-                VStack(spacing: 16) {
-                    EFCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Appearance").font(.headline)
-                            Picker("", selection: $theme.selection) {
-                                Text("System").tag(EFUserTheme.system)
-                                Text("Light").tag(EFUserTheme.light)
-                                Text("Dark").tag(EFUserTheme.dark)
-                            }
-                            .pickerStyle(.segmented)
-                            .padding(.top, 8)
-                            Text("This overrides the app's appearance immediately.")
-                                .font(.footnote).foregroundStyle(DSColor.textSecondary)
+                EFCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Appearance").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Picker("", selection: $theme.selection) {
+                            Text("System").tag(EFUserTheme.system)
+                            Text("Light").tag(EFUserTheme.light)
+                            Text("Dark").tag(EFUserTheme.dark)
                         }
+                        .pickerStyle(.segmented)
+                        Text("Changes apply immediately.").font(.footnote).foregroundStyle(DSColor.textSecondary)
                     }
-                    EFCard {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Text size").font(.headline)
-                            HStack {
-                                Image(systemName: "textformat.size.smaller")
-                                Slider(value: $textScale, in: 0.9...1.3, step: 0.05)
-                                Image(systemName: "textformat.size.larger")
-                            }
-                            .onChange(of: textScale) { _, v in
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            }
-                            Toggle("Compact cards", isOn: $compactCards)
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Accessibility").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Toggle("Reduce motion", isOn: $reduceMotion)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Text size").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                            Slider(value: $contentSize, in: 0.9...1.3, step: 0.05)
+                            Text("Current: \(String(format: "%.2fx", contentSize))")
+                                .foregroundStyle(DSColor.textSecondary).font(.footnote)
                         }
                     }
                 }
-                .padding(20)
             }
+            .padding(16)
         }
-        .environment(\.sizeCategory, sizeCategory(from: textScale))
         .background(DSColor.appBackground.ignoresSafeArea())
+        .environment(\.sizeCategory, sizeCategory)
+        .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func sizeCategory(from scale: Double) -> ContentSizeCategory {
-        if scale < 0.95 { return .small }
-        if scale < 1.05 { return .medium }
-        if scale < 1.15 { return .large }
-        return .extraLarge
+    private var sizeCategory: ContentSizeCategory {
+        switch contentSize {
+        case ..<0.95: return .small
+        case ..<1.05: return .medium
+        case ..<1.15: return .large
+        default: return .extraLarge
+        }
     }
 }
 

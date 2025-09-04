@@ -6,45 +6,42 @@
 //
 
 import SwiftUI
-import LocalAuthentication
 
 struct SecuritySettingsView: View {
-    @AppStorage("sec.requireBio") private var requireBio: Bool = false
-    @AppStorage("sec.hideTiles") private var hideTiles: Bool = false
-    @AppStorage("sec.requireBioForCoach") private var requireCoachBio: Bool = false
+    @AppStorage("ef.security.faceid") private var useFaceID = false
+    @AppStorage("ef.security.biometricTips") private var showTips = true
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("Security")
-                .font(.system(.largeTitle, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
+        ScrollView {
+            VStack(spacing: 16) {
+                HStack(spacing: 10) {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.green)
+                    Text("Security").font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
+                    Spacer()
+                }.padding(.horizontal, 4)
 
-            ScrollView {
-                VStack(spacing: 16) {
-                    EFCard {
-                        VStack(spacing: 12) {
-                            Toggle("Require Face ID / Touch ID to open app", isOn: $requireBio)
-                            Toggle("Require biometrics before sending Coach messages", isOn: $requireCoachBio)
-                            Toggle("Hide sensitive tiles on Overview", isOn: $hideTiles)
-                        }
+                EFCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Authentication").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Toggle("Face ID / Touch ID", isOn: $useFaceID)
+                        Text("Biometric toggle UI only — hook actual auth later.")
+                            .font(.footnote).foregroundStyle(DSColor.textSecondary)
                     }
-                    EFCard {
-                        HStack {
-                            Image(systemName: "info.circle")
-                            Text(bioAvailable() ? "Biometrics available" : "Biometrics not available")
-                            Spacer()
-                        }.foregroundStyle(DSColor.textSecondary)
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Privacy").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Toggle("Show security tips", isOn: $showTips)
+                        Text("We never sell data. See Export Data to download or delete.")
+                            .foregroundStyle(DSColor.textPrimary)
                     }
-                }.padding(20)
-            }
+                }
+            }.padding(16)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
-    }
-
-    private func bioAvailable() -> Bool {
-        var err: NSError?
-        return LAContext().canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &err)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
