@@ -7,11 +7,15 @@ struct ProgressViewEF: View {
     @StateObject private var store = ProgressStore()
 
     @Environment(\.horizontalSizeClass) private var hSize
-    @State private var chartIdentity: Int = 0   // forces a fresh chart for animated transitions
-
     private var isCompact: Bool { hSize == .compact }
+
+    // Forces Chart to rebuild on range changes (for smooth transition) AND
+    // drives the left→right reveal animation.
+    @State private var chartIdentity: Int = 0
+    @State private var reveal: CGFloat = 1.0
+
+    // Layout: single column on iPhone, two columns on wider screens
     private var grid: [GridItem] {
-        // Compact = big single-column charts; Regular width = 2 columns
         isCompact ? [GridItem(.flexible())]
                   : [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
     }
@@ -20,54 +24,31 @@ struct ProgressViewEF: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Pinned-style header inside content so it stays flush with top
-                HStack {
-                    Text("Progress")
-                        .font(.largeTitle.bold())
-                        .foregroundStyle(DSColor.textPrimary)
-                    Spacer()
-                    Picker("", selection: $store.range) {
-                        Text("Day").tag(ProgressRange.day)
-                        Text("Week").tag(ProgressRange.week)
-                        Text("Month").tag(ProgressRange.month)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(width: isCompact ? 260 : 300)
-                    .onChange(of: store.range) {
-                        withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
-                            chartIdentity &+= 1   // triggers animated rebuild
-                        }
-                    }
-                }
-                .padding(.horizontal, 4)
+                headerRow
 
                 LazyVGrid(columns: grid, spacing: 16) {
                     metricCard(
-                        title: "Steps",
-                        color: .blue,
-                        data: generateStepsData(),
-                        unit: "steps",
+                        kind: .training,
+                        title: "Training",
+                        color: .green,
                         valueFormatter: { v in "\(Int(v))" }
                     )
                     metricCard(
-                        title: "Calories",
+                        kind: .nutrition,
+                        title: "Nutrition",
                         color: .orange,
-                        data: generateCaloriesData(),
-                        unit: "kcal",
                         valueFormatter: { v in "\(Int(v))" }
                     )
                     metricCard(
-                        title: "Sleep",
-                        color: .purple,
-                        data: generateSleepData(),
-                        unit: "h",
+                        kind: .recovery,
+                        title: "Recovery",
+                        color: .blue,
                         valueFormatter: { v in String(format: "%.1f", v) }
                     )
                     metricCard(
+                        kind: .hydration,
                         title: "Hydration",
-                        color: .teal,
-                        data: generateHydrationData(),
-                        unit: "ml",
+                        color: .cyan,
                         valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
                     )
                 }
@@ -76,9 +57,9 @@ struct ProgressViewEF: View {
             .padding(16)
         }
         .background(
-            // Slight luxe vibe: ultra subtle vignette over app background
             DSColor.appBackground
                 .overlay(
+                    // Very subtle vignette for depth
                     RadialGradient(
                         colors: [Color.black.opacity(0.10), .clear],
                         center: .topLeading, startRadius: 10, endRadius: 500
@@ -86,13 +67,50 @@ struct ProgressViewEF: View {
                 )
                 .ignoresSafeArea()
         )
-        .onAppear { store.regenerate() }
+        .onAppear {
+            store.regenerate()
+            startRevealAnimation()
+        }
         .navigationBarTitleDisplayMode(.inline)
     }
 
+    // MARK: - Header
+
+    private var headerRow: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text("Progress")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(DSColor.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.85)
+
+            Spacer(minLength: 8)
+
+            Picker("", selection: $store.range) {
+                Text("Day").tag(ProgressRange.day)
+                Text("Week").tag(ProgressRange.week)
+                Text("Month").tag(ProgressRange.month)
+            }
+            .pickerStyle(.segmented)
+            .controlSize(.regular)
+            .frame(width: isCompact ? 260 : 320)
+            .onChange(of: store.range) {
+                withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
+                    chartIdentity &+= 1
+                }
+                store.regenerate()
+                startRevealAnimation()
+            }
+        }
+        .padding(.horizontal, 4)
+    }
+
+    // MARK: - Cards
+
     @ViewBuilder
-    private func metricCard(title: String, color: Color, data: [ProgressPoint], unit: String, valueFormatter: @escaping (Double)->String) -> some View {
-        let latest = data.last?.value ?? 0
+    private func metricCard(kind: ProgressKind, title: String, color: Color, valueFormatter: @escaping (Double)->String) -> some View {
+        let points = store.series[kind] ?? []
+        let latest = points.last?.value ?? 0
 
         ChartCard {
             HStack {
@@ -105,7 +123,7 @@ struct ProgressViewEF: View {
             }
         } chart: {
             #if canImport(Charts)
-            Chart(data) { p in
+            Chart(points) { p in
                 LineMark(
                     x: .value("Date", p.date),
                     y: .value("Value", p.value)
@@ -124,8 +142,16 @@ struct ProgressViewEF: View {
             .chartXAxis(.automatic)
             .chartYAxis(.automatic)
             .frame(minHeight: chartHeight)
-            .id(chartIdentity) // forces animated rebuild on range change
-            .transition(.opacity.combined(with: .move(edge: .trailing)))
+            .id(chartIdentity)
+            // LEFT→RIGHT REVEAL: mask scales from 0→1 with animation
+            .mask(
+                GeometryReader { geo in
+                    Rectangle()
+                        .frame(width: max(1, geo.size.width * reveal), height: geo.size.height)
+                        .alignmentGuide(.leading) { d in d[.leading] }
+                        .animation(.easeOut(duration: 0.75), value: reveal)
+                }
+            )
             #else
             ZStack {
                 RoundedRectangle(cornerRadius: 12).fill(DSColor.surface)
@@ -138,7 +164,7 @@ struct ProgressViewEF: View {
         } footer: {
             HStack(spacing: 8) {
                 Circle().fill(color.opacity(0.9)).frame(width: 8, height: 8)
-                Text(unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                Text(kind.unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
                 Spacer()
                 Text(labelForRange(store.range)).foregroundStyle(DSColor.textSecondary).font(.footnote)
             }
@@ -154,30 +180,12 @@ struct ProgressViewEF: View {
         }
     }
 
-    // MARK: - Sample Data Generation
-    private func generateStepsData() -> [ProgressPoint] {
-        generateSampleData(days: store.range.days, base: 8500, variance: 2500)
-    }
+    // MARK: - Animation
 
-    private func generateCaloriesData() -> [ProgressPoint] {
-        generateSampleData(days: store.range.days, base: 2400, variance: 600)
-    }
-
-    private func generateSleepData() -> [ProgressPoint] {
-        generateSampleData(days: store.range.days, base: 7.2, variance: 1.1)
-    }
-
-    private func generateHydrationData() -> [ProgressPoint] {
-        generateSampleData(days: store.range.days, base: 1900, variance: 700)
-    }
-
-    private func generateSampleData(days: Int, base: Double, variance: Double) -> [ProgressPoint] {
-        let cal = Calendar.current
-        let now = Date()
-        return (0..<days).map { i -> ProgressPoint in
-            let d = cal.date(byAdding: .day, value: -i, to: now)!
-            let v = max(0, base + Double.random(in: -variance...variance))
-            return ProgressPoint(date: d, value: v)
-        }.sorted { $0.date < $1.date }
+    private func startRevealAnimation() {
+        reveal = 0.0
+        withAnimation(.easeOut(duration: 0.75)) {
+            reveal = 1.0
+        }
     }
 }
