@@ -5,14 +5,26 @@ import Charts
 
 struct ProgressViewEF: View {
     @StateObject private var store = ProgressStore()
-    private let grid = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+
+    @Environment(\.horizontalSizeClass) private var hSize
+    @State private var chartIdentity: Int = 0   // forces a fresh chart for animated transitions
+
+    private var isCompact: Bool { hSize == .compact }
+    private var grid: [GridItem] {
+        // Compact = big single-column charts; Regular width = 2 columns
+        isCompact ? [GridItem(.flexible())]
+                  : [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
+    }
+    private var chartHeight: CGFloat { isCompact ? 220 : 190 }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                // Header
+                // Pinned-style header inside content so it stays flush with top
                 HStack {
-                    Text("Progress").font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
+                    Text("Progress")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(DSColor.textPrimary)
                     Spacer()
                     Picker("", selection: $store.range) {
                         Text("Day").tag(ProgressRange.day)
@@ -20,7 +32,12 @@ struct ProgressViewEF: View {
                         Text("Month").tag(ProgressRange.month)
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 260)
+                    .frame(width: isCompact ? 260 : 300)
+                    .onChange(of: store.range) {
+                        withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
+                            chartIdentity &+= 1   // triggers animated rebuild
+                        }
+                    }
                 }
                 .padding(.horizontal, 4)
 
@@ -54,68 +71,84 @@ struct ProgressViewEF: View {
                         valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
                     )
                 }
+                .animation(.snappy(duration: 0.45, extraBounce: 0.04), value: store.range)
             }
             .padding(16)
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .background(
+            // Slight luxe vibe: ultra subtle vignette over app background
+            DSColor.appBackground
+                .overlay(
+                    RadialGradient(
+                        colors: [Color.black.opacity(0.10), .clear],
+                        center: .topLeading, startRadius: 10, endRadius: 500
+                    )
+                )
+                .ignoresSafeArea()
+        )
+        .onAppear { store.regenerate() }
         .navigationBarTitleDisplayMode(.inline)
     }
 
     @ViewBuilder
     private func metricCard(title: String, color: Color, data: [ProgressPoint], unit: String, valueFormatter: @escaping (Double)->String) -> some View {
         let latest = data.last?.value ?? 0
-        EFCard {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
-                    Spacer()
-                    Text(valueFormatter(latest))
-                        .font(.title3.monospacedDigit()).bold()
-                        .foregroundStyle(DSColor.textPrimary)
-                }
 
-                #if canImport(Charts)
-                Chart(data) { p in
-                    LineMark(
-                        x: .value("Date", p.date),
-                        y: .value("Value", p.value)
-                    )
-                    .interpolationMethod(.monotone)
-                    .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
-                    .foregroundStyle(color.opacity(0.85))
+        ChartCard {
+            HStack {
+                Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
+                Spacer()
+                Text(valueFormatter(latest))
+                    .font(.title3.monospacedDigit()).bold()
+                    .foregroundStyle(DSColor.textPrimary)
+                    .contentTransition(.numericText())
+            }
+        } chart: {
+            #if canImport(Charts)
+            Chart(data) { p in
+                LineMark(
+                    x: .value("Date", p.date),
+                    y: .value("Value", p.value)
+                )
+                .interpolationMethod(.monotone)
+                .lineStyle(StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round))
+                .foregroundStyle(color.opacity(0.9))
 
-                    AreaMark(
-                        x: .value("Date", p.date),
-                        y: .value("Value", p.value)
-                    )
-                    .interpolationMethod(.monotone)
-                    .foregroundStyle(color.opacity(0.18))
-                }
-                .chartXAxis(.automatic)
-                .chartYAxis(.automatic)
-                .frame(minHeight: 140)
-                #else
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12).fill(DSColor.surface)
-                    Text("Charts framework not available").foregroundStyle(DSColor.textSecondary).font(.footnote)
-                }
-                .frame(minHeight: 140)
-                #endif
-
-                HStack(spacing: 8) {
-                    Circle().fill(color.opacity(0.85)).frame(width: 8, height: 8)
-                    Text(unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
-                    Spacer()
-                    Text(labelForRange(store.range)).foregroundStyle(DSColor.textSecondary).font(.footnote)
-                }
+                AreaMark(
+                    x: .value("Date", p.date),
+                    y: .value("Value", p.value)
+                )
+                .interpolationMethod(.monotone)
+                .foregroundStyle(color.opacity(0.18))
+            }
+            .chartXAxis(.automatic)
+            .chartYAxis(.automatic)
+            .frame(minHeight: chartHeight)
+            .id(chartIdentity) // forces animated rebuild on range change
+            .transition(.opacity.combined(with: .move(edge: .trailing)))
+            #else
+            ZStack {
+                RoundedRectangle(cornerRadius: 12).fill(DSColor.surface)
+                Text("Charts framework not available")
+                    .foregroundStyle(DSColor.textSecondary)
+                    .font(.footnote)
+            }
+            .frame(minHeight: chartHeight)
+            #endif
+        } footer: {
+            HStack(spacing: 8) {
+                Circle().fill(color.opacity(0.9)).frame(width: 8, height: 8)
+                Text(unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                Spacer()
+                Text(labelForRange(store.range)).foregroundStyle(DSColor.textSecondary).font(.footnote)
             }
         }
     }
 
     private func labelForRange(_ r: ProgressRange) -> String {
         switch r {
-        case .day: return "Last day"
-        case .week: return "Last 7 days"
+        case .day:   return "Last day"
+        case .week:  return "Last 7 days"
         case .month: return "Last 30 days"
         case .quarter: return "Last 90 days"
         }
