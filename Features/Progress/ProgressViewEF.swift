@@ -25,9 +25,7 @@ struct ProgressViewEF: View {
 
     var body: some View {
         ZStack {
-            // Semantic app background for BOTH light & dark
-            Color("AppBackground")
-                .ignoresSafeArea()
+            Color("AppBackground").ignoresSafeArea()
 
             NavigationStack {
                 ScrollView {
@@ -67,13 +65,11 @@ struct ProgressViewEF: View {
                     }
                 }
                 .navigationTitle("Progress")
-                // Use a transparent toolbar background so our ZStack bg shows through
-                .toolbarBackground(.clear, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+                .efScreenBackground()
                 // STICKY HEADER
                 .safeAreaInset(edge: .top) {
                     headerRow
-                        .background(.ultraThinMaterial)
+                        .background(Color("Card"))
                         .overlay(Divider(), alignment: .bottom)
                         .readSize { headerHeight = $0.height }
                 }

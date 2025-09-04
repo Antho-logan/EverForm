@@ -81,8 +81,7 @@ struct MobilityViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Mobility")
-                .toolbarBackground(.clear, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+                .efScreenBackground()
             }
         }
     }

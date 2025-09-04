@@ -77,8 +77,7 @@ struct TrainingViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Training")
-                .toolbarBackground(.clear, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+                .efScreenBackground()
             }
         }
     }

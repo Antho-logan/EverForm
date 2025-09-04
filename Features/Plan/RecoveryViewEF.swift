@@ -71,8 +71,7 @@ struct RecoveryViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Recovery")
-                .toolbarBackground(.clear, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+                .efScreenBackground()
             }
         }
     }

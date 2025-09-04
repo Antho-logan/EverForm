@@ -49,7 +49,7 @@ struct OverviewView: View {
                         Text("Today's Plan")
                             .font(.system(size: 22, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .foregroundStyle(DSColor.textPrimary)
+                            .foregroundStyle(Color("TextPrimary"))
                             .padding(.horizontal, 20)
                             .padding(.top, 12)
                     }
@@ -59,7 +59,7 @@ struct OverviewView: View {
                     VStack(spacing: 12) {
                         Text("Quick Actions")
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(DSColor.textPrimary)
+                            .foregroundStyle(Color("TextPrimary"))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 20)
 
