@@ -29,12 +29,20 @@ struct OverviewView: View {
                     Section {
                         VStack(spacing: 14) {
                             HStack(spacing: 16) {
-                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: DSColor.accentTraining, destination: TrainingDetailView())
-                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: DSColor.accentNutrition, destination: NutritionDetailView())
+                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: .green) {
+                                    EFRouter.open(.training)
+                                }
+                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: .orange) {
+                                    EFRouter.open(.nutrition)
+                                }
                             }
                             HStack(spacing: 16) {
-                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: DSColor.accentRecovery, destination: RecoveryDetailView())
-                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: DSColor.accentMobility, destination: MobilityDetailView())
+                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: .blue) {
+                                    EFRouter.open(.recovery)
+                                }
+                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: .purple) {
+                                    EFRouter.open(.mobility)
+                                }
                             }
                         }
                     } header: {
@@ -56,23 +64,23 @@ struct OverviewView: View {
                             .padding(.horizontal, 20)
 
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
-                            QuickActionTile(icon: "drop.fill", title: "Add Water", style: .water) {
+                            quickActionButton(icon: "drop.fill", title: "Add Water", color: .blue) {
                                 hydrationService.addWater(ml: 250)
                                 toastText = "+250 ml"
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
                             }
                             .onLongPressGesture { showWaterOptions = true }
 
-                            QuickActionTile(icon: "wind", title: "Breathwork", style: .success) {
+                            quickActionButton(icon: "wind", title: "Breathwork", color: .green) {
                                 route = .breathwork
                             }
 
-                            QuickActionTile(icon: "cross.case.fill", title: "Fix Pain", style: .danger) {
+                            quickActionButton(icon: "cross.case.fill", title: "Fix Pain", color: .red) {
                                 route = .fixPain
                             }
 
-                            QuickActionTile(icon: "scalemass.fill", title: "Log Weight", style: .info) {
-                                showWeightSheet = true
+                            quickActionButton(icon: "brain.head.profile", title: "Ask Coach", color: .indigo) {
+                                EFRouter.open(.coachTab)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -212,10 +220,8 @@ struct OverviewView: View {
 
     // MARK: UI helpers
 
-    private func planCard<Destination: View>(title: String, subtitle: String, system: String, color: Color, destination: Destination) -> some View {
-        NavigationLink {
-            destination
-        } label: {
+    private func planCard(title: String, subtitle: String, system: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
                     Image(systemName: system)
@@ -239,6 +245,30 @@ struct OverviewView: View {
             .background(DSColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .shadow(color: DSColor.black.opacity(0.06), radius: 10, y: 6)
         }
+        .buttonStyle(.plain)
+    }
+
+    private func quickActionButton(icon: String, title: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(color)
+
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.primary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.8)
+            }
+            .frame(minWidth: 72, minHeight: 72)
+            .padding(12)
+            .background(DSColor.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: DSColor.black.opacity(0.06), radius: 8, y: 4)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
 
