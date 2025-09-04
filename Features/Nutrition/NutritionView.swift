@@ -31,7 +31,7 @@ struct NutritionView: View {
         let palette = Theme.palette(colorScheme)
 
         ScrollView {
-            VStack(spacing: Theme.Spacing.lg) {
+            VStack(spacing: 16) {
                 // Meal Section
                 EFCard {
                     VStack(alignment: .leading, spacing: Theme.Spacing.md) {
@@ -132,11 +132,22 @@ struct NutritionView: View {
 
                 Spacer(minLength: 100)
             }
-            .padding(Theme.Spacing.lg)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
         }
-        .background(palette.background)
-        .navigationTitle("Nutrition")
-        .navigationBarTitleDisplayMode(.large)
+        .background(DSColor.appBackground.ignoresSafeArea())
+        .toolbar(.hidden, for: .navigationBar)
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Nutrition")
+                    .font(.system(size: 36, weight: .bold))
+                    .foregroundStyle(DSColor.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 8)
+            .background(DSColor.appBackground)
+        }
         .alert("Meal Logged!", isPresented: $showingSaveConfirmation) {
             Button("OK") { }
         } message: {

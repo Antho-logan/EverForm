@@ -300,6 +300,62 @@ public struct EFPill: View {
 
 // Card and Chip components moved to UI/Components/ to avoid duplicates
 
+// MARK: - Design System Colors (Asset-based)
+// Design tokens used across the app
+public struct DSColor {
+    public static var appBackground: Color { Color("AppBackground") }
+    public static var surface: Color       { Color("Surface") }
+    public static var card: Color          { Color("Card") }
+    public static var cardElevated: Color  { Color("CardElevated") }
+    public static var textPrimary: Color   { Color("TextPrimary") }
+    public static var textSecondary: Color { Color("TextSecondary") }
+
+    // Brand and chat tokens
+    public static var brand: Color { Color("Brand") }                 // green for tint
+    public static var chatBot: Color { Color("ChatBubbleBot") }       // bot bubble
+    public static var chatUser: Color { Color("ChatBubbleUser") }     // user bubble (neutral)
+
+    // Section Accent Colors
+    public static var accentTraining: Color  { Color(uiColor: .systemGreen)  }   // Training
+    public static var accentNutrition: Color { Color(uiColor: .systemOrange) }   // Nutrition (orange)
+    public static var accentRecovery: Color  { Color(uiColor: .systemBlue)   }   // Recovery (blue)
+    public static var accentMobility: Color  { Color(uiColor: .systemPurple) }   // Mobility (purple)
+
+    // Utility colors
+    public static var black: Color { Color.black }
+}
+
+// MARK: - New Theme Manager
+public enum EFUserTheme: String, CaseIterable {
+    case system, light, dark
+}
+
+public final class EFTheme: ObservableObject {
+    @AppStorage("ef.colorScheme") private var stored: String = EFUserTheme.system.rawValue
+    @Published public var selection: EFUserTheme
+
+    public static let shared = EFTheme()
+
+    private init() {
+        let storedValue = UserDefaults.standard.string(forKey: "ef.colorScheme") ?? EFUserTheme.system.rawValue
+        selection = EFUserTheme(rawValue: storedValue) ?? .system
+    }
+
+    public func set(_ theme: EFUserTheme) {
+        selection = theme
+        stored = theme.rawValue
+    }
+
+    // For SwiftUI .preferredColorScheme binding
+    public var preferredScheme: ColorScheme? {
+        switch selection {
+        case .system: return nil
+        case .light:  return .light
+        case .dark:   return .dark
+        }
+    }
+}
+
 // MARK: - New Theme System
 
 enum EFAppearance: String, CaseIterable, Identifiable {
@@ -322,24 +378,7 @@ final class EFThemeManager: ObservableObject {
     }
 }
 
-// MARK: - Theme tokens
-struct EFTheme {
-    static func background(_ scheme: ColorScheme) -> Color {
-        EFPalette.current(scheme).background
-    }
-    static func surface(_ scheme: ColorScheme) -> Color {
-        EFPalette.current(scheme).surface
-    }
-    static func cardStroke(_ scheme: ColorScheme) -> Color {
-        EFPalette.current(scheme).stroke
-    }
-    static func text(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white : Color.black
-    }
-    static func muted(_ scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white.opacity(0.6) : Color.black.opacity(0.6)
-    }
-}
+
 
 final class EFThemeManagerOld: ObservableObject {
     static let shared = EFThemeManagerOld()

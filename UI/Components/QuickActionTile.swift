@@ -1,10 +1,3 @@
-//
-//  QuickActionTile.swift
-//  EverForm
-//
-//  Reusable quick action tile with semantic styling
-//
-
 import SwiftUI
 
 struct QuickActionTile: View {
@@ -12,10 +5,10 @@ struct QuickActionTile: View {
     let title: String
     let style: SemanticStyle
     let action: () -> Void
-    
+
     @Environment(\.colorScheme) private var colorScheme
     @State private var isPressed = false
-    
+
     enum SemanticStyle: String, Codable, CaseIterable {
         case success, info, danger, water
 
@@ -29,22 +22,38 @@ struct QuickActionTile: View {
             }
         }
     }
-    
-    var body: some View {
+
+    // Icon rendering differs by scheme: light = no chip, bold icon; dark = keep chip.
+    @ViewBuilder
+    private var iconView: some View {
         let semanticColor = style.color(for: colorScheme)
 
+        if colorScheme == .light {
+            // Pop the icon: heavier weight, slightly larger, subtle glow.
+            Image(systemName: icon)
+                .symbolRenderingMode(.monochrome)
+                .font(.system(size: 26, weight: .bold))
+                .foregroundStyle(semanticColor)
+                .shadow(color: semanticColor.opacity(0.15), radius: 6, x: 0, y: 2)
+                .frame(width: 44, height: 44) // reserve space so tiles align with dark mode
+        } else {
+            // Preserve dark-mode look (chip stays as before).
+            ZStack {
+                Circle()
+                    .fill(Color(.systemFill))
+                    .frame(width: 44, height: 44)
+
+                Image(systemName: icon)
+                    .font(.system(size: 28, weight: .medium))
+                    .foregroundStyle(semanticColor)
+            }
+        }
+    }
+
+    var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                // Icon with semantic color background
-                ZStack {
-                    Circle()
-                        .fill(Color(.systemFill))
-                        .frame(width: 44, height: 44)
-
-                    Image(systemName: icon)
-                        .font(.system(size: 28, weight: .medium))
-                        .foregroundStyle(semanticColor)
-                }
+                iconView
 
                 // Title
                 Text(title)

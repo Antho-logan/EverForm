@@ -7,228 +7,122 @@
 
 import SwiftUI
 
+struct BreathPattern: Identifiable {
+    let id = UUID()
+    let name: String
+    let phases: [(label: String, seconds: Int)]
+}
+
+private let patterns: [BreathPattern] = [
+    .init(name: "4-7-8", phases: [("Inhale",4),("Hold",7),("Exhale",8)]),
+    .init(name: "Box",  phases: [("Inhale",4),("Hold",4),("Exhale",4),("Hold",4)]),
+    .init(name: "Deep", phases: [("Inhale",6),("Exhale",6)])
+]
+
 struct BreathworkView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    
-    @State private var selectedPattern: BreathingPattern = .fourSevenEight
-    @State private var isActive = false
-    @State private var currentPhase: BreathingPhase = .inhale
-    @State private var countdown = 4
-    @State private var ringScale: CGFloat = 0.8
-    @State private var timer: Timer?
-    
-    enum BreathingPattern: String, CaseIterable {
-        case fourSevenEight = "4-7-8"
-        case box = "Box"
-        case deep = "Deep"
-        
-        var description: String {
-            switch self {
-            case .fourSevenEight: return "Inhale 4s, Hold 7s, Exhale 8s"
-            case .box: return "Inhale 4s, Hold 4s, Exhale 4s, Hold 4s"
-            case .deep: return "Inhale 6s, Exhale 6s"
-            }
-        }
-        
-        var phases: [(BreathingPhase, Int)] {
-            switch self {
-            case .fourSevenEight: return [(.inhale, 4), (.hold, 7), (.exhale, 8)]
-            case .box: return [(.inhale, 4), (.hold, 4), (.exhale, 4), (.hold, 4)]
-            case .deep: return [(.inhale, 6), (.exhale, 6)]
-            }
-        }
-    }
-    
-    enum BreathingPhase: String {
-        case inhale = "Inhale"
-        case hold = "Hold"
-        case exhale = "Exhale"
-        
-        var color: Color {
-            switch self {
-            case .inhale: return .blue
-            case .hold: return .orange
-            case .exhale: return .green
-            }
-        }
-    }
-    
+    @Environment(\.colorScheme) private var scheme
+    @State private var selected = patterns.first!
+    @State private var running = false
+    @State private var phaseIndex = 0
+    @State private var t: Double = 0
+
     var body: some View {
-        let palette = Theme.palette(colorScheme)
-        let semantic = Theme.semantic(colorScheme)
-        
-        NavigationView {
-            VStack(spacing: Theme.Spacing.xl) {
-                if !isActive {
-                    // Pattern selection
-                    VStack(spacing: Theme.Spacing.lg) {
-                        VStack(spacing: Theme.Spacing.sm) {
-                            Text("Breathwork")
-                                .font(.system(size: 32, weight: .bold))
-                                .foregroundStyle(palette.textPrimary)
-                            
-                            Text("Choose a breathing pattern to help you relax and focus")
-                                .font(.system(size: 16, weight: .regular))
-                                .foregroundStyle(palette.textSecondary)
-                                .multilineTextAlignment(.center)
-                        }
-                        
-                        VStack(spacing: Theme.Spacing.md) {
-                            ForEach(BreathingPattern.allCases, id: \.self) { pattern in
-                                Button(action: {
-                                    selectedPattern = pattern
-                                    let impact = UIImpactFeedbackGenerator(style: .light)
-                                    impact.impactOccurred()
-                                }) {
-                                    EFCard {
-                                        HStack {
-                                            VStack(alignment: .leading, spacing: 4) {
-                                                Text(pattern.rawValue)
-                                                    .font(.system(size: 18, weight: .semibold))
-                                                    .foregroundStyle(palette.textPrimary)
-                                                
-                                                Text(pattern.description)
-                                                    .font(.system(size: 14, weight: .regular))
-                                                    .foregroundStyle(palette.textSecondary)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            if selectedPattern == pattern {
-                                                Image(systemName: "checkmark.circle.fill")
-                                                    .font(.system(size: 24, weight: .medium))
-                                                    .foregroundStyle(semantic.success)
-                                            }
-                                        }
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        
-                        // Start button
-                        Button(action: startBreathing) {
-                            Text("Start Session")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, Theme.Spacing.md)
-                                .background(semantic.success)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                } else {
-                    // Active breathing session
-                    VStack(spacing: Theme.Spacing.xl) {
-                        Spacer()
-                        
-                        // Breathing ring
-                        ZStack {
-                            // Outer ring
-                            Circle()
-                                .stroke(currentPhase.color.opacity(0.3), lineWidth: 4)
-                                .frame(width: 200, height: 200)
-                            
-                            // Inner animated circle
-                            Circle()
-                                .fill(currentPhase.color.opacity(0.2))
-                                .frame(width: 160, height: 160)
-                                .scaleEffect(ringScale)
-                                .animation(.easeInOut(duration: 1.0), value: ringScale)
-                            
-                            // Center content
-                            VStack(spacing: Theme.Spacing.sm) {
-                                Text(currentPhase.rawValue)
-                                    .font(.system(size: 24, weight: .semibold))
-                                    .foregroundStyle(palette.textPrimary)
-                                
-                                Text("\(countdown)")
-                                    .font(.system(size: 48, weight: .bold))
-                                    .foregroundStyle(currentPhase.color)
-                                    .contentTransition(.numericText())
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        // Stop button
-                        Button(action: stopBreathing) {
-                            Text("Stop Session")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(semantic.danger)
-                                .padding(.vertical, Theme.Spacing.md)
-                                .padding(.horizontal, Theme.Spacing.xl)
-                                .background(semantic.danger.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(Theme.Spacing.lg)
-            .background(palette.background)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
-                        stopBreathing()
-                        dismiss()
-                    }
-                    .foregroundStyle(palette.accent)
-                }
+        ZStack {
+            DSColor.appBackground.ignoresSafeArea()
+            if running {
+                sessionView
+            } else {
+                listView
             }
         }
-        .interactiveDismissDisabled(false)
+        .navigationTitle("Breathwork")
     }
-    
-    private func startBreathing() {
-        isActive = true
-        startBreathingCycle()
-        
-        let impact = UIImpactFeedbackGenerator(style: .medium)
-        impact.impactOccurred()
-    }
-    
-    private func stopBreathing() {
-        isActive = false
-        timer?.invalidate()
-        timer = nil
-        ringScale = 0.8
-        
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-    }
-    
-    private func startBreathingCycle() {
-        let phases = selectedPattern.phases
-        var currentPhaseIndex = 0
-        
-        func nextPhase() {
-            let (phase, duration) = phases[currentPhaseIndex]
-            currentPhase = phase
-            countdown = duration
-            
-            // Animate ring based on phase
-            withAnimation(.easeInOut(duration: Double(duration))) {
-                ringScale = phase == .inhale ? 1.2 : (phase == .exhale ? 0.6 : 1.0)
-            }
-            
-            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                countdown -= 1
-                
-                if countdown <= 0 {
-                    timer?.invalidate()
-                    currentPhaseIndex = (currentPhaseIndex + 1) % phases.count
-                    nextPhase()
+
+    private var listView: some View {
+        VStack(spacing: 16) {
+            ForEach(patterns) { p in
+                HStack {
+                    Text(p.name).font(.headline).foregroundStyle(DSColor.textPrimary)
+                    Spacer()
+                    if p.id == selected.id { Image(systemName: "checkmark.circle.fill").foregroundStyle(.green) }
                 }
+                .padding()
+                .background(DSColor.card)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .onTapGesture { selected = p }
+            }
+
+            Button {
+                start()
+            } label: {
+                Text("Start Session")
+                    .font(.headline).frame(maxWidth: .infinity)
+                    .padding().background(Color.green).foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
         }
-        
-        nextPhase()
+        .padding()
+    }
+
+    private var sessionView: some View {
+        VStack(spacing: 24) {
+            Text(selected.phases[phaseIndex].label)
+                .font(.title.bold())
+                .foregroundStyle(DSColor.textPrimary)
+
+            ZStack {
+                Circle()
+                    .stroke(Color.green.opacity(0.2), lineWidth: 18)
+                    .frame(width: 220, height: 220)
+
+                Circle()
+                    .trim(from: 0, to: t)
+                    .stroke(Color.green, style: StrokeStyle(lineWidth: 18, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .frame(width: 220, height: 220)
+                    .animation(.linear(duration: 1), value: t)
+
+                Text("\(timeLeft)")
+                    .font(.system(size: 44, weight: .bold))
+                    .monospacedDigit()
+                    .foregroundStyle(DSColor.textPrimary)
+            }
+
+            Button {
+                stop()
+            } label: {
+                Text("Stop Session")
+                    .font(.headline).frame(maxWidth: .infinity)
+                    .padding().background(Color.red.opacity(0.9)).foregroundStyle(.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+        }
+        .padding()
+        .onAppear { tick() }
+    }
+
+    private var timeLeft: Int { max(0, currentPhaseSeconds - Int(round(progressSeconds))) }
+    private var currentPhaseSeconds: Int { selected.phases[phaseIndex].seconds }
+    @State private var progressSeconds: Double = 0
+    private var totalPhase: Double { Double(currentPhaseSeconds) }
+
+    private func start() {
+        running = true; phaseIndex = 0; progressSeconds = 0; t = 0
+    }
+    private func stop() { running = false }
+
+    private func tick() {
+        guard running else { return }
+        withAnimation(.linear(duration: 1)) {
+            progressSeconds += 1
+            t = progressSeconds / totalPhase
+        }
+        if progressSeconds >= totalPhase {
+            // next phase
+            progressSeconds = 0; t = 0
+            phaseIndex = (phaseIndex + 1) % selected.phases.count
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { tick() }
     }
 }
 

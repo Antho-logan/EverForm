@@ -112,3 +112,83 @@ final class ProgressStore: ObservableObject {
         return (v, kind.unit)
     }
 }
+
+// MARK: - Enhanced Data Structures for Chart Integration
+
+struct EFMetricPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    let value: Double
+}
+
+struct EFMetricSeries {
+    let points: [EFMetricPoint]
+    let unit: String
+}
+
+// MARK: - Enhanced ProgressStore Methods
+
+extension ProgressStore {
+    enum MetricKind { case steps, calories, sleep, hydration }
+
+    /// Returns a series for the current range; ensures Day always has a minimal line to draw.
+    func series(for kind: MetricKind) -> EFMetricSeries {
+        let all: EFMetricSeries
+        switch kind {
+        case .steps:     all = EFMetricSeries(points: convertToEFPoints(series[.training] ?? []), unit: "steps")
+        case .calories:  all = EFMetricSeries(points: convertToEFPoints(series[.nutrition] ?? []), unit: "kcal")
+        case .sleep:     all = EFMetricSeries(points: convertToEFPoints(series[.recovery] ?? []), unit: "h")
+        case .hydration: all = EFMetricSeries(points: convertToEFPoints(series[.hydration] ?? []), unit: "ml")
+        }
+
+        let sliced = slice(all, for: range)
+        if range == .day {
+            // Guarantee at least two points spanning "today" so the chart can render + animate
+            return ensureDayRenderable(sliced, unit: all.unit)
+        } else {
+            return sliced
+        }
+    }
+
+    /// Convert ProgressPoint to EFMetricPoint
+    private func convertToEFPoints(_ points: [ProgressPoint]) -> [EFMetricPoint] {
+        return points.map { EFMetricPoint(date: $0.date, value: $0.value) }
+    }
+
+    /// Slice to Day/Week/Month windows.
+    private func slice(_ series: EFMetricSeries, for r: ProgressRange) -> EFMetricSeries {
+        let now = Date()
+        let cal = Calendar.current
+        let start: Date
+
+        switch r {
+        case .day:
+            start = cal.startOfDay(for: now)
+        case .week:
+            start = cal.date(byAdding: .day, value: -6, to: cal.startOfDay(for: now)) ?? now.addingTimeInterval(-6*86400)
+        case .month:
+            start = cal.date(byAdding: .day, value: -29, to: cal.startOfDay(for: now)) ?? now.addingTimeInterval(-29*86400)
+        case .quarter:
+            start = cal.date(byAdding: .day, value: -89, to: cal.startOfDay(for: now)) ?? now.addingTimeInterval(-89*86400)
+        }
+
+        let filtered = series.points.filter { $0.date >= start && $0.date <= now }
+        return EFMetricSeries(points: filtered, unit: series.unit)
+    }
+
+    /// If today's slice ended up empty or 1-point, synthesize a minimal 0→value line across today.
+    private func ensureDayRenderable(_ series: EFMetricSeries, unit: String) -> EFMetricSeries {
+        let cal = Calendar.current
+        let now = Date()
+        let start = cal.startOfDay(for: now)
+
+        if series.points.count >= 2 {
+            return series
+        }
+
+        let value = series.points.last?.value ?? 0
+        let startPoint = EFMetricPoint(date: start, value: 0)
+        let endPoint   = EFMetricPoint(date: now,   value: value)
+        return EFMetricSeries(points: [startPoint, endPoint], unit: unit)
+    }
+}

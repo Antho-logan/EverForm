@@ -1,23 +1,24 @@
 import SwiftUI
 
 struct ScanView: View {
-    @Environment(\.colorScheme) private var scheme
-
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                Text("Scan Food")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(EFTheme.text(scheme))
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            Text("Scan Food")
+                .font(.system(.largeTitle, weight: .bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
+
+            ScrollView {
+                VStack(spacing: 20) {
 
                 SegmentedTabs()
 
                 EFCard {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Calorie & Macros").font(.headline).foregroundStyle(EFTheme.text(scheme))
+                        Text("Calorie & Macros").font(.headline).foregroundStyle(DSColor.textPrimary)
                         Text("Scan barcode or nutrition label for accurate calorie and macro information")
-                            .font(.subheadline).foregroundStyle(EFTheme.muted(scheme))
+                            .font(.subheadline).foregroundStyle(DSColor.textSecondary)
                         Button("Generate Mock Result") {}
                             .frame(maxWidth: .infinity).padding(.vertical, 12)
                             .background(Color.green)
@@ -32,21 +33,21 @@ struct ScanView: View {
 
                 EFCard {
                     VStack(spacing: 12) {
-                        Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(EFTheme.muted(scheme))
-                        Text("Nothing scanned yet").font(.headline).foregroundStyle(EFTheme.text(scheme))
-                        Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(EFTheme.muted(scheme))
+                        Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(DSColor.textSecondary)
+                        Text("Nothing scanned yet").font(.headline).foregroundStyle(DSColor.textPrimary)
+                        Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(DSColor.textSecondary)
                     }.frame(maxWidth: .infinity)
                 }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 8)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 8)
         }
-        .background(EFTheme.background(scheme).ignoresSafeArea())
+        .background(DSColor.appBackground.ignoresSafeArea())
     }
 }
 
 private struct SegmentedTabs: View {
-    @Environment(\.colorScheme) private var scheme
     @State private var idx = 0
     let items = ["Calorie","Ingredients","Plate AI"]
     var body: some View {
@@ -54,9 +55,9 @@ private struct SegmentedTabs: View {
             ForEach(items.indices, id: \.self) { i in
                 Text(items[i])
                     .font(.subheadline.weight(i == idx ? .bold : .regular))
-                    .foregroundStyle(i == idx ? EFTheme.text(scheme) : EFTheme.muted(scheme))
+                    .foregroundStyle(i == idx ? DSColor.textPrimary : DSColor.textSecondary)
                     .padding(.vertical, 8).padding(.horizontal, 14)
-                    .background(EFTheme.surface(scheme).opacity(i == idx ? 1 : 0.7))
+                    .background(DSColor.surface.opacity(i == idx ? 1 : 0.7))
                     .clipShape(Capsule())
                     .onTapGesture { idx = i }
             }

@@ -45,113 +45,98 @@ struct FixPainView: View {
     }
     
     var body: some View {
-        let palette = Theme.palette(colorScheme)
-        let semantic = Theme.semantic(colorScheme)
-        
-        NavigationView {
-            VStack(spacing: Theme.Spacing.xl) {
-                // Header
-                VStack(spacing: Theme.Spacing.sm) {
-                    Text("Fix Pain")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundStyle(palette.textPrimary)
-                    
-                    Text("Select the area where you're experiencing discomfort")
-                        .font(.system(size: 16, weight: .regular))
-                        .foregroundStyle(palette.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
-                
-                // Body region grid
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: Theme.Spacing.md),
-                    GridItem(.flexible(), spacing: Theme.Spacing.md)
-                ], spacing: Theme.Spacing.md) {
-                    ForEach(PainRegion.allCases, id: \.self) { region in
-                        Button(action: {
-                            selectedRegion = region
-                            let impact = UIImpactFeedbackGenerator(style: .light)
-                            impact.impactOccurred()
-                        }) {
-                            EFCard {
-                                VStack(spacing: Theme.Spacing.md) {
-                                    Image(systemName: region.icon)
-                                        .font(.system(size: 32, weight: .medium))
-                                        .foregroundStyle(
-                                            selectedRegion == region ?
-                                            .white : semantic.danger
-                                        )
-                                        .frame(width: 48, height: 48)
-                                    
-                                    VStack(spacing: 4) {
-                                        Text(region.rawValue)
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundStyle(
-                                                selectedRegion == region ?
-                                                .white : palette.textPrimary
-                                            )
-                                        
-                                        Text(region.description)
-                                            .font(.system(size: 12, weight: .regular))
-                                            .foregroundStyle(
-                                                selectedRegion == region ?
-                                                .white.opacity(0.8) : palette.textSecondary
-                                            )
-                                            .multilineTextAlignment(.center)
-                                            .lineLimit(2)
-                                    }
-                                }
-                                .frame(height: 120)
-                            }
-                            .background(
-                                selectedRegion == region ?
-                                semantic.danger : Color.clear
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                
-                Spacer()
-                
-                // Continue button
-                if let selectedRegion = selectedRegion {
-                    Button(action: {
-                        showingDetail = true
-                        let impact = UIImpactFeedbackGenerator(style: .medium)
+        VStack(spacing: 20) {
+            // Header
+            VStack(spacing: 8) {
+                Text("Fix Pain")
+                    .font(.largeTitle.bold())
+                    .foregroundStyle(DSColor.textPrimary)
+
+                Text("Select the area where you're experiencing discomfort")
+                    .font(.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.top)
+
+            // Body region grid
+            LazyVGrid(columns: [
+                GridItem(.flexible(), spacing: 12),
+                GridItem(.flexible(), spacing: 12)
+            ], spacing: 12) {
+                ForEach(PainRegion.allCases, id: \.self) { region in
+                    PainTile(
+                        title: region.rawValue,
+                        subtitle: region.description,
+                        symbol: region.icon,
+                        isSelected: selectedRegion == region
+                    ) {
+                        selectedRegion = region
+                        let impact = UIImpactFeedbackGenerator(style: .light)
                         impact.impactOccurred()
-                    }) {
-                        Text("Get Relief Plan")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Theme.Spacing.md)
-                            .background(semantic.danger)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
                     }
-                    .buttonStyle(.plain)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-            .padding(Theme.Spacing.lg)
-            .background(palette.background)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundStyle(palette.accent)
+
+            Spacer()
+
+            // Continue button
+            if let selectedRegion = selectedRegion {
+                Button(action: {
+                    showingDetail = true
+                    let impact = UIImpactFeedbackGenerator(style: .medium)
+                    impact.impactOccurred()
+                }) {
+                    Text("Get Relief Plan")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.red)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .interactiveDismissDisabled(false)
-        .fullScreenCover(isPresented: $showingDetail) {
-            if let region = selectedRegion {
-                FixPainDetailView(region: region)
+        .padding()
+        .background(DSColor.appBackground.ignoresSafeArea())
+        .navigationTitle("Fix Pain")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct PainTile: View {
+    @Environment(\.colorScheme) private var scheme
+    let title: String
+    let subtitle: String
+    let symbol: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 8) {
+                Image(systemName: symbol)
+                    .font(.system(size: 28, weight: .semibold))
+                    .foregroundStyle(.red)
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(DSColor.textPrimary)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundStyle(DSColor.textSecondary)
             }
+            .padding()
+            .frame(maxWidth: .infinity, minHeight: 120, alignment: .topLeading)
+            .background(DSColor.card)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: .black.opacity(scheme == .light ? 0.06 : 0), radius: 10, y: 6)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(isSelected ? Color.red : Color.clear, lineWidth: 2)
+            )
         }
+        .buttonStyle(.plain)
     }
 }
 
