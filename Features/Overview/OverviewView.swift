@@ -47,11 +47,11 @@ struct OverviewView: View {
                         }
                     } header: {
                         Text("Today's Plan")
-                            .font(.title2.bold())
+                            .font(.system(size: 22, weight: .semibold))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .foregroundStyle(DSColor.textPrimary)
                             .padding(.horizontal, 20)
-                            .padding(.top, 8)
+                            .padding(.top, 12)
                     }
                     .padding(.horizontal, 20)
 

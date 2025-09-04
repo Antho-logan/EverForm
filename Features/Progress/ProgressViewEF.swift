@@ -24,70 +24,72 @@ struct ProgressViewEF: View {
     private var chartHeight: CGFloat { isCompact ? 220 : 190 }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Add top padding equal to header height so content doesn't go under the sticky header
-                Color.clear.frame(height: headerHeight)
+        ZStack {
+            // Semantic app background for BOTH light & dark
+            Color("AppBackground")
+                .ignoresSafeArea()
 
-                LazyVGrid(columns: grid, spacing: 16) {
-                    metricCard(
-                        title: "Steps",
-                        color: .blue,
-                        series: store.series(for: .steps),
-                        valueFormatter: { v in "\(Int(v))" }
-                    )
-                    metricCard(
-                        title: "Calories",
-                        color: .orange,
-                        series: store.series(for: .calories),
-                        valueFormatter: { v in "\(Int(v))" }
-                    )
-                    metricCard(
-                        title: "Sleep",
-                        color: .purple,
-                        series: store.series(for: .sleep),
-                        valueFormatter: { v in String(format: "%.1f", v) }
-                    )
-                    metricCard(
-                        title: "Hydration",
-                        color: .teal,
-                        series: store.series(for: .hydration),
-                        valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
-                    )
+            NavigationStack {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        // Add top padding equal to header height so content doesn't go under the sticky header
+                        Color.clear.frame(height: headerHeight)
+
+                        LazyVGrid(columns: grid, spacing: 16) {
+                            metricCard(
+                                title: "Steps",
+                                color: .blue,
+                                series: store.series(for: .steps),
+                                valueFormatter: { v in "\(Int(v))" }
+                            )
+                            metricCard(
+                                title: "Calories",
+                                color: .orange,
+                                series: store.series(for: .calories),
+                                valueFormatter: { v in "\(Int(v))" }
+                            )
+                            metricCard(
+                                title: "Sleep",
+                                color: .purple,
+                                series: store.series(for: .sleep),
+                                valueFormatter: { v in String(format: "%.1f", v) }
+                            )
+                            metricCard(
+                                title: "Hydration",
+                                color: .teal,
+                                series: store.series(for: .hydration),
+                                valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
+                            )
+                        }
+                        .animation(.snappy(duration: 0.45, extraBounce: 0.04), value: store.range)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 32)
+                    }
                 }
-                .animation(.snappy(duration: 0.45, extraBounce: 0.04), value: store.range)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                .navigationTitle("Progress")
+                // Use a transparent toolbar background so our ZStack bg shows through
+                .toolbarBackground(.clear, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
+                // STICKY HEADER
+                .safeAreaInset(edge: .top) {
+                    headerRow
+                        .background(.ultraThinMaterial)
+                        .overlay(Divider(), alignment: .bottom)
+                        .readSize { headerHeight = $0.height }
+                }
+                .onAppear {
+                    store.regenerate()
+                    startRevealAnimation()
+                }
+                .onChange(of: store.range) {
+                    withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
+                        chartIdentity &+= 1
+                    }
+                    store.regenerate()
+                    startRevealAnimation()
+                }
             }
-            .background(
-                DSColor.appBackground
-                    .overlay(
-                        RadialGradient(colors: [Color.black.opacity(0.10), .clear],
-                                       center: .topLeading,
-                                       startRadius: 10, endRadius: 500)
-                    )
-                    .ignoresSafeArea()
-            )
         }
-        // STICKY HEADER
-        .safeAreaInset(edge: .top) {
-            headerRow
-                .background(.ultraThinMaterial)
-                .overlay(Divider(), alignment: .bottom)
-                .readSize { headerHeight = $0.height }
-        }
-        .onAppear {
-            store.regenerate()
-            startRevealAnimation()
-        }
-        .onChange(of: store.range) {
-            withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
-                chartIdentity &+= 1
-            }
-            store.regenerate()
-            startRevealAnimation()
-        }
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - Header
