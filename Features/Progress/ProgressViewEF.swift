@@ -64,14 +64,30 @@ struct ProgressViewEF: View {
                         .padding(.bottom, 32)
                     }
                 }
-                .navigationTitle("Progress")
-                .efScreenBackground()
-                // STICKY HEADER
-                .safeAreaInset(edge: .top) {
-                    headerRow
-                        .background(Color("Card"))
-                        .overlay(Divider(), alignment: .bottom)
-                        .readSize { headerHeight = $0.height }
+                .background(DSColor.appBackground.ignoresSafeArea())
+                .toolbar(.hidden, for: .navigationBar)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Progress")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundStyle(DSColor.textPrimary)
+
+                        Picker("", selection: $store.range) {
+                            Text("Day").tag(ProgressRange.day)
+                            Text("Week").tag(ProgressRange.week)
+                            Text("Month").tag(ProgressRange.month)
+                        }
+                        .labelsHidden()
+                        .pickerStyle(.segmented)
+                        .background(DSColor.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .frame(width: isCompact ? 260 : 320)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 8)
+                    .background(DSColor.appBackground)
+                    .readSize { headerHeight = $0.height }
                 }
                 .onAppear {
                     store.regenerate()
@@ -88,31 +104,7 @@ struct ProgressViewEF: View {
         }
     }
 
-    // MARK: - Header
 
-    private var headerRow: some View {
-        HStack(alignment: .firstTextBaseline, spacing: 12) {
-            Text("Progress")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(DSColor.textPrimary)
-                .lineLimit(1)
-                .minimumScaleFactor(0.85)
-
-            Spacer(minLength: 8)
-
-            Picker("", selection: $store.range) {
-                Text("Day").tag(ProgressRange.day)
-                Text("Week").tag(ProgressRange.week)
-                Text("Month").tag(ProgressRange.month)
-            }
-            .pickerStyle(.segmented)
-            .controlSize(.regular)
-            .frame(width: isCompact ? 260 : 320)
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 10)
-    }
 
     // MARK: - Cards
 
