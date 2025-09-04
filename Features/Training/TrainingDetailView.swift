@@ -4,52 +4,55 @@ struct TrainingDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                header("Training", color: DSColor.accentTraining, symbol: "dumbbell.fill")
-                metric(title: "This Week", value: "3 sessions", color: DSColor.accentTraining)
-                metric(title: "Average Duration", value: "42 min", color: DSColor.accentTraining)
-                primaryButton(title: "Start Workout", color: DSColor.accentTraining) {
-                    // TODO: hook real flow later
+
+                HStack(spacing: 10) {
+                    Image(systemName: "dumbbell.fill")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.green)
+                    Text("Training")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(DSColor.textPrimary)
+                    Spacer()
                 }
-            }
-            .padding(20)
+                .padding(.horizontal, 4)
+
+                EFCard {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Today").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                            Text("Upper Body • 45 min")
+                                .font(.title3.bold()).foregroundStyle(DSColor.textPrimary)
+                        }
+                        Spacer()
+                        Button("Start Workout") { /* hook later */ }
+                            .buttonStyle(.borderedProminent)
+                    }
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Plan").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        ForEach(["Push", "Pull", "Legs"], id: \.self) { s in
+                            HStack { Text(s); Spacer(); Image(systemName: "chevron.right") }
+                                .foregroundStyle(DSColor.textPrimary)
+                                .padding(.vertical, 6)
+                        }
+                    }
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Notes").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        Text("Keep elbows tucked on presses; reduce ROM on rows if shoulder flares.")
+                            .foregroundStyle(DSColor.textPrimary)
+                    }
+                }
+
+            }.padding(16)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
-        .navigationTitle("Training")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-private extension TrainingDetailView {
-    func header(_ title: String, color: Color, symbol: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol).font(.title2.weight(.bold)).foregroundStyle(color)
-            Text(title).font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .padding(16)
-        .background(DSColor.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: DSColor.card.opacity(0.06), radius: 12, x: 0, y: 6)
-    }
-    func metric(title: String, value: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(DSColor.textSecondary)
-            Text(value).font(.title3.bold()).foregroundStyle(color)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(DSColor.card)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: DSColor.card.opacity(0.06), radius: 12, x: 0, y: 6)
-    }
-    func primaryButton(title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title).font(.headline)
-                .frame(maxWidth: .infinity).padding(.vertical, 14)
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(color)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-}
+

@@ -4,52 +4,63 @@ struct NutritionDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                header("Nutrition", color: DSColor.accentNutrition, symbol: "fork.knife")
-                metric(title: "Target", value: "2,650 kcal", color: DSColor.accentNutrition)
-                metric(title: "Today", value: "1,850 kcal", color: DSColor.accentNutrition)
-                primaryButton(title: "Log Meal", color: DSColor.accentNutrition) {
-                    // TODO: open logging flow
+
+                HStack(spacing: 10) {
+                    Image(systemName: "fork.knife")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(.orange)  // Nutrition accent
+                    Text("Nutrition")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(DSColor.textPrimary)
+                    Spacer()
                 }
-            }
-            .padding(20)
+                .padding(.horizontal, 4)
+
+                EFCard {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Today").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                            Text("1,850 / 2,661 kcal")
+                                .font(.title3.bold()).foregroundStyle(DSColor.textPrimary)
+                        }
+                        Spacer()
+                        Button("Log Meal") { /* hook later */ }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.orange)
+                    }
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Macros").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        HStack {
+                            Label("Protein 120g", systemImage: "chart.bar.fill")
+                            Spacer()
+                            Label("Carbs 240g", systemImage: "chart.bar.fill")
+                            Spacer()
+                            Label("Fat 70g", systemImage: "chart.bar.fill")
+                        }
+                        .foregroundStyle(.orange)
+                        .font(.callout)
+                    }
+                }
+
+                EFCard {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Recent Meals").font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                        ForEach(["Chicken bowl", "Greek yogurt", "Oats & berries"], id: \.self) { m in
+                            HStack { Text(m); Spacer(); Image(systemName: "chevron.right") }
+                                .foregroundStyle(DSColor.textPrimary)
+                                .padding(.vertical, 6)
+                        }
+                    }
+                }
+
+            }.padding(16)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
-        .navigationTitle("Nutrition")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
-private extension NutritionDetailView {
-    func header(_ title: String, color: Color, symbol: String) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: symbol).font(.title2.weight(.bold)).foregroundStyle(color)
-            Text(title).font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
-            Spacer()
-        }
-        .frame(maxWidth: .infinity)
-        .padding(16)
-        .background(DSColor.card)
-        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-        .shadow(color: DSColor.card.opacity(0.06), radius: 12, x: 0, y: 6)
-    }
-    func metric(title: String, value: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(DSColor.textSecondary)
-            Text(value).font(.title3.bold()).foregroundStyle(color)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .background(DSColor.card)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .shadow(color: DSColor.card.opacity(0.06), radius: 12, x: 0, y: 6)
-    }
-    func primaryButton(title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title).font(.headline)
-                .frame(maxWidth: .infinity).padding(.vertical, 14)
-        }
-        .buttonStyle(.borderedProminent)
-        .tint(color)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-    }
-}
+
