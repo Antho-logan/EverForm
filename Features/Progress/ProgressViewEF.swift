@@ -4,111 +4,147 @@ import Charts
 #endif
 
 struct ProgressViewEF: View {
-    @State private var range: RangeOpt = .d7
+    @StateObject private var store = ProgressStore()
+    private let grid = [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
 
     var body: some View {
-        VStack(spacing: 0) {
-            Text("Progress")
-                .font(.system(.largeTitle, weight: .bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-
-            ScrollView {
-                VStack(spacing: 16) {
-
-                RangePicker(selection: $range)
-
-                // Summary cards
-                LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 12), count: 2), spacing: 12) {
-                    Summary("Training",  "51.0 min", .green,  "dumbbell.fill")
-                    Summary("Nutrition", "2.1k kcal", .orange, "fork.knife")
-                    Summary("Mobility",  "14.4 min", .purple, "figure.run")
-                    Summary("Recovery",  "6.7 hrs", .blue,   "moon.fill")
-                    Summary("Hydration", "1.7k ml",  .cyan,   "drop.fill")
+        ScrollView {
+            VStack(spacing: 16) {
+                // Header
+                HStack {
+                    Text("Progress").font(.largeTitle.bold()).foregroundStyle(DSColor.textPrimary)
+                    Spacer()
+                    Picker("", selection: $store.range) {
+                        Text("Day").tag(ProgressRange.day)
+                        Text("Week").tag(ProgressRange.week)
+                        Text("Month").tag(ProgressRange.month)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 260)
                 }
+                .padding(.horizontal, 4)
 
-                    ChartCard(title: "Training", tint: .green,  range: range)
-                    ChartCard(title: "Nutrition", tint: .orange, range: range)
-                    ChartCard(title: "Mobility", tint: .purple,  range: range)
-                    ChartCard(title: "Recovery", tint: .blue,    range: range)
-                    ChartCard(title: "Hydration", tint: .cyan,   range: range)
+                LazyVGrid(columns: grid, spacing: 16) {
+                    metricCard(
+                        title: "Steps",
+                        color: .blue,
+                        data: generateStepsData(),
+                        unit: "steps",
+                        valueFormatter: { v in "\(Int(v))" }
+                    )
+                    metricCard(
+                        title: "Calories",
+                        color: .orange,
+                        data: generateCaloriesData(),
+                        unit: "kcal",
+                        valueFormatter: { v in "\(Int(v))" }
+                    )
+                    metricCard(
+                        title: "Sleep",
+                        color: .purple,
+                        data: generateSleepData(),
+                        unit: "h",
+                        valueFormatter: { v in String(format: "%.1f", v) }
+                    )
+                    metricCard(
+                        title: "Hydration",
+                        color: .teal,
+                        data: generateHydrationData(),
+                        unit: "ml",
+                        valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
+                    )
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
             }
+            .padding(16)
         }
         .background(DSColor.appBackground.ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
     }
-}
 
-private enum RangeOpt: String, CaseIterable { case d1="1D", d7="7D", m1="1M", m3="3M" }
-
-private struct RangePicker: View {
-    @Binding var selection: RangeOpt
-    var body: some View {
-        HStack(spacing: 8) {
-            ForEach(RangeOpt.allCases, id: \.rawValue) { r in
-                Text(r.rawValue)
-                    .font(.subheadline.weight(selection == r ? .bold : .regular))
-                    .foregroundStyle(selection == r ? DSColor.textPrimary : DSColor.textSecondary)
-                    .padding(.vertical, 8).padding(.horizontal, 12)
-                    .background(DSColor.surface.opacity(selection == r ? 1 : 0.8))
-                    .clipShape(Capsule())
-                    .onTapGesture { selection = r }
-            }
-        }.frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-private struct Summary: View {
-    let title: String, value: String, tint: Color, icon: String
-    init(_ t: String, _ v: String, _ tint: Color, _ icon: String) {
-        self.title = t; self.value = v; self.tint = tint; self.icon = icon
-    }
-    var body: some View {
+    @ViewBuilder
+    private func metricCard(title: String, color: Color, data: [ProgressPoint], unit: String, valueFormatter: @escaping (Double)->String) -> some View {
+        let latest = data.last?.value ?? 0
         EFCard {
-            HStack(spacing: 12) {
-                Image(systemName: icon).foregroundStyle(tint).font(.system(size: 18, weight: .bold))
-                VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
                     Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
-                    Text(value).font(.subheadline).foregroundStyle(DSColor.textSecondary)
+                    Spacer()
+                    Text(valueFormatter(latest))
+                        .font(.title3.monospacedDigit()).bold()
+                        .foregroundStyle(DSColor.textPrimary)
                 }
-                Spacer()
-            }
-        }
-    }
-}
 
-private struct ChartCard: View {
-    let title: String, tint: Color
-    let range: RangeOpt
-
-    var data: [Double] {
-        switch range {
-        case .d1: return [44, 52, 48, 50, 49, 55, 53]
-        case .d7: return [38, 44, 41, 47, 43, 39, 51]
-        case .m1: return (0..<30).map { _ in Double(Int.random(in: 20...60)) }
-        case .m3: return (0..<90).map { _ in Double(Int.random(in: 20...60)) }
-        }
-    }
-
-    var body: some View {
-        EFCard {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
                 #if canImport(Charts)
-                Chart {
-                    ForEach(data.indices, id: \.self) { i in
-                        LineMark(x: .value("x", i), y: .value("y", data[i]))
-                            .foregroundStyle(tint)
-                    }
+                Chart(data) { p in
+                    LineMark(
+                        x: .value("Date", p.date),
+                        y: .value("Value", p.value)
+                    )
+                    .interpolationMethod(.monotone)
+                    .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                    .foregroundStyle(color.opacity(0.85))
+
+                    AreaMark(
+                        x: .value("Date", p.date),
+                        y: .value("Value", p.value)
+                    )
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(color.opacity(0.18))
                 }
-                .frame(height: 220)
+                .chartXAxis(.automatic)
+                .chartYAxis(.automatic)
+                .frame(minHeight: 140)
                 #else
-                Text("Charts unavailable on this SDK").foregroundStyle(DSColor.textSecondary).frame(height: 120)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 12).fill(DSColor.surface)
+                    Text("Charts framework not available").foregroundStyle(DSColor.textSecondary).font(.footnote)
+                }
+                .frame(minHeight: 140)
                 #endif
+
+                HStack(spacing: 8) {
+                    Circle().fill(color.opacity(0.85)).frame(width: 8, height: 8)
+                    Text(unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                    Spacer()
+                    Text(labelForRange(store.range)).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                }
             }
         }
+    }
+
+    private func labelForRange(_ r: ProgressRange) -> String {
+        switch r {
+        case .day: return "Last day"
+        case .week: return "Last 7 days"
+        case .month: return "Last 30 days"
+        case .quarter: return "Last 90 days"
+        }
+    }
+
+    // MARK: - Sample Data Generation
+    private func generateStepsData() -> [ProgressPoint] {
+        generateSampleData(days: store.range.days, base: 8500, variance: 2500)
+    }
+
+    private func generateCaloriesData() -> [ProgressPoint] {
+        generateSampleData(days: store.range.days, base: 2400, variance: 600)
+    }
+
+    private func generateSleepData() -> [ProgressPoint] {
+        generateSampleData(days: store.range.days, base: 7.2, variance: 1.1)
+    }
+
+    private func generateHydrationData() -> [ProgressPoint] {
+        generateSampleData(days: store.range.days, base: 1900, variance: 700)
+    }
+
+    private func generateSampleData(days: Int, base: Double, variance: Double) -> [ProgressPoint] {
+        let cal = Calendar.current
+        let now = Date()
+        return (0..<days).map { i -> ProgressPoint in
+            let d = cal.date(byAdding: .day, value: -i, to: now)!
+            let v = max(0, base + Double.random(in: -variance...variance))
+            return ProgressPoint(date: d, value: v)
+        }.sorted { $0.date < $1.date }
     }
 }
