@@ -9,12 +9,14 @@ struct ProgressViewEF: View {
     @Environment(\.horizontalSizeClass) private var hSize
     private var isCompact: Bool { hSize == .compact }
 
-    // Forces Chart to rebuild on range changes (for smooth transition) AND
-    // drives the left→right reveal animation.
+    // Drives chart rebuild + reveal animation
     @State private var chartIdentity: Int = 0
     @State private var reveal: CGFloat = 1.0
 
-    // Layout: single column on iPhone, two columns on wider screens
+    // Sticky header size (for spacing when inset)
+    @State private var headerHeight: CGFloat = 0
+
+    // Layout
     private var grid: [GridItem] {
         isCompact ? [GridItem(.flexible())]
                   : [GridItem(.flexible(), spacing: 16), GridItem(.flexible(), spacing: 16)]
@@ -24,50 +26,64 @@ struct ProgressViewEF: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                headerRow
+                // Add top padding equal to header height so content doesn't go under the sticky header
+                Color.clear.frame(height: headerHeight)
 
                 LazyVGrid(columns: grid, spacing: 16) {
                     metricCard(
-                        kind: .training,
-                        title: "Training",
-                        color: .green,
-                        valueFormatter: { v in "\(Int(v))" }
-                    )
-                    metricCard(
-                        kind: .nutrition,
-                        title: "Nutrition",
-                        color: .orange,
-                        valueFormatter: { v in "\(Int(v))" }
-                    )
-                    metricCard(
-                        kind: .recovery,
-                        title: "Recovery",
+                        title: "Steps",
                         color: .blue,
+                        series: store.series(for: .steps),
+                        valueFormatter: { v in "\(Int(v))" }
+                    )
+                    metricCard(
+                        title: "Calories",
+                        color: .orange,
+                        series: store.series(for: .calories),
+                        valueFormatter: { v in "\(Int(v))" }
+                    )
+                    metricCard(
+                        title: "Sleep",
+                        color: .purple,
+                        series: store.series(for: .sleep),
                         valueFormatter: { v in String(format: "%.1f", v) }
                     )
                     metricCard(
-                        kind: .hydration,
                         title: "Hydration",
-                        color: .cyan,
+                        color: .teal,
+                        series: store.series(for: .hydration),
                         valueFormatter: { v in v >= 1000 ? String(format: "%.1fL", v/1000) : "\(Int(v))ml" }
                     )
                 }
                 .animation(.snappy(duration: 0.45, extraBounce: 0.04), value: store.range)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
-            .padding(16)
-        }
-        .background(
-            DSColor.appBackground
-                .overlay(
-                    // Very subtle vignette for depth
-                    RadialGradient(
-                        colors: [Color.black.opacity(0.10), .clear],
-                        center: .topLeading, startRadius: 10, endRadius: 500
+            .background(
+                DSColor.appBackground
+                    .overlay(
+                        RadialGradient(colors: [Color.black.opacity(0.10), .clear],
+                                       center: .topLeading,
+                                       startRadius: 10, endRadius: 500)
                     )
-                )
-                .ignoresSafeArea()
-        )
+                    .ignoresSafeArea()
+            )
+        }
+        // STICKY HEADER
+        .safeAreaInset(edge: .top) {
+            headerRow
+                .background(.ultraThinMaterial)
+                .overlay(Divider(), alignment: .bottom)
+                .readSize { headerHeight = $0.height }
+        }
         .onAppear {
+            store.regenerate()
+            startRevealAnimation()
+        }
+        .onChange(of: store.range) {
+            withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
+                chartIdentity &+= 1
+            }
             store.regenerate()
             startRevealAnimation()
         }
@@ -94,23 +110,17 @@ struct ProgressViewEF: View {
             .pickerStyle(.segmented)
             .controlSize(.regular)
             .frame(width: isCompact ? 260 : 320)
-            .onChange(of: store.range) {
-                withAnimation(.snappy(duration: 0.45, extraBounce: 0.04)) {
-                    chartIdentity &+= 1
-                }
-                store.regenerate()
-                startRevealAnimation()
-            }
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 16)
+        .padding(.top, 8)
+        .padding(.bottom, 10)
     }
 
     // MARK: - Cards
 
     @ViewBuilder
-    private func metricCard(kind: ProgressKind, title: String, color: Color, valueFormatter: @escaping (Double)->String) -> some View {
-        let points = store.series[kind] ?? []
-        let latest = points.last?.value ?? 0
+    private func metricCard(title: String, color: Color, series: EFMetricSeries, valueFormatter: (Double)->String) -> some View {
+        let latest = series.points.last?.value ?? 0
 
         ChartCard {
             HStack {
@@ -123,7 +133,7 @@ struct ProgressViewEF: View {
             }
         } chart: {
             #if canImport(Charts)
-            Chart(points) { p in
+            Chart(series.points) { p in
                 LineMark(
                     x: .value("Date", p.date),
                     y: .value("Value", p.value)
@@ -143,6 +153,7 @@ struct ProgressViewEF: View {
             .chartYAxis(.automatic)
             .frame(minHeight: chartHeight)
             .id(chartIdentity)
+
             // LEFT→RIGHT REVEAL: mask scales from 0→1 with animation
             .mask(
                 GeometryReader { geo in
@@ -164,7 +175,7 @@ struct ProgressViewEF: View {
         } footer: {
             HStack(spacing: 8) {
                 Circle().fill(color.opacity(0.9)).frame(width: 8, height: 8)
-                Text(kind.unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                Text(series.unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
                 Spacer()
                 Text(labelForRange(store.range)).foregroundStyle(DSColor.textSecondary).font(.footnote)
             }
@@ -173,7 +184,7 @@ struct ProgressViewEF: View {
 
     private func labelForRange(_ r: ProgressRange) -> String {
         switch r {
-        case .day:   return "Last day"
+        case .day:   return "Today"
         case .week:  return "Last 7 days"
         case .month: return "Last 30 days"
         case .quarter: return "Last 90 days"
@@ -187,5 +198,25 @@ struct ProgressViewEF: View {
         withAnimation(.easeOut(duration: 0.75)) {
             reveal = 1.0
         }
+    }
+}
+
+private extension View {
+    // Utility to read rendered size
+    func readSize(onChange: @escaping (CGSize) -> Void) -> some View {
+        background(
+            GeometryReader { geo in
+                Color.clear
+                    .preference(key: SizePrefKey.self, value: geo.size)
+            }
+        )
+        .onPreferenceChange(SizePrefKey.self, perform: onChange)
+    }
+}
+
+private struct SizePrefKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
     }
 }
