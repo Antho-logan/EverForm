@@ -7,280 +7,232 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
 
+// MARK: - Hide Apple nav stripe/shadow (keeps our in-app header)
+fileprivate enum EFNavAppearance {
+    static func hideStripe() {
+        let ap = UINavigationBarAppearance()
+        ap.configureWithOpaqueBackground()
+        ap.backgroundColor = .clear  // let our canvas show through
+        ap.shadowColor = .clear      // remove the hairline/stripe
+        ap.titleTextAttributes = [.foregroundColor: UIColor.clear]
+        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.clear]
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance   = ap
+        nav.scrollEdgeAppearance = ap
+        nav.compactAppearance    = ap
+    }
+}
+
+// MARK: - LookMaxingView (drop-in replacement of your existing struct)
 struct LookMaxingView: View {
-    @Environment(\.dismiss) private var dismiss
+    
+    // ---- Map these to your existing state/view-model if names differ ----
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var uiImage: UIImage?
     @State private var goalText: String = ""
     @State private var isLoading: Bool = false
     @State private var analysisResult: LookMaxingResult?
-    @State private var showHowItWorks: Bool = false
+    // --------------------------------------------------------------------
 
     var body: some View {
-        NavigationStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 24) {
-                    // MARK: - Header
-                    headerSection
+        // Use app canvas and hide default nav chrome
+        let canvas = DSColor.appBackground
+        let cardBG = DSColor.card
 
-                    // MARK: - Photo Picker
-                    photoPickerSection
+        ZStack {
+            canvas.ignoresSafeArea()
 
-                    // MARK: - Goal Input
-                    goalInputSection
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
 
-                    // MARK: - Analyze Button
-                    analyzeButtonSection
+                    // In-app large header (matches Scan Food style)
+                    Text("Look Maxing")
+                        .font(.system(size: 34, weight: .bold))   // same large title weight/size as Scan Food
+                        .kerning(-0.5)
+                        .padding(.top, 6)
 
-                    // MARK: - Results
-                    if let result = analysisResult {
-                        resultsSection(result: result)
-                    }
+                    // Optional subtitle (mirrors Scan Food's descriptive lead)
+                    Text("Upload a photo and tell us your goal")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
 
-                    // MARK: - How It Works
-                    howItWorksSection
+                    // --- Photo card ---
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Your Photo")
+                            .font(.headline)
 
-                    Spacer(minLength: 40)
-                }
-                .padding(.horizontal, 20)
-                .padding(.top, 16)
-            }
-            .background(DSColor.appBackground.ignoresSafeArea())
-            .navigationTitle("Look Maxing")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-            .onChange(of: selectedPhoto) { _, newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        uiImage = image
-                    }
-                }
-            }
-        }
-    }
+                        PhotosPicker(
+                            selection: $selectedPhoto,
+                            matching: .images,
+                            photoLibrary: .shared()
+                        ) {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(cardBG)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                            .stroke(Color.black.opacity(0.06), lineWidth: 1)
+                                    )
+                                    .frame(maxWidth: .infinity, minHeight: 180)
 
-    // MARK: - Header
-    private var headerSection: some View {
-        VStack(spacing: 12) {
-            Text("Get personalized look recommendations")
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(DSColor.textPrimary)
-                .multilineTextAlignment(.center)
-            
-            Text("Upload a photo and tell us your goal")
-                .font(.subheadline)
-                .foregroundStyle(DSColor.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-    }
-
-    // MARK: - Photo Picker
-    private var photoPickerSection: some View {
-        VStack(spacing: 16) {
-            Text("Your Photo")
-                .font(.headline)
-                .foregroundStyle(DSColor.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            PhotosPicker(
-                selection: $selectedPhoto,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
-                ZStack {
-                    if let image = uiImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                    } else {
-                        VStack(spacing: 12) {
-                            Image(systemName: "camera.fill")
-                                .font(.title2)
-                                .foregroundStyle(DSColor.textSecondary)
-                            Text("Tap to select photo")
-                                .font(.subheadline)
-                                .foregroundStyle(DSColor.textSecondary)
+                                if let image = uiImage {
+                                    Image(uiImage: image)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(maxWidth: .infinity, minHeight: 180)
+                                        .clipped()
+                                        .cornerRadius(16)
+                                } else {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "camera.fill")
+                                            .font(.system(size: 28, weight: .semibold))
+                                            .foregroundStyle(.secondary)
+                                        Text("Tap to select photo")
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
                         }
+                        .buttonStyle(.plain)
                     }
+                    .padding(16)
+                    .background(cardBG, in: .rect(cornerRadius: 20, style: .continuous))
+
+                    // --- Goal card ---
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Your Goal")
+                            .font(.headline)
+
+                        TextField("e.g., more professional look, casual style, date night outfit…", text: $goalText, axis: .vertical)
+                            .textFieldStyle(.roundedBorder)
+                            .font(.body)
+                            .lineLimit(3...6)
+                            .submitLabel(.done)
+
+                        Button {
+                            // hook existing analyze action here
+                            Task {
+                                await analyzeLook()
+                            }
+                        } label: {
+                            HStack {
+                                if isLoading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(0.9)
+                                } else {
+                                    Text("Analyze My Look")
+                                        .font(.headline)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(Color(hex: 0xE05252)) // Use the existing red color from theme
+                        .disabled(uiImage == nil || goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading)
+                        .opacity((uiImage == nil || goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || isLoading) ? 0.6 : 1)
+                    }
+                    .padding(16)
+                    .background(cardBG, in: .rect(cornerRadius: 20, style: .continuous))
+
+                    // --- Results (if available) ---
+                    if let result = analysisResult {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("AI Analysis")
+                                .font(.headline)
+
+                            // Overall Assessment
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Overall Assessment")
+                                    .font(.subheadline.weight(.semibold))
+                                
+                                Text(result.overallAssessment)
+                                    .font(.body)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            // Specific Suggestions
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Specific Suggestions")
+                                    .font(.subheadline.weight(.semibold))
+                                
+                                ForEach(result.suggestions, id: \.self) { suggestion in
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.caption)
+                                        
+                                        Text(suggestion)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+
+                            // Style Tips
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("Style Tips")
+                                    .font(.subheadline.weight(.semibold))
+                                
+                                ForEach(result.styleTips, id: \.self) { tip in
+                                    HStack(alignment: .top, spacing: 8) {
+                                        Image(systemName: "lightbulb.fill")
+                                            .foregroundStyle(.green)
+                                            .font(.caption)
+                                        
+                                        Text(tip)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(16)
+                        .background(cardBG, in: .rect(cornerRadius: 20, style: .continuous))
+                    }
+
+                    // --- How it works (same feel as the 3rd screenshot) ---
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("How It Works")
+                            .font(.headline)
+
+                        VStack(alignment: .leading, spacing: 14) {
+                            LookStepRow(step: 1, title: "Upload your photo",
+                                        desc: "Take or select a photo showing your current outfit")
+                            LookStepRow(step: 2, title: "Set your goal",
+                                        desc: "Tell us what look you're trying to achieve")
+                            LookStepRow(step: 3, title: "AI Analysis",
+                                        desc: "Our AI analyzes your photo and goal")
+                            LookStepRow(step: 4, title: "Get suggestions",
+                                        desc: "Receive personalized recommendations and style tips")
+                        }
+                        .padding(.top, 6)
+                    }
+                    .padding(16)
+                    .background(cardBG, in: .rect(cornerRadius: 20, style: .continuous))
+
                 }
-                .frame(height: 200)
-                .frame(maxWidth: .infinity)
-                .background(DSColor.surface)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(DSColor.textSecondary.opacity(0.2), lineWidth: 1)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .padding(.horizontal, 16)
+                .padding(.bottom, 24)
             }
         }
-    }
-
-    // MARK: - Goal Input
-    private var goalInputSection: some View {
-        VStack(spacing: 16) {
-            Text("Your Goal")
-                .font(.headline)
-                .foregroundStyle(DSColor.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            TextField("e.g., more professional look, casual style, date night outfit...", text: $goalText, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
-                .lineLimit(3...6)
+        .onAppear {
+            EFNavAppearance.hideStripe()        // remove the hairline
         }
-    }
-
-    // MARK: - Analyze Button
-    private var analyzeButtonSection: some View {
-        Button(action: {
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)   // hide Apple nav UI ("Done", default title bar)
+        .scrollIndicators(.hidden)
+        .background(canvas)                      // ensure bottom bar matches page color
+        .onChange(of: selectedPhoto) { _, newItem in
             Task {
-                await analyzeLook()
-            }
-        }) {
-            HStack {
-                if isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .scaleEffect(0.9)
-                } else {
-                    Text("Analyze My Look")
-                        .font(.headline.weight(.semibold))
+                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                   let image = UIImage(data: data) {
+                    uiImage = image
                 }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .background(Color.red)
-            .foregroundStyle(.white)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-        }
-        .disabled(uiImage == nil || goalText.isEmpty || isLoading)
-        .opacity(uiImage == nil || goalText.isEmpty || isLoading ? 0.6 : 1.0)
-    }
-
-    // MARK: - Results
-    private func resultsSection(result: LookMaxingResult) -> some View {
-        VStack(spacing: 20) {
-            Text("AI Analysis")
-                .font(.title2.weight(.semibold))
-                .foregroundStyle(DSColor.textPrimary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-            // Overall Assessment
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Overall Assessment")
-                    .font(.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                
-                Text(result.overallAssessment)
-                    .font(.body)
-                    .foregroundStyle(DSColor.textSecondary)
-            }
-            .padding(16)
-            .background(DSColor.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            // Specific Suggestions
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Specific Suggestions")
-                    .font(.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                
-                ForEach(result.suggestions, id: \.self) { suggestion in
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(DSColor.brand)
-                            .font(.title3)
-                        
-                        Text(suggestion)
-                            .font(.body)
-                            .foregroundStyle(DSColor.textSecondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-            }
-            .padding(16)
-            .background(DSColor.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-
-            // Style Tips
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Style Tips")
-                    .font(.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                
-                ForEach(result.styleTips, id: \.self) { tip in
-                    HStack(alignment: .top, spacing: 12) {
-                        Image(systemName: "lightbulb.fill")
-                            .foregroundStyle(DSColor.brand)
-                            .font(.title3)
-                        
-                        Text(tip)
-                            .font(.body)
-                            .foregroundStyle(DSColor.textSecondary)
-                    }
-                    .padding(.vertical, 4)
-                }
-            }
-            .padding(16)
-            .background(DSColor.surface)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-        }
-    }
-
-    // MARK: - How It Works
-    private var howItWorksSection: some View {
-        VStack(spacing: 16) {
-            Button(action: {
-                showHowItWorks.toggle()
-            }) {
-                HStack {
-                    Text("How It Works")
-                        .font(.headline)
-                        .foregroundStyle(DSColor.textPrimary)
-                    Spacer()
-                    Image(systemName: showHowItWorks ? "chevron.up" : "chevron.down")
-                        .foregroundStyle(DSColor.textSecondary)
-                }
-            }
-            .buttonStyle(.plain)
-
-            if showHowItWorks {
-                VStack(alignment: .leading, spacing: 12) {
-                    howItWorksStep(number: "1", title: "Upload your photo", description: "Take or select a photo showing your current outfit")
-                    howItWorksStep(number: "2", title: "Set your goal", description: "Tell us what look you're trying to achieve")
-                    howItWorksStep(number: "3", title: "AI Analysis", description: "Our AI analyzes your photo and goal")
-                    howItWorksStep(number: "4", title: "Get suggestions", description: "Receive personalized recommendations and style tips")
-                }
-                .padding(16)
-                .background(DSColor.surface)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-            }
-        }
-    }
-
-    private func howItWorksStep(number: String, title: String, description: String) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Text(number)
-                .font(.headline.weight(.bold))
-                .foregroundStyle(DSColor.brand)
-                .frame(width: 24, height: 24)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(DSColor.textPrimary)
-                
-                Text(description)
-                    .font(.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-            }
-            
-            Spacer()
         }
     }
 
@@ -312,6 +264,25 @@ struct LookMaxingView: View {
         
         analysisResult = mockResult
         isLoading = false
+    }
+}
+
+// MARK: - Reusable numbered row (1–4) used in "How It Works"
+fileprivate struct LookStepRow: View {
+    let step: Int
+    let title: String
+    let desc: String
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Text("\(step)")
+                .font(.headline)
+                .foregroundStyle(.green)                     // subtle accent like examples
+                .frame(width: 24, height: 24)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(.subheadline).fontWeight(.semibold)
+                Text(desc).font(.footnote).foregroundStyle(.secondary)
+            }
+        }
     }
 }
 
