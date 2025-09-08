@@ -79,8 +79,8 @@ struct OverviewView: View {
                                 route = .fixPain
                             }
 
-                            quickActionButton(icon: "brain.head.profile", title: "Ask Coach", color: .indigo) {
-                                EFRouter.open(.coachTab)
+                            quickActionButton(icon: "person.fill.viewfinder", title: "Look Maxing", color: .purple) {
+                                route = .lookMaxing
                             }
                         }
                         .padding(.horizontal, 20)
@@ -203,6 +203,7 @@ struct OverviewView: View {
         case .addWater:        NavigationStack { AddWaterView() }
         case .breathwork:      NavigationStack { BreathworkView() }
         case .fixPain:         NavigationStack { FixPainView() }
+        case .lookMaxing:      NavigationStack { LookMaxingView() }
 
         case .profile:         NavigationStack { ProfileView() }
         case .display:         NavigationStack { DisplaySettingsView() }

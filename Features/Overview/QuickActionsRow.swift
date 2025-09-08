@@ -13,7 +13,7 @@ struct QuickActionsRow: View {
     var onAddWater: () -> Void
     var onBreathwork: () -> Void
     var onFixPain: () -> Void
-    var onAskCoach: () -> Void
+    var onLookMaxing: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -32,7 +32,7 @@ struct QuickActionsRow: View {
                 actionTile(title: "Add Water", system: "drop.fill") { onAddWater() }
                 actionTile(title: "Breathwork", system: "wind") { onBreathwork() }
                 actionTile(title: "Fix Pain", system: "cross.case.fill") { onFixPain() }
-                actionTile(title: "Ask Coach", system: "brain.head.profile") { onAskCoach() }
+                actionTile(title: "Look Maxing", system: "person.fill.viewfinder") { onLookMaxing() }
             }
         }
         .accessibilityElement(children: .contain)

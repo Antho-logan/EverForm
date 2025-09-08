@@ -18,7 +18,7 @@ struct QuickAction: Identifiable, Codable, Equatable {
         case addWater = "addWater"
         case breathwork = "breathwork"
         case fixPain = "fixPain"
-        case askCoach = "askCoach"
+        case lookMaxing = "lookMaxing"
     }
     
     // Custom Color coding for persistence
@@ -78,11 +78,11 @@ struct QuickAction: Identifiable, Codable, Equatable {
             actionType: .fixPain
         ),
         QuickAction(
-            id: "askCoach",
-            title: "Ask Coach",
-            icon: "brain.head.profile",
-            color: .blue,
-            actionType: .askCoach
+            id: "lookMaxing",
+            title: "Look Maxing",
+            icon: "person.fill.viewfinder",
+            color: .purple,
+            actionType: .lookMaxing
         )
     ]
 }

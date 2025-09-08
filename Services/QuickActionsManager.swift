@@ -92,9 +92,9 @@ final class QuickActionsManager {
             DebugLog.info("Overview: Fix pain quick action tapped")
             showPainHelperSheet()
             
-        case .askCoach:
-            DebugLog.info("Overview: Ask Coach quick action tapped")
-            viewModel.openCoach()
+        case .lookMaxing:
+            DebugLog.info("Overview: Look Maxing quick action tapped")
+            viewModel.openLookMaxing()
         }
     }
 }

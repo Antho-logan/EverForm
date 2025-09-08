@@ -186,6 +186,11 @@ final class DashboardViewModel {
         openCoach()
         showingCoachView = true
     }
+    
+    func openLookMaxing() {
+        logTap("look_maxing")
+        // This will be handled by the navigation system
+    }
 
     func profileTapped() {
         logTap("profile_tap")
