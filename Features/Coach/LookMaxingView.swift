@@ -19,40 +19,56 @@ private extension Color {
     static var efAccentGreen: Color { Color.green }              // same green used on Scan Food CTA
 }
 
-// MARK: - Local Card container that matches Scan Food cards
-private struct LMCard<Content: View>: View {
-    let content: Content
-    init(@ViewBuilder content: () -> Content) { self.content = content() }
+// MARK: - Local helpers for LookMaxing (file-scoped; do not reuse globally)
+// NOTE: We intentionally use *Local* names to avoid module-wide redeclaration with similarly
+// named helpers that may exist elsewhere.
+
+private struct LMCardLocal<Content: View>: View {
+    let title: String?
+    let subtitle: String?
+    @ViewBuilder var content: Content
+
+    init(title: String? = nil, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.subtitle = subtitle
+        self.content = content()
+    }
+
     var body: some View {
-        content
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.efCard)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(Color.efCardStroke, lineWidth: 1)
-                    )
-                    .shadow(color: Color.efShadow, radius: 10, x: 0, y: 4)
-            )
+        VStack(alignment: .leading, spacing: 12) {
+            if let title {
+                Text(title)
+                    .font(.headline)
+            }
+            if let subtitle {
+                Text(subtitle)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+            content
+        }
+        .padding(16)
+        .background(
+            // Use the same card background as other screens (existing token).
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(DSColor.card)
+        )
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
     }
 }
 
-// MARK: - Local primary button style that mirrors Scan Food "Generate Mock Result"
-private struct LMPrimaryButtonStyle: ButtonStyle {
+private struct LMPrimaryButtonStyleLocal: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.headline.weight(.semibold))
+            .font(.headline)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.efAccentGreen.opacity(configuration.isPressed ? 0.85 : 1))
-            )
             .foregroundStyle(.white)
-            .scaleEffect(configuration.isPressed ? 0.99 : 1)
-            .animation(.easeOut(duration: 0.08), value: configuration.isPressed)
+            // Reuse the app's existing primary red CTA token (same as Fix Pain "Start Assessment")
+            .background(EFColor.painAccent)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .opacity(configuration.isPressed ? 0.85 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 
@@ -86,7 +102,7 @@ struct LookMaxingView: View {
                     .padding(.bottom, 4)
 
                     // Card: Photo
-                    LMCard {
+                    LMCardLocal {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Your Photo")
                                 .font(.headline)
@@ -131,7 +147,7 @@ struct LookMaxingView: View {
                     }
 
                     // Card: Goal
-                    LMCard {
+                    LMCardLocal {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Your Goal")
                                 .font(.headline)
@@ -147,12 +163,12 @@ struct LookMaxingView: View {
                     Button("Analyze My Look") {
                         // stub – LLM integration happens elsewhere
                     }
-                    .buttonStyle(LMPrimaryButtonStyle())
+                    .buttonStyle(LMPrimaryButtonStyleLocal())
                     .disabled(goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil)
                     .opacity((goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil) ? 0.6 : 1)
 
                     // Card: How It Works
-                    LMCard {
+                    LMCardLocal {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("How It Works")
@@ -208,7 +224,7 @@ private struct LMStepRow: View {
                 .font(.headline.weight(.semibold))
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
-                .background(Circle().fill(Color.efAccentGreen))
+                .background(Circle().fill(EFColor.painAccent))
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
                 Text(text).font(.subheadline).foregroundStyle(Color.efSubtitle)
