@@ -8,8 +8,8 @@
 import SwiftUI
 import UIKit
 
-// MARK: - File-scoped helpers (prefixed to avoid collisions)
-fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
+// MARK: - Local Nutrition helpers (file-scoped, no project-wide changes)
+fileprivate enum MealKindLocal: String, CaseIterable, Identifiable {
     case breakfast, lunch, dinner, snack
     var id: String { rawValue }
     var title: String {
@@ -22,15 +22,17 @@ fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
     }
 }
 
-fileprivate struct NUTRMacros: Equatable {
-    var calories = 0
-    var protein  = 0
-    var carbs    = 0
-    var fat      = 0
+fileprivate struct MacrosLocal: Equatable {
+    var calories: Int = 0
+    var protein:  Int = 0
+    var carbs:    Int = 0
+    var fat:      Int = 0
+    
     var isEmpty: Bool { calories == 0 && protein == 0 && carbs == 0 && fat == 0 }
 }
 
-fileprivate enum NUTRNavStyler {
+// Header styling to remove the faint separator/stripe and match app background.
+fileprivate enum NutritionNavStyler {
     static func apply(background uiColor: UIColor) {
         let ap = UINavigationBarAppearance()
         ap.configureWithOpaqueBackground()
@@ -38,10 +40,11 @@ fileprivate enum NUTRNavStyler {
         ap.shadowColor = .clear
         ap.titleTextAttributes = [.foregroundColor: UIColor.label]
         ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        
         let nav = UINavigationBar.appearance()
-        nav.standardAppearance   = ap
+        nav.standardAppearance = ap
         nav.scrollEdgeAppearance = ap
-        nav.compactAppearance    = ap
+        nav.compactAppearance = ap
     }
 }
 
@@ -50,33 +53,33 @@ struct NutritionView: View {
     @EnvironmentObject private var journalStore: JournalStore // ← ADAPT type name to the actual store
 
     // MARK: - Per-meal state
-    @State private var nutrSelected: NUTRMealKind = .breakfast
-    @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
-        Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, NUTRMacros()) })
-    @State private var nutrNotes: String = ""
+    @State private var selectedMealLocal: MealKindLocal = .breakfast
+    @State private var mealValuesLocal: [MealKindLocal: MacrosLocal] =
+        Dictionary(uniqueKeysWithValues: MealKindLocal.allCases.map { ($0, MacrosLocal()) })
+    @State private var notesLocal: String = ""
 
     // Computed binding to the current meal's macros
-    private var nutrCurrent: Binding<NUTRMacros> {
+    private var currentMacrosLocal: Binding<MacrosLocal> {
         Binding(
-            get: { nutrValues[nutrSelected, default: NUTRMacros()] },
-            set: { nutrValues[nutrSelected] = $0 }
+            get: { mealValuesLocal[selectedMealLocal, default: MacrosLocal()] },
+            set: { mealValuesLocal[selectedMealLocal] = $0 }
         )
     }
 
-    private func nutrStep(_ keyPath: WritableKeyPath<NUTRMacros, Int>, _ delta: Int) {
-        var m = nutrValues[nutrSelected] ?? NUTRMacros()
+    private func step(_ keyPath: WritableKeyPath<MacrosLocal, Int>, _ delta: Int) {
+        var m = mealValuesLocal[selectedMealLocal] ?? MacrosLocal()
         m[keyPath: keyPath] = max(0, m[keyPath: keyPath] + delta)
-        nutrValues[nutrSelected] = m
+        mealValuesLocal[selectedMealLocal] = m
     }
 
-    private var nutrCanLog: Bool {
-        let m = nutrValues[nutrSelected] ?? .init()
-        return !m.isEmpty || !nutrNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    private var canLogLocal: Bool {
+        let m = mealValuesLocal[selectedMealLocal] ?? .init()
+        return !m.isEmpty || !notesLocal.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    private func nutrPersistCurrent() {
-        let m = nutrValues[nutrSelected] ?? .init()
-        let text = nutrNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func persistCurrentMealLocal() {
+        let m = mealValuesLocal[selectedMealLocal] ?? .init()
+        _ = notesLocal.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // Convert to the app's real JournalMealEntry model
         let foodItem = JournalFoodItem(
@@ -89,7 +92,7 @@ struct NutritionView: View {
         
         // Map local meal type to JournalMealType
         let journalMealType: JournalMealType
-        switch nutrSelected {
+        switch selectedMealLocal {
         case .breakfast: journalMealType = .breakfast
         case .lunch: journalMealType = .lunch
         case .dinner: journalMealType = .dinner
@@ -111,22 +114,22 @@ struct NutritionView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                nutrMealCard
-                nutrNotesCard
+                mealCardLocal
+                notesCardLocal
 
                 Button {
-                    nutrPersistCurrent()
+                    persistCurrentMealLocal()
                     // Reset only the active tab
-                    nutrValues[nutrSelected] = .init()
-                    nutrNotes = ""
+                    mealValuesLocal[selectedMealLocal] = .init()
+                    notesLocal = ""
                 } label: {
                     Text("Log Meal")
                         .font(.system(.title3, design: .rounded).weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                 }
-                .disabled(!nutrCanLog)
-                .opacity(nutrCanLog ? 1 : 0.4)
+                .disabled(!canLogLocal)
+                .opacity(canLogLocal ? 1 : 0.4)
                 .buttonStyle(.borderedProminent)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .padding(.horizontal, 16)
@@ -148,23 +151,23 @@ struct NutritionView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(Color(DSColor.appBackground), for: .navigationBar)
         .onAppear {
-            NUTRNavStyler.apply(background: UIColor(DSColor.appBackground))
+            NutritionNavStyler.apply(background: UIColor(DSColor.appBackground))
         }
     }
 
       // MARK: - UI Building Blocks
     
-    private var nutrMealCard: some View {
+    private var mealCardLocal: some View {
         VStack(alignment: .leading, spacing: 12) {
-            nutrSegmented
-            nutrMacroRow("Calories", value: nutrCurrent.wrappedValue.calories,
-                         minus: { nutrStep(\.calories, -50) }, plus: { nutrStep(\.calories, +50) })
-            nutrMacroRow("Protein",  value: nutrCurrent.wrappedValue.protein,
-                         minus: { nutrStep(\.protein, -5) }, plus: { nutrStep(\.protein, +5) })
-            nutrMacroRow("Carbs",    value: nutrCurrent.wrappedValue.carbs,
-                         minus: { nutrStep(\.carbs, -5) }, plus: { nutrStep(\.carbs, +5) })
-            nutrMacroRow("Fat",      value: nutrCurrent.wrappedValue.fat,
-                         minus: { nutrStep(\.fat, -5) }, plus: { nutrStep(\.fat, +5) })
+            segmentedLocal
+            macroRowLocal("Calories", value: currentMacrosLocal.wrappedValue.calories,
+                         minus: { step(\.calories, -50) }, plus: { step(\.calories, +50) })
+            macroRowLocal("Protein",  value: currentMacrosLocal.wrappedValue.protein,
+                         minus: { step(\.protein, -5) }, plus: { step(\.protein, +5) })
+            macroRowLocal("Carbs",    value: currentMacrosLocal.wrappedValue.carbs,
+                         minus: { step(\.carbs, -5) }, plus: { step(\.carbs, +5) })
+            macroRowLocal("Fat",      value: currentMacrosLocal.wrappedValue.fat,
+                         minus: { step(\.fat, -5) }, plus: { step(\.fat, +5) })
         }
         .padding(16)
         .background(
@@ -175,11 +178,11 @@ struct NutritionView: View {
         .padding(.horizontal, 16)
     }
 
-    private var nutrSegmented: some View {
+    private var segmentedLocal: some View {
         HStack(spacing: 8) {
-            ForEach(NUTRMealKind.allCases) { kind in
+            ForEach(MealKindLocal.allCases) { kind in
                 Button {
-                    nutrSelected = kind
+                    selectedMealLocal = kind
                 } label: {
                     Text(kind.title)
                         .font(.callout.weight(.semibold))
@@ -188,24 +191,24 @@ struct NutritionView: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(nutrSelected == kind ? Color(DSColor.card) 
-                                                   : Color(DSColor.appBackground))
+                        .fill(selectedMealLocal == kind ? Color(DSColor.card) 
+                                                      : Color(DSColor.appBackground))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .stroke(Color(DSColor.textSecondary).opacity(0.3), lineWidth: 1)
-                        .opacity(nutrSelected == kind ? 0 : 1)
+                        .opacity(selectedMealLocal == kind ? 0 : 1)
                 )
-                .foregroundStyle(nutrSelected == kind ? Color(DSColor.textPrimary) 
-                                                      : Color(DSColor.textSecondary))
+                .foregroundStyle(selectedMealLocal == kind ? Color(DSColor.textPrimary) 
+                                                         : Color(DSColor.textSecondary))
             }
         }
     }
 
-    private func nutrMacroRow(_ title: String,
-                              value: Int,
-                              minus: @escaping () -> Void,
-                              plus:  @escaping () -> Void) -> some View {
+    private func macroRowLocal(_ title: String,
+                           value: Int,
+                           minus: @escaping () -> Void,
+                           plus:  @escaping () -> Void) -> some View {
         HStack {
             Text("\(title): \(value)\(title == "Calories" ? "" : " g")")
             Spacer()
@@ -217,10 +220,10 @@ struct NutritionView: View {
         .font(.body)
     }
 
-    private var nutrNotesCard: some View {
+    private var notesCardLocal: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Notes").font(.headline)
-            TextEditor(text: $nutrNotes)
+            TextEditor(text: $notesLocal)
                 .frame(minHeight: 120)
                 .padding(10)
                 .background(
