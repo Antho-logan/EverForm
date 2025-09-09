@@ -2,6 +2,35 @@ import SwiftUI
 import PhotosUI
 import UIKit
 
+// MARK: - Local navbar appearance styler (file-scoped to avoid name collisions)
+fileprivate enum NUTRNavStylerLocal {
+    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
+
+    static func apply(background uiColor: UIColor) {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = uiColor
+        appearance.shadowColor = .clear
+
+        // Keep title fonts/colors as-is; we just remove the stripe and set bg.
+        let nav = UINavigationBar.appearance()
+        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
+
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+
+    static func reset() {
+        guard let c = cached else { return }
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = c.standard
+        nav.scrollEdgeAppearance = c.scroll
+        nav.compactAppearance = c.compact
+        cached = nil
+    }
+}
+
 // Adapt to your real model names & JournalStore APIs.
 struct SmartMealLoggerSheet: View {
   @EnvironmentObject var journalStore: JournalStore
@@ -15,106 +44,106 @@ struct SmartMealLoggerSheet: View {
   @State private var estimate: MealEstimate?
 
   var body: some View {
-    NavigationStack {
-      ScrollView {
-        VStack(spacing: 16) {
+    ZStack {
+      DesignSystem.Colors.backgroundSecondary.ignoresSafeArea()
+      NavigationStack {
+        ScrollView {
+          VStack(spacing: 16) {
 
-          // Photo picker
-          PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
-            ZStack {
-              RoundedRectangle(cornerRadius: 16).fill(DSColor.card)
-                .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
-                .frame(maxWidth: .infinity, minHeight: 200)
-              if let image = uiImage {
-                Image(uiImage: image)
-                  .resizable().scaledToFill()
-                  .frame(height: 200)
-                  .clipShape(RoundedRectangle(cornerRadius: 16))
-              } else {
-                VStack(spacing: 8) {
-                  Image(systemName: "camera.viewfinder").font(.title)
-                  Text("Tap to select photo").font(.subheadline).foregroundStyle(.secondary)
+            // Photo picker
+            PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
+              ZStack {
+                RoundedRectangle(cornerRadius: 16).fill(DSColor.card)
+                  .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+                  .frame(maxWidth: .infinity, minHeight: 200)
+                if let image = uiImage {
+                  Image(uiImage: image)
+                    .resizable().scaledToFill()
+                    .frame(height: 200)
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                } else {
+                  VStack(spacing: 8) {
+                    Image(systemName: "camera.viewfinder").font(.title)
+                    Text("Tap to select photo").font(.subheadline).foregroundStyle(.secondary)
+                  }
                 }
               }
             }
-          }
-          .onChange(of: pickerItem) { _, newItem in
-            Task { uiImage = await loadImage(from: newItem) }
-          }
-
-          // Text prompt
-          VStack(alignment: .leading, spacing: 8) {
-            Text("Describe your meal").font(.headline)
-            TextField("e.g., 2 eggs, avocado, buttered toast", text: $textPrompt, axis: .vertical)
-              .textFieldStyle(.roundedBorder)
-          }
-
-          // Analyze button
-          Button {
-            Task { await analyze() }
-          } label: {
-            HStack {
-              if isAnalyzing { ProgressView().padding(.trailing, 8) }
-              Text(isAnalyzing ? "Analyzing…" : "Analyze")
+            .onChange(of: pickerItem) { _, newItem in
+              Task { uiImage = await loadImage(from: newItem) }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 14)
-          }
-          .disabled(isAnalyzing || (uiImage == nil && textPrompt.trimmingCharacters(in: .whitespaces).isEmpty))
-          .buttonStyle(.borderedProminent)
-          .tint(.orange)
 
-          // Result card
-          if let e = estimate {
-            VStack(alignment: .leading, spacing: 10) {
-              Text("Estimated Nutrition").font(.headline)
-              HStack(spacing: 16) {
-                Tag("Calories", value: "\(e.calories) kcal")
-                Tag("Protein",  value: "\(e.protein) g")
-                Tag("Carbs",    value: "\(e.carbs) g")
-                Tag("Fat",      value: "\(e.fat) g")
-              }
-              if !e.explanation.isEmpty {
-                Text(e.explanation)
-                  .font(.footnote)
-                  .foregroundStyle(.secondary)
-              }
-
-              Button {
-                saveMeal(from: e)
-                dismiss()
-              } label: {
-                Text("Save Meal")
-                  .frame(maxWidth: .infinity)
-                  .padding(.vertical, 14)
-              }
-              .buttonStyle(.borderedProminent)
-              .tint(.orange)
+            // Text prompt
+            VStack(alignment: .leading, spacing: 8) {
+              Text("Describe your meal").font(.headline)
+              TextField("e.g., 2 eggs, avocado, buttered toast", text: $textPrompt, axis: .vertical)
+                .textFieldStyle(.roundedBorder)
             }
-            .padding(16)
-            .background(RoundedRectangle(cornerRadius: 16).fill(DSColor.card))
-            .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+
+            // Analyze button
+            Button {
+              Task { await analyze() }
+            } label: {
+              HStack {
+                if isAnalyzing { ProgressView().padding(.trailing, 8) }
+                Text(isAnalyzing ? "Analyzing…" : "Analyze")
+              }
+              .frame(maxWidth: .infinity)
+              .padding(.vertical, 14)
+            }
+            .disabled(isAnalyzing || (uiImage == nil && textPrompt.trimmingCharacters(in: .whitespaces).isEmpty))
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+
+            // Result card
+            if let e = estimate {
+              VStack(alignment: .leading, spacing: 10) {
+                Text("Estimated Nutrition").font(.headline)
+                HStack(spacing: 16) {
+                  Tag("Calories", value: "\(e.calories) kcal")
+                  Tag("Protein",  value: "\(e.protein) g")
+                  Tag("Carbs",    value: "\(e.carbs) g")
+                  Tag("Fat",      value: "\(e.fat) g")
+                }
+                if !e.explanation.isEmpty {
+                  Text(e.explanation)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                }
+
+                Button {
+                  saveMeal(from: e)
+                  dismiss()
+                } label: {
+                  Text("Save Meal")
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+              }
+              .padding(16)
+              .background(RoundedRectangle(cornerRadius: 16).fill(DSColor.card))
+              .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+            }
           }
+          .padding(16)
         }
-        .padding(16)
+        .navigationTitle("Smart Log (AI)")
+        .toolbar {
+          ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
+        }
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
+        .scrollContentBackground(.hidden)
+        .toolbar(.hidden, for: .navigationBar)
+        .onAppear { 
+          NUTRNavStylerLocal.apply(background: UIColor(DesignSystem.Colors.backgroundSecondary))
+        }
+        .onDisappear {
+          NUTRNavStylerLocal.reset()
+        }
       }
-      .navigationTitle("Smart Log (AI)")
-      .toolbar {
-        ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
-      }
-      .background(DSColor.appBackground)
-      .onAppear { 
-        let navStyler = UINavigationBarAppearance()
-        navStyler.configureWithOpaqueBackground()
-        navStyler.backgroundColor = UIColor(DSColor.appBackground)
-        navStyler.shadowColor = .clear
-        navStyler.titleTextAttributes = [.foregroundColor: UIColor.label]
-        navStyler.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-        UINavigationBar.appearance().standardAppearance = navStyler
-        UINavigationBar.appearance().scrollEdgeAppearance = navStyler
-      }
-      .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarBackground(DSColor.appBackground, for: .navigationBar)
     }
   }
 

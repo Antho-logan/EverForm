@@ -8,6 +8,35 @@
 import SwiftUI
 import UIKit
 
+// MARK: - Local navbar appearance styler (file-scoped to avoid name collisions)
+fileprivate enum NUTRNavStylerLocal {
+    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
+
+    static func apply(background uiColor: UIColor) {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = uiColor
+        appearance.shadowColor = .clear
+
+        // Keep title fonts/colors as-is; we just remove the stripe and set bg.
+        let nav = UINavigationBar.appearance()
+        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
+
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+
+    static func reset() {
+        guard let c = cached else { return }
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = c.standard
+        nav.scrollEdgeAppearance = c.scroll
+        nav.compactAppearance = c.compact
+        cached = nil
+    }
+}
+
 // MARK: - Local Nutrition helpers (file-scoped, no project-wide changes)
 fileprivate enum MealKindLocal: String, CaseIterable, Identifiable {
     case breakfast, lunch, dinner, snack
@@ -29,23 +58,6 @@ fileprivate struct MacrosLocal: Equatable {
     var fat:      Int = 0
     
     var isEmpty: Bool { calories == 0 && protein == 0 && carbs == 0 && fat == 0 }
-}
-
-// Header styling to remove the faint separator/stripe and match app background.
-fileprivate enum NutritionNavStyler {
-    static func apply(background uiColor: UIColor) {
-        let ap = UINavigationBarAppearance()
-        ap.configureWithOpaqueBackground()
-        ap.backgroundColor = uiColor
-        ap.shadowColor = .clear
-        ap.titleTextAttributes = [.foregroundColor: UIColor.label]
-        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-        
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = ap
-        nav.scrollEdgeAppearance = ap
-        nav.compactAppearance = ap
-    }
 }
 
 struct NutritionView: View {
@@ -112,50 +124,57 @@ struct NutritionView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                mealCardLocal
-                notesCardLocal
+        ZStack {
+            DesignSystem.Colors.backgroundSecondary.ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: 16) {
+                    mealCardLocal
+                    notesCardLocal
 
-                Button {
-                    persistCurrentMealLocal()
-                    // Reset only the active tab
-                    mealValuesLocal[selectedMealLocal] = .init()
-                    notesLocal = ""
-                } label: {
-                    Text("Log Meal")
-                        .font(.system(.title3, design: .rounded).weight(.semibold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
+                    Button {
+                        persistCurrentMealLocal()
+                        // Reset only the active tab
+                        mealValuesLocal[selectedMealLocal] = .init()
+                        notesLocal = ""
+                    } label: {
+                        Text("Log Meal")
+                            .font(.system(.title3, design: .rounded).weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                    }
+                    .disabled(!canLogLocal)
+                    .opacity(canLogLocal ? 1 : 0.4)
+                    .buttonStyle(.borderedProminent)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+
+                    #if DEBUG
+                    // DEBUG watermark so we know we're editing the right screen
+                    Text("Nutrition • \(Date.now.formatted(.dateTime.year().month().day().hour().minute()))")
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
+                    #endif
                 }
-                .disabled(!canLogLocal)
-                .opacity(canLogLocal ? 1 : 0.4)
-                .buttonStyle(.borderedProminent)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-
-                #if DEBUG
-                // DEBUG watermark so we know we're editing the right screen
-                Text("Nutrition • \(Date.now.formatted(.dateTime.year().month().day().hour().minute()))")
-                    .font(.footnote.weight(.medium))
-                    .foregroundStyle(.secondary)
-                    .padding(.top, 4)
-                #endif
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
-        }
-        .navigationTitle("Nutrition")
-        .navigationBarTitleDisplayMode(.large)
-        // Blend header with page background and remove stripe
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(Color(DSColor.appBackground), for: .navigationBar)
-        .onAppear {
-            NutritionNavStyler.apply(background: UIColor(DSColor.appBackground))
+            .navigationTitle("Nutrition")
+            .navigationBarTitleDisplayMode(.large)
+            // Blend header with page background and remove stripe
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
+            .scrollContentBackground(.hidden)
+            .onAppear {
+                NUTRNavStylerLocal.apply(background: UIColor(DesignSystem.Colors.backgroundSecondary))
+            }
+            .onDisappear {
+                NUTRNavStylerLocal.reset()
+            }
         }
     }
 
-      // MARK: - UI Building Blocks
+    // MARK: - UI Building Blocks
     
     private var mealCardLocal: some View {
         VStack(alignment: .leading, spacing: 12) {
