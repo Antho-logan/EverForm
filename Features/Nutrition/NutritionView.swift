@@ -6,140 +6,126 @@
 //
 
 import SwiftUI
+import UIKit
+
+// MARK: - Navigation Styler
+fileprivate enum NutritionNavStyler {
+    static func apply(background uiColor: UIColor) {
+        let ap = UINavigationBarAppearance()
+        ap.configureWithOpaqueBackground()
+        ap.backgroundColor = uiColor
+        ap.shadowColor = .clear            // ← removes the hairline/stripe
+        ap.titleTextAttributes = [.foregroundColor: UIColor.label]
+        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = ap
+        nav.scrollEdgeAppearance = ap
+        nav.compactAppearance = ap
+    }
+}
+
+// MARK: - Local Models
+fileprivate enum MealTypeLocal: String, CaseIterable, Identifiable {
+    case breakfast, lunch, dinner, snack
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .breakfast: return "Breakfast"
+        case .lunch:     return "Lunch"
+        case .dinner:    return "Dinner"
+        case .snack:     return "Snack"
+        }
+    }
+}
+
+fileprivate struct MacroInput: Equatable {
+    var calories: Int = 0
+    var protein:  Int = 0
+    var carbs:    Int = 0
+    var fat:      Int = 0
+
+    var isEmpty: Bool { calories == 0 && protein == 0 && carbs == 0 && fat == 0 }
+}
 
 struct NutritionView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
 
-    @State private var selectedMealType: JournalMealType = .breakfast
+    @State private var selectedMeal: MealTypeLocal = .lunch
+    @State private var inputs: [MealTypeLocal: MacroInput] =
+        .init(uniqueKeysWithValues: MealTypeLocal.allCases.map { ($0, MacroInput()) })
+    @State private var notes: String = ""
     @State private var selectedDate = Date()
-    @State private var foodItems: [JournalFoodItem] = [JournalFoodItem()]
-    @State private var showingSaveConfirmation = false
-    @State private var autoFocusFood = false
     @State private var showLogMealSheet = false
+
+    // Enable/disable Log Meal
+    private var canLog: Bool {
+        let m = inputs[selectedMeal] ?? MacroInput()
+        return !m.isEmpty || !notes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
 
     private let targetCalories = 2400 // Could come from profile store
 
-    init(autoFocusFood: Bool = false) {
-        self._autoFocusFood = State(initialValue: autoFocusFood)
-    }
-
-    var totalCalories: Int {
-        foodItems.compactMap(\.calories).reduce(0, +)
-    }
-
     var body: some View {
-        let palette = Theme.palette(colorScheme)
+        let canvas = DSColor.appBackground
 
         ScrollView {
             VStack(spacing: 16) {
-                // Meal Section
-                EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                        HStack {
-                            Image(systemName: "fork.knife")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.orange)
+                // Section: Meal type
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Type").font(.headline)
+                    SegmentedControlMealType(
+                        selection: $selectedMeal,
+                        items: MealTypeLocal.allCases
+                    )
+                }
+                .padding()
+                .background(.white.opacity(0.9), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .shadow(color: .black.opacity(0.07), radius: 8, y: 2)
 
-                            Text("Meal")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
+                // Section: Macro steppers
+                MacroRow(title: "Calories", binding: binding(\.calories), step: 50)
+                MacroRow(title: "Protein",  binding: binding(\.protein),  step: 5, suffix: "g")
+                MacroRow(title: "Carbs",    binding: binding(\.carbs),    step: 5, suffix: "g")
+                MacroRow(title: "Fat",      binding: binding(\.fat),      step: 5, suffix: "g")
 
-                            Spacer()
-                        }
+                // Section: Notes
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Notes").font(.headline)
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 120)
+                        .padding(12)
+                        .background(.white, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .padding(.top, 4)
 
-                        VStack(spacing: Theme.Spacing.md) {
-                            // Meal Type
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Meal Type")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(palette.textSecondary)
-
-                                Picker("Meal Type", selection: $selectedMealType) {
-                                    ForEach(JournalMealType.allCases, id: \.self) { type in
-                                        Text(type.rawValue).tag(type)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-
-                            // Date & Time
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("Date & Time")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(palette.textSecondary)
-
-                                DatePicker("", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                                    .datePickerStyle(.compact)
-                            }
-                        }
+                // CTA
+                Button {
+                    logMeal()
+                } label: {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                        Text("Log Meal").fontWeight(.semibold)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
                 }
+                .buttonStyle(.plain)
+                .foregroundColor(.white)
+                .background(canLog ? Color.orange : Color.orange.opacity(0.4), in: Capsule())
+                .disabled(!canLog)
+                .padding(.top, 8)
 
-                // Food Section
-                EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
-                        HStack {
-                            Image(systemName: "plus.circle")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.green)
-
-                            Text("Food Items")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
-
-                            Spacer()
-
-                            Button(action: addFoodItem) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(palette.accent)
-                            }
-                            .accessibilityLabel("Add food item")
-                        }
-
-                        ForEach(foodItems.indices, id: \.self) { index in
-                            FoodItemRow(
-                                foodItem: $foodItems[index],
-                                onDelete: { removeFoodItem(at: index) }
-                            )
-                        }
-
-                        // Total calories display
-                        HStack {
-                            Text("Total Calories:")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
-
-                            Spacer()
-
-                            Text("\(totalCalories) / \(targetCalories)")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(totalCalories > targetCalories ? .red : palette.accent)
-                        }
-                        .padding(.top, Theme.Spacing.sm)
-                    }
-                }
-
-                // Action Button
-                EFPillButton(
-                    title: "Log Meal",
-                    style: .primary,
-                    color: .orange
-                ) {
-                    saveMeal()
-                }
-                .disabled(foodItems.allSatisfy { $0.name.isEmpty })
-
-                // Quick Log Meal CTA Card (new feature)
+                // Quick Log Meal CTA Card (legacy feature)
                 EFCard {
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Quick Log Meal")
+                                Text("Advanced Meal Logging")
                                     .font(.headline)
                                     .foregroundStyle(DSColor.textPrimary)
-                                Text("Fast meal logging with macro tracking")
+                                Text("Multiple food items with detailed tracking")
                                     .font(.subheadline)
                                     .foregroundStyle(DSColor.textSecondary)
                             }
@@ -152,7 +138,7 @@ struct NutritionView: View {
                         Button {
                             showLogMealSheet = true
                         } label: {
-                            Text("Log Meal")
+                            Text("Advanced Log")
                                 .font(.headline.weight(.semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
@@ -166,64 +152,148 @@ struct NutritionView: View {
 
                 Spacer(minLength: 100)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
-        }
-        .background(DSColor.appBackground.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Nutrition")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
-            .padding(.bottom, 8)
-            .background(DSColor.appBackground)
+            .padding(.vertical, 16)
+        }
+        .background(canvas.ignoresSafeArea())
+        .navigationTitle("Nutrition")
+        .onAppear {
+            // Remove the header stripe and match background
+            let bg: UIColor
+            if let c = UIColor(named: "AppBackground") {
+                bg = c
+            } else {
+                bg = UIColor.systemGroupedBackground
+            }
+            NutritionNavStyler.apply(background: bg)
         }
         .sheet(isPresented: $showLogMealSheet) {
             LogMealView()
         }
-        .alert("Meal Logged!", isPresented: $showingSaveConfirmation) {
-            Button("OK") { }
-        } message: {
-            Text("Your meal has been logged successfully.")
+    }
+
+    // Bind a single knob to the dictionary entry for the current meal
+    private func binding(_ keyPath: WritableKeyPath<MacroInput, Int>) -> Binding<Int> {
+        Binding {
+            inputs[selectedMeal, default: MacroInput()][keyPath: keyPath]
+        } set: { newValue in
+            var copy = inputs[selectedMeal, default: MacroInput()]
+            copy[keyPath: keyPath] = max(0, newValue)
+            inputs[selectedMeal] = copy
         }
     }
 
-    // MARK: - Helper Methods
-
-    private func addFoodItem() {
-        foodItems.append(JournalFoodItem())
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-    }
-
-    private func removeFoodItem(at index: Int) {
-        foodItems.remove(at: index)
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-    }
-
-    private func saveMeal() {
-        let validFoodItems = foodItems.filter { !$0.name.isEmpty }
-
+    private func logMeal() {
+        let m = inputs[selectedMeal, default: MacroInput()]
+        
+        // Convert to the app's real JournalMealEntry model
+        let foodItem = JournalFoodItem(
+            name: "Quick Entry",
+            calories: m.calories,
+            protein: Double(m.protein),
+            carbs: Double(m.carbs),
+            fat: Double(m.fat)
+        )
+        
+        // Map local meal type to JournalMealType
+        let journalMealType: JournalMealType
+        switch selectedMeal {
+        case .breakfast: journalMealType = .breakfast
+        case .lunch: journalMealType = .lunch
+        case .dinner: journalMealType = .dinner
+        case .snack: journalMealType = .snack
+        }
+        
         let entry = JournalMealEntry(
             date: selectedDate,
-            mealType: selectedMealType,
-            items: validFoodItems
+            mealType: journalMealType,
+            items: [foodItem]
         )
-
+        
         journalStore.addMeal(entry)
-        showingSaveConfirmation = true
 
-        // Reset form
-        foodItems = [JournalFoodItem()]
+        // Haptic
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+        // Reset only the current tab's values, keep others intact
+        inputs[selectedMeal] = MacroInput()
+        notes = ""
     }
 }
 
-// MARK: - Food Item Row Component
+// MARK: - Supporting Views
+
+// Segmented control for meal type (SwiftUI-only, no UIKit dependency)
+fileprivate struct SegmentedControlMealType: View {
+    @Binding var selection: MealTypeLocal
+    let items: [MealTypeLocal]
+
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(items) { item in
+                Button {
+                    selection = item
+                } label: {
+                    Text(item.title)
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(selection == item ? Color.white : Color.white.opacity(0.5))
+                }
+                .buttonStyle(.plain)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.06))
+                )
+            }
+        }
+        .background(Color.white.opacity(0.4), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+}
+
+// Reusable macro row with ± steppers
+fileprivate struct MacroRow: View {
+    let title: String
+    @Binding var value: Int
+    var step: Int = 1
+    var suffix: String = ""
+
+    init(title: String, binding: Binding<Int>, step: Int = 1, suffix: String = "") {
+        self.title = title
+        self._value = binding
+        self.step = max(1, step)
+        self.suffix = suffix
+    }
+
+    var body: some View {
+        HStack {
+            Text("\(title): \(value)\(suffix.isEmpty ? "" : " \(suffix)")")
+                .font(.body)
+
+            Spacer(minLength: 12)
+
+            HStack(spacing: 8) {
+                Button { value = max(0, value - step) } label: {
+                    Image(systemName: "minus")
+                        .frame(width: 44, height: 36)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.06)))
+                }.buttonStyle(.plain)
+
+                Button { value += step } label: {
+                    Image(systemName: "plus")
+                        .frame(width: 44, height: 36)
+                        .background(Color.white, in: RoundedRectangle(cornerRadius: 10))
+                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.06)))
+                }.buttonStyle(.plain)
+            }
+        }
+        .padding()
+        .background(.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .shadow(color: .black.opacity(0.07), radius: 8, y: 2)
+    }
+}
+
+// MARK: - Legacy Food Item Row Component (kept for Advanced Log)
 
 private struct FoodItemRow: View {
     @Binding var foodItem: JournalFoodItem

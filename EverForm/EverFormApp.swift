@@ -22,6 +22,7 @@ struct EverFormApp: App {
     @State private var profileStore       = ProfileStore()
     @State private var notesStore         = ProfileNotesStore()
     @State private var attachmentStore    = AttachmentStore()
+    @State private var journalStore       = JournalStore()
 
 
     var body: some Scene {
@@ -42,6 +43,7 @@ struct EverFormApp: App {
                 // CoachCoordinator uses singleton pattern, so we don't inject it here
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
+                .environmentObject(journalStore)
                 .preferredColorScheme(theme.preferredScheme)
 
                 .onAppear {
