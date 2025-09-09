@@ -8,39 +8,31 @@
 import SwiftUI
 import PhotosUI
 
-// MARK: - Local theme mapping for Look Maxing (file-scoped, no collisions)
-extension LookMaxingView {
-    fileprivate enum LMTheme {
-        // Use the SAME tokens already used by Scan Food.
-        // Choose the first that exists in this repo (in this exact priority).
-        // Canvas / page background:
-        static var canvas: Color {
-            DSColor.appBackground
-        }
-
-        // Card stroke (thin divider around cards like Scan Food)
-        static var cardStroke: Color {
-            Color.black.opacity(0.06)
-        }
-
-        // Card shadow (same as cards across the app)
-        static var cardShadow: Color {
-            Color.black.opacity(0.07)
-        }
-
-        // Green accent (use EXACT CTA green used on Scan Food buttons)
-        static var accentGreen: Color {
-            EFColor.green
-        }
-        
-        // Text colors
-        static var textPrimary: Color {
-            DSColor.textPrimary
-        }
-        
-        static var textSecondary: Color {
-            DSColor.textSecondary
-        }
+// MARK: - Look Maxing local theme (file-scoped; no global collisions)
+fileprivate enum LMTheme {
+    // Use the SAME tokens used by Scan Food
+    static var canvas: Color {
+        DSColor.appBackground
+    }
+    
+    static var cardStroke: Color {
+        Color.black.opacity(0.06)
+    }
+    
+    static var cardShadow: Color {
+        Color.black.opacity(0.07)
+    }
+    
+    static var accentGreen: Color {
+        Color.green  // Same as Scan Food CTA buttons
+    }
+    
+    static var textPrimary: Color {
+        DSColor.textPrimary
+    }
+    
+    static var textSecondary: Color {
+        DSColor.textSecondary
     }
 }
 
