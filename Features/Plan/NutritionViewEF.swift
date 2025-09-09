@@ -186,14 +186,7 @@ struct NutritionViewEF: View, Identifiable {
                         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .padding(.horizontal, 16)
                     }
-                    
-                    #if DEBUG
-                    Text("Nutrition • IMPLEMENTED • \(Date.now.formatted(date: .abbreviated, time: .shortened))")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 8)
-                    #endif
-                }
+                  }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
             }
