@@ -19,58 +19,6 @@ private extension Color {
     static var efAccentGreen: Color { Color.green }              // same green used on Scan Food CTA
 }
 
-// MARK: - Local helpers for LookMaxing (file-scoped; do not reuse globally)
-// NOTE: We intentionally use *Local* names to avoid module-wide redeclaration with similarly
-// named helpers that may exist elsewhere.
-
-private struct LMCardLocal<Content: View>: View {
-    let title: String?
-    let subtitle: String?
-    @ViewBuilder var content: Content
-
-    init(title: String? = nil, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
-        self.title = title
-        self.subtitle = subtitle
-        self.content = content()
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if let title {
-                Text(title)
-                    .font(.headline)
-            }
-            if let subtitle {
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-            content
-        }
-        .padding(16)
-        .background(
-            // Use the same card background as other screens (existing token).
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(DSColor.card)
-        )
-        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 4)
-    }
-}
-
-private struct LMPrimaryButtonStyleLocal: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(.headline)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
-            .foregroundStyle(.white)
-            // Reuse the app's existing primary red CTA token (same as Fix Pain "Start Assessment")
-            .background(EFColor.painAccent)
-            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .opacity(configuration.isPressed ? 0.85 : 1.0)
-            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
-    }
-}
 
 // MARK: - Look Maxing View (UI-only rebuild to match Scan Food)
 struct LookMaxingView: View {
@@ -102,7 +50,7 @@ struct LookMaxingView: View {
                     .padding(.bottom, 4)
 
                     // Card: Photo
-                    LMCardLocal {
+                    Card {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Your Photo")
                                 .font(.headline)
@@ -147,7 +95,7 @@ struct LookMaxingView: View {
                     }
 
                     // Card: Goal
-                    LMCardLocal {
+                    Card {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Your Goal")
                                 .font(.headline)
@@ -163,12 +111,12 @@ struct LookMaxingView: View {
                     Button("Analyze My Look") {
                         // stub – LLM integration happens elsewhere
                     }
-                    .buttonStyle(LMPrimaryButtonStyleLocal())
+                    .buttonStyle(PrimaryButtonStyle())
                     .disabled(goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil)
                     .opacity((goalText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && selectedImage == nil) ? 0.6 : 1)
 
                     // Card: How It Works
-                    LMCardLocal {
+                    Card {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Text("How It Works")
@@ -229,6 +177,59 @@ private struct LMStepRow: View {
                 Text(title).font(.headline)
                 Text(text).font(.subheadline).foregroundStyle(Color.efSubtitle)
             }
+        }
+    }
+}
+
+// MARK: - LookMaxing local helpers (nested to avoid module-wide name collisions)
+
+extension LookMaxingView {
+    // Card used in this screen only
+    fileprivate struct Card<Content: View>: View {
+        let title: String?
+        let subtitle: String?
+        @ViewBuilder var content: Content
+
+        init(title: String? = nil, subtitle: String? = nil, @ViewBuilder content: () -> Content) {
+            self.title = title
+            self.subtitle = subtitle
+            self.content = content()
+        }
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 12) {
+                if let title {
+                    Text(title).font(.headline)
+                }
+                if let subtitle {
+                    Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                }
+                content
+            }
+            .padding(16)
+            .background(
+                // ⬇️ Use the SAME card background token as other screens (replace with your repo's token)
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(DSColor.card) // e.g. EFTheme.Colors.card or the token used elsewhere
+            )
+            // ⬇️ Use the SAME card shadow token used across the app
+            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2) // replace if you have a shadow token
+        }
+    }
+
+    // Primary CTA button style used in this screen only
+    fileprivate struct PrimaryButtonStyle: ButtonStyle {
+        func makeBody(configuration: Configuration) -> some View {
+            configuration.label
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .foregroundStyle(.white)
+                // ⬇️ Use the EXACT CTA red token used in Fix Pain (replace with your repo's token)
+                .background(EFColor.painAccent) // e.g. EFTheme.Colors.ctaRed / .accentRed / etc.
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .opacity(configuration.isPressed ? 0.85 : 1.0)
+                .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
         }
     }
 }
