@@ -267,6 +267,42 @@ public enum EFColor {
     static let purple = Color(hue: 0.78, saturation: 0.50, brightness: 0.85)
     static let teal   = Color(hue: 0.47, saturation: 0.55, brightness: 0.80)
     static let red    = Color(hue: 0.00, saturation: 0.75, brightness: 0.85)
+    
+    // Pain accent color (red for pain category)
+    static let painAccent = Color(hue: 0.00, saturation: 0.75, brightness: 0.85)
+    
+    // Pill/Chip colors
+    struct Pill {
+        static let background = Color(UIColor { trait in
+            trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.15, green: 0.15, blue: 0.17, alpha: 1.0)
+            : UIColor(red: 0.95, green: 0.95, blue: 0.95, alpha: 1.0)
+        })
+        
+        static let selectedBackground = Color(UIColor { trait in
+            trait.userInterfaceStyle == .dark
+            ? UIColor(red: 0.25, green: 0.15, blue: 0.15, alpha: 1.0)
+            : UIColor(red: 1.0, green: 0.95, blue: 0.95, alpha: 1.0)
+        })
+        
+        static let stroke = Color(UIColor { trait in
+            trait.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.08)
+            : UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.08)
+        })
+        
+        static let selectedStroke = EFColor.painAccent
+        
+        static let text = Color(UIColor { trait in
+            trait.userInterfaceStyle == .dark
+            ? UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.92)
+            : UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.92)
+        })
+        
+        static let selectedText = EFColor.painAccent
+        
+        static let shadow = Color.black
+    }
 }
 
 public struct EFBackground: ViewModifier {
@@ -320,6 +356,10 @@ public struct DSColor {
     public static var accentNutrition: Color { Color(uiColor: .systemOrange) }   // Nutrition (orange)
     public static var accentRecovery: Color  { Color(uiColor: .systemBlue)   }   // Recovery (blue)
     public static var accentMobility: Color  { Color(uiColor: .systemPurple) }   // Mobility (purple)
+
+    // Primary CTA Colors
+    public static var accentPrimary: Color { Color("Brand") }                  // Primary green from assets
+    public static var accentSuccess: Color { Color(uiColor: .systemGreen) }    // Success green
 
     // Utility colors
     public static var black: Color { Color.black }
@@ -402,5 +442,24 @@ final class EFThemeManagerOld: ObservableObject {
     func set(_ theme: Theme.EFTheme) {
         selection = theme
         storedTheme = theme.rawValue
+    }
+}
+
+// MARK: - Primary CTA Style
+struct PrimaryCTA: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.headline.weight(.semibold))
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, minHeight: 56)
+            .background(DSColor.accentPrimary)
+            .cornerRadius(16)
+            .shadow(color: DSColor.accentPrimary.opacity(0.25), radius: 8, y: 4)
+    }
+}
+
+extension View {
+    func primaryCTA() -> some View {
+        modifier(PrimaryCTA())
     }
 }

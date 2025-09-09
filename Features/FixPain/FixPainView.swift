@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+private let FIX_PAIN_TILE_HEIGHT: CGFloat = 124
+
 struct FixPainView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -66,9 +68,9 @@ struct FixPainView: View {
 
             // Body region grid
             LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: PainUI.Layout.cardSpacing),
-                GridItem(.flexible(), spacing: PainUI.Layout.cardSpacing)
-            ], spacing: PainUI.Layout.cardSpacing) {
+                GridItem(.flexible(), spacing: 16, alignment: .top),
+                GridItem(.flexible(), spacing: 16, alignment: .top)
+            ], spacing: 16) {
                 ForEach(PainRegion.allCases, id: \.self) { region in
                     PainTile(
                         title: region.rawValue,
@@ -155,35 +157,41 @@ struct PainTile: View {
 
     var body: some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 iconView
-                    .frame(width: 32, height: 32)
-                    .font(.system(size: 20, weight: .semibold))
+                    .imageScale(.large)
+                    .font(.system(size: 24, weight: .regular))
                     .foregroundColor(isSelected ? .white : PainUI.Theme.textPrimary)
-                    .fixedSize()
+                    .frame(width: 32, height: 32)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundStyle(isSelected ? .white : PainUI.Theme.textPrimary)
-                        .minimumScaleFactor(0.9)
                         .lineLimit(1)
+                        .allowsTightening(true)
+                        .minimumScaleFactor(0.9)
                     
                     Text(subtitle)
                         .font(.system(size: 12))
                         .foregroundStyle(isSelected ? .white.opacity(0.8) : PainUI.Theme.textSecondary)
+                        .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                
+                Spacer(minLength: 0)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 100, alignment: .topLeading)
+            .padding(12)
+            .frame(maxWidth: .infinity,
+                   minHeight: FIX_PAIN_TILE_HEIGHT,
+                   maxHeight: FIX_PAIN_TILE_HEIGHT,
+                   alignment: .topLeading)
             .background(
-                RoundedRectangle(cornerRadius: PainUI.Layout.cardCornerRadius, style: .continuous)
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
                     .fill(isSelected ? PainUI.Theme.brand : PainUI.Theme.card)
                     .shadow(color: .black.opacity(0.06), radius: 8, y: 4)
             )
+            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 0.98 : 1.0)
