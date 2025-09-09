@@ -51,6 +51,29 @@ final class JournalStore: ObservableObject {
         impact.impactOccurred()
     }
 
+    func addMealFromAI(date: Date, calories: Int, protein: Int, carbs: Int, fat: Int, note: String, image: UIImage?) {
+        let foodItem = JournalFoodItem(
+            name: "AI Meal Entry",
+            calories: calories,
+            protein: Double(protein),
+            carbs: Double(carbs),
+            fat: Double(fat)
+        )
+        
+        let entry = JournalMealEntry(
+            date: date,
+            mealType: .snack, // Default for AI entries
+            items: [foodItem]
+        )
+        
+        meals.append(entry)
+        saveMeals()
+
+        // Haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .medium)
+        impact.impactOccurred()
+    }
+
     func removeMeal(_ entry: JournalMealEntry) {
         meals.removeAll { $0.id == entry.id }
         saveMeals()

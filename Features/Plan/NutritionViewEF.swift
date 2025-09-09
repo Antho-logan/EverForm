@@ -45,6 +45,7 @@ struct NutritionViewEF: View, Identifiable {
         Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, .init()) })
     @State private var nutrNotes: String = ""
     @State private var showMealHistory = false
+    @State private var showSmartLogSheet = false
 
     private var nutrCurrent: Binding<NUTRMacros> {
         Binding(
@@ -106,13 +107,39 @@ struct NutritionViewEF: View, Identifiable {
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
+                        // Smart Log (AI) CTA
+                        Button {
+                            showSmartLogSheet = true
+                        } label: {
+                            HStack(spacing: 12) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 22, weight: .semibold))
+                                    .foregroundStyle(.orange)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Smart Log (AI)")
+                                        .font(.headline)
+                                        .foregroundStyle(Color("TextPrimary"))
+                                    Text("Photo or text input")
+                                        .font(.subheadline)
+                                        .foregroundStyle(Color("TextSecondary"))
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 4)
+                        
                         EFCard {
                             HStack(spacing: 12) {
                                 Image(systemName: "fork.knife.circle.fill")
                                     .font(.system(size: 22, weight: .semibold))
                                     .foregroundStyle(.orange) // Nutrition color
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text("Meal")
+                                    Text("Manual Log")
                                         .font(.headline)
                                         .foregroundStyle(Color("TextPrimary"))
                                     Text("Log food and macros")
@@ -211,7 +238,11 @@ struct NutritionViewEF: View, Identifiable {
                 }
                 .efScreenBackground()
                 .sheet(isPresented: $showMealHistory) {
-                    MealHistorySheet()
+                    LoggedMealsView()
+                        .environmentObject(journalStore)
+                }
+                .sheet(isPresented: $showSmartLogSheet) {
+                    SmartMealLoggerSheet()
                         .environmentObject(journalStore)
                 }
             }
