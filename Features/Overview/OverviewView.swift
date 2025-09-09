@@ -1,15 +1,37 @@
 import SwiftUI
+import UIKit
+
+fileprivate enum OVNavStyler {
+    static func apply(background uiColor: UIColor) {
+        let ap = UINavigationBarAppearance()
+        ap.configureWithOpaqueBackground()
+        ap.backgroundColor = uiColor
+        ap.shadowColor = .clear
+        ap.titleTextAttributes = [.foregroundColor: UIColor.label]
+        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = ap
+        nav.scrollEdgeAppearance = ap
+        nav.compactAppearance = ap
+    }
+}
 
 struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
     @Environment(HydrationService.self) private var hydrationService
+    @EnvironmentObject private var journalStore: JournalStore
     @State private var showWaterOptions = false
     @State private var showWeightSheet = false
     @State private var showCustomWaterSheet = false
     @State private var toastText: String? = nil
     @State private var customMl: String = ""
     @AppStorage("profile.weight") private var lastWeight: String = ""
+
+    // MARK: - Calories (today)
+    private var ov_todayCalories: Int {
+        return journalStore.todaysTotalCalories
+    }
 
     var body: some View {
         NavigationStack {
@@ -20,7 +42,7 @@ struct OverviewView: View {
                     // KPI grid (4 tiles)
                     LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 16), count: 2), spacing: 16) {
                         KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
-                        KPICard(icon: "drop.fill", title: "1850 / 2661", subtitle: "CALORIES")
+                        KPICard(icon: "drop.fill", title: "\(ov_todayCalories) / 2661", subtitle: "CALORIES")
                         KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
                         KPICard(icon: "drop", title: "\(hydrationService.todayMl) ml", subtitle: "HYDRATION")
                     }
@@ -95,6 +117,9 @@ struct OverviewView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(DSColor.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .onAppear {
+                OVNavStyler.apply(background: UIColor(DSColor.appBackground))
+            }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Menu {

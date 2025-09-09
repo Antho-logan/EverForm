@@ -44,6 +44,7 @@ struct NutritionViewEF: View, Identifiable {
     @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
         Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, .init()) })
     @State private var nutrNotes: String = ""
+    @State private var showMealHistory = false
 
     private var nutrCurrent: Binding<NUTRMacros> {
         Binding(
@@ -194,10 +195,25 @@ struct NutritionViewEF: View, Identifiable {
                 .navigationBarTitleDisplayMode(.large)
                 .toolbarBackground(.visible, for: .navigationBar)
                 .toolbarBackground(Color("AppBackground"), for: .navigationBar)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showMealHistory = true
+                        } label: {
+                            Label("History", systemImage: "clock.arrow.circlepath")
+                                .labelStyle(.titleAndIcon)
+                        }
+                        .tint(.primary)
+                    }
+                }
                 .onAppear {
                     NUTRNavStyler.apply(background: UIColor(named: "AppBackground") ?? .systemBackground)
                 }
                 .efScreenBackground()
+                .sheet(isPresented: $showMealHistory) {
+                    MealHistorySheet()
+                        .environmentObject(journalStore)
+                }
             }
         }
     }
