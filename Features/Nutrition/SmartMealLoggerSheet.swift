@@ -93,7 +93,7 @@ struct SmartMealLoggerSheet: View {
             }
             .disabled(isAnalyzing || (uiImage == nil && textPrompt.trimmingCharacters(in: .whitespaces).isEmpty))
             .buttonStyle(.borderedProminent)
-            .tint(.orange)
+            .tint(DSColor.accentNutrition)
 
             // Result card
             if let e = estimate {
@@ -120,7 +120,7 @@ struct SmartMealLoggerSheet: View {
                     .padding(.vertical, 14)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.orange)
+                .tint(DSColor.accentNutrition)
               }
               .padding(16)
               .background(RoundedRectangle(cornerRadius: 16).fill(DSColor.card))

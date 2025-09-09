@@ -145,7 +145,7 @@ struct NutritionView: View {
                     .disabled(!canLogLocal)
                     .opacity(canLogLocal ? 1 : 0.4)
                     .buttonStyle(.borderedProminent)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .tint(DSColor.accentNutrition)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 8)
 
