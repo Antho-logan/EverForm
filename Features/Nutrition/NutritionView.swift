@@ -16,6 +16,7 @@ struct NutritionView: View {
     @State private var foodItems: [JournalFoodItem] = [JournalFoodItem()]
     @State private var showingSaveConfirmation = false
     @State private var autoFocusFood = false
+    @State private var showLogMealSheet = false
 
     private let targetCalories = 2400 // Could come from profile store
 
@@ -130,6 +131,39 @@ struct NutritionView: View {
                 }
                 .disabled(foodItems.allSatisfy { $0.name.isEmpty })
 
+                // Quick Log Meal CTA Card (new feature)
+                EFCard {
+                    VStack(alignment: .leading, spacing: 12) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Quick Log Meal")
+                                    .font(.headline)
+                                    .foregroundStyle(DSColor.textPrimary)
+                                Text("Fast meal logging with macro tracking")
+                                    .font(.subheadline)
+                                    .foregroundStyle(DSColor.textSecondary)
+                            }
+                            Spacer()
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundStyle(.orange)
+                        }
+                        
+                        Button {
+                            showLogMealSheet = true
+                        } label: {
+                            Text("Log Meal")
+                                .font(.headline.weight(.semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.orange)
+                                .foregroundStyle(.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        }
+                        .padding(.top, 8)
+                    }
+                }
+
                 Spacer(minLength: 100)
             }
             .padding(.horizontal, 16)
@@ -147,6 +181,9 @@ struct NutritionView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 8)
             .background(DSColor.appBackground)
+        }
+        .sheet(isPresented: $showLogMealSheet) {
+            LogMealView()
         }
         .alert("Meal Logged!", isPresented: $showingSaveConfirmation) {
             Button("OK") { }
