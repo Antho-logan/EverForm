@@ -8,15 +8,40 @@
 import SwiftUI
 import PhotosUI
 
-// MARK: - Local theme conveniences (uses app tokens; falls back if needed)
-private extension Color {
-    static var efCanvas: Color { DSColor.appBackground }        // matches Scan Food background
-    static var efCard: Color { DSColor.card }                   // matches card fill
-    static var efCardStroke: Color { Color.black.opacity(0.06) } // subtle stroke like Scan Food
-    static var efShadow: Color { Color.black.opacity(0.07) }     // soft shadow
-    static var efTitle: Color { DSColor.textPrimary }            // big title color
-    static var efSubtitle: Color { DSColor.textSecondary }       // subtitle gray
-    static var efAccentGreen: Color { Color.green }              // same green used on Scan Food CTA
+// MARK: - Local theme mapping for Look Maxing (file-scoped, no collisions)
+extension LookMaxingView {
+    fileprivate enum LMTheme {
+        // Use the SAME tokens already used by Scan Food.
+        // Choose the first that exists in this repo (in this exact priority).
+        // Canvas / page background:
+        static var canvas: Color {
+            DSColor.appBackground
+        }
+
+        // Card stroke (thin divider around cards like Scan Food)
+        static var cardStroke: Color {
+            Color.black.opacity(0.06)
+        }
+
+        // Card shadow (same as cards across the app)
+        static var cardShadow: Color {
+            Color.black.opacity(0.07)
+        }
+
+        // Green accent (use EXACT CTA green used on Scan Food buttons)
+        static var accentGreen: Color {
+            EFColor.green
+        }
+        
+        // Text colors
+        static var textPrimary: Color {
+            DSColor.textPrimary
+        }
+        
+        static var textSecondary: Color {
+            DSColor.textSecondary
+        }
+    }
 }
 
 
@@ -30,7 +55,7 @@ struct LookMaxingView: View {
     var body: some View {
         ZStack {
             // Canvas background identical to Scan Food
-            Color.efCanvas.ignoresSafeArea()
+            LMTheme.canvas.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -39,12 +64,12 @@ struct LookMaxingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Look Maxing")
                             .font(.system(size: 34, weight: .bold, design: .default))
-                            .foregroundStyle(Color.efTitle)
+                            .foregroundStyle(LMTheme.textPrimary)
                             .accessibilityAddTraits(.isHeader)
 
                         Text("Upload a photo and tell us your goal")
                             .font(.body)
-                            .foregroundStyle(Color.efSubtitle)
+                            .foregroundStyle(LMTheme.textSecondary)
                     }
                     .padding(.top, 4)
                     .padding(.bottom, 4)
@@ -57,10 +82,10 @@ struct LookMaxingView: View {
                             PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .fill(Color.efCanvas)
+                                        .fill(LMTheme.canvas)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                                .stroke(Color.efCardStroke, lineWidth: 1)
+                                                .stroke(LMTheme.cardStroke, lineWidth: 1)
                                         )
                                         .frame(height: 180)
 
@@ -75,9 +100,9 @@ struct LookMaxingView: View {
                                         VStack(spacing: 10) {
                                             Image(systemName: "camera.fill")
                                                 .font(.system(size: 28, weight: .semibold))
-                                                .foregroundStyle(Color.efSubtitle)
+                                                .foregroundStyle(LMTheme.textSecondary)
                                             Text("Tap to select photo")
-                                                .foregroundStyle(Color.efSubtitle)
+                                                .foregroundStyle(LMTheme.textSecondary)
                                         }
                                     }
                                 }
@@ -127,7 +152,7 @@ struct LookMaxingView: View {
                                 } label: {
                                     Image(systemName: howItWorksExpanded ? "chevron.down" : "chevron.right")
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(Color.efSubtitle)
+                                        .foregroundStyle(LMTheme.textSecondary)
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(howItWorksExpanded ? "Collapse" : "Expand")
@@ -172,10 +197,10 @@ private struct LMStepRow: View {
                 .font(.headline.weight(.semibold))
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
-                .background(Circle().fill(EFColor.painAccent))
+                .background(Circle().fill(LMTheme.accentGreen))
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
-                Text(text).font(.subheadline).foregroundStyle(Color.efSubtitle)
+                Text(text).font(.subheadline).foregroundStyle(LMTheme.textSecondary)
             }
         }
     }
@@ -213,7 +238,7 @@ extension LookMaxingView {
                     .fill(DSColor.card) // e.g. EFTheme.Colors.card or the token used elsewhere
             )
             // ⬇️ Use the SAME card shadow token used across the app
-            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2) // replace if you have a shadow token
+            .shadow(color: LMTheme.cardShadow, radius: 8, x: 0, y: 2)
         }
     }
 
@@ -225,8 +250,8 @@ extension LookMaxingView {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .foregroundStyle(.white)
-                // ⬇️ Use the EXACT CTA red token used in Fix Pain (replace with your repo's token)
-                .background(EFColor.painAccent) // e.g. EFTheme.Colors.ctaRed / .accentRed / etc.
+                // ⬇️ Use the EXACT green token used on Scan Food buttons
+                .background(LMTheme.accentGreen)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .opacity(configuration.isPressed ? 0.85 : 1.0)
                 .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
