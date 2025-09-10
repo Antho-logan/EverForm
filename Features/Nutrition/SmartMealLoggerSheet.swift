@@ -2,7 +2,51 @@ import SwiftUI
 import PhotosUI
 import UIKit
 
-// MARK: - Local navbar appearance styler (file-scoped to avoid name collisions)
+
+// MARK: - Local styling helpers (file-scoped, no new files)
+fileprivate enum SmartLogNavStylerLocal {
+    static func apply(canvas: Color) {
+        let ui = UIColor(canvas)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = ui
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+
+    static func reset() {
+        let a = UINavigationBarAppearance()
+        a.configureWithDefaultBackground()
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = a
+        nav.scrollEdgeAppearance = a
+        nav.compactAppearance = a
+    }
+}
+
+fileprivate extension Color {
+    static var nutrCTA: Color { DSColor.accentNutrition }
+    static var nutrCTADisabled: Color { DSColor.accentNutrition.opacity(0.4) }
+}
+
+// Tiny helper to convert SwiftUI Color -> UIColor
+fileprivate extension UIColor {
+    static func from(_ color: Color) -> UIColor {
+        let view = UIHostingController(rootView: color).view
+        view?.bounds = .init(x: 0, y: 0, width: 1, height: 1)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+        let image = renderer.image { ctx in view?.drawHierarchy(in: CGRect(x: 0, y: 0, width: 1, height: 1), afterScreenUpdates: true) }
+        return UIColor(patternImage: image)
+    }
+}
+
+// MARK: - File-local nav bar styling (no stripe, matches canvas)
 fileprivate enum NUTRNavStylerLocal {
     private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
 
@@ -33,6 +77,7 @@ fileprivate enum NUTRNavStylerLocal {
 
 // Adapt to your real model names & JournalStore APIs.
 struct SmartMealLoggerSheet: View {
+  @Environment(\.colorScheme) private var colorScheme
   @EnvironmentObject var journalStore: JournalStore
   @Environment(\.dismiss) private var dismiss
 
@@ -45,7 +90,8 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      DesignSystem.Colors.backgroundSecondary.ignoresSafeArea()
+      DesignSystem.Colors.backgroundSecondary
+        .ignoresSafeArea()
       NavigationStack {
         ScrollView {
           VStack(spacing: 16) {
@@ -81,6 +127,7 @@ struct SmartMealLoggerSheet: View {
             }
 
             // Analyze button
+            let canAnalyze = !isAnalyzing && (uiImage != nil || !textPrompt.trimmingCharacters(in: .whitespaces).isEmpty)
             Button {
               Task { await analyze() }
             } label: {
@@ -91,9 +138,11 @@ struct SmartMealLoggerSheet: View {
               .frame(maxWidth: .infinity)
               .padding(.vertical, 14)
             }
-            .disabled(isAnalyzing || (uiImage == nil && textPrompt.trimmingCharacters(in: .whitespaces).isEmpty))
-            .buttonStyle(.borderedProminent)
-            .tint(DSColor.accentNutrition)
+            .buttonStyle(.plain)
+            .background(canAnalyze ? Color.nutrCTA : Color.nutrCTADisabled)
+            .foregroundStyle(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .disabled(!canAnalyze)
 
             // Result card
             if let e = estimate {
@@ -116,11 +165,14 @@ struct SmartMealLoggerSheet: View {
                   dismiss()
                 } label: {
                   Text("Save Meal")
+                    .fontWeight(.semibold)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 14)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(DSColor.accentNutrition)
+                .buttonStyle(.plain)
+                .background(Color.nutrCTA)
+                .foregroundStyle(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
               }
               .padding(16)
               .background(RoundedRectangle(cornerRadius: 16).fill(DSColor.card))
@@ -136,12 +188,11 @@ struct SmartMealLoggerSheet: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
         .scrollContentBackground(.hidden)
-        .toolbar(.hidden, for: .navigationBar)
         .onAppear { 
-          NUTRNavStylerLocal.apply(background: UIColor(DesignSystem.Colors.backgroundSecondary))
+          SmartLogNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
         }
         .onDisappear {
-          NUTRNavStylerLocal.reset()
+          SmartLogNavStylerLocal.reset()
         }
       }
     }

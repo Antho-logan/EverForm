@@ -1,6 +1,52 @@
 import SwiftUI
 import UIKit
 
+
+// MARK: - Local styling helpers (file-scoped, no new files)
+fileprivate enum NUTRNavStylerLocal {
+    static func apply(canvas: Color) {
+        let ui = UIColor(canvas)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = ui
+        appearance.shadowColor = .clear
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+
+    static func reset() {
+        let a = UINavigationBarAppearance()
+        a.configureWithDefaultBackground()
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = a
+        nav.scrollEdgeAppearance = a
+        nav.compactAppearance = a
+    }
+}
+
+// Disabled orange helper (same hue, lower alpha)
+fileprivate extension Color {
+    static var nutrCTA: Color { DSColor.accentNutrition }
+    static var nutrCTADisabled: Color { DSColor.accentNutrition.opacity(0.4) }
+}
+
+// Tiny helper to convert SwiftUI Color -> UIColor
+fileprivate extension UIColor {
+    static func from(_ color: Color) -> UIColor {
+        let view = UIHostingController(rootView: color).view
+        view?.bounds = .init(x: 0, y: 0, width: 1, height: 1)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
+        let image = renderer.image { ctx in view?.drawHierarchy(in: CGRect(x: 0, y: 0, width: 1, height: 1), afterScreenUpdates: true) }
+        return UIColor(patternImage: image)
+    }
+}
+
+// MARK: - File-local nav bar styling (no stripe, matches canvas)
 fileprivate enum NUTRNavStyler {
     static func apply(background uiColor: UIColor) {
         let ap = UINavigationBarAppearance()
@@ -39,6 +85,7 @@ fileprivate struct NUTRMacros: Equatable {
 
 struct NutritionViewEF: View, Identifiable {
     let id = UUID()
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
     @State private var nutrSelected: NUTRMealKind = .lunch
     @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
@@ -103,7 +150,8 @@ struct NutritionViewEF: View, Identifiable {
 
     var body: some View {
         ZStack {
-            Color("AppBackground").ignoresSafeArea()
+            DesignSystem.Colors.backgroundSecondary
+                .ignoresSafeArea()
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -204,14 +252,15 @@ struct NutritionViewEF: View, Identifiable {
                             nutrNotes = ""
                         } label: {
                             Text("Log Meal")
-                                .font(.system(.title3, design: .rounded).weight(.semibold))
+                                .fontWeight(.semibold)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
                         }
+                        .buttonStyle(.plain)
+                        .background(nutrCanLog ? Color.nutrCTA : Color.nutrCTADisabled)
+                        .foregroundStyle(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         .disabled(!nutrCanLog)
-                        .opacity(nutrCanLog ? 1 : 0.4)
-                        .buttonStyle(.borderedProminent)
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .padding(.horizontal, 16)
                     }
                   }
@@ -221,7 +270,7 @@ struct NutritionViewEF: View, Identifiable {
                 .navigationTitle("Nutrition")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbarBackground(.visible, for: .navigationBar)
-                .toolbarBackground(Color("AppBackground"), for: .navigationBar)
+                .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -234,9 +283,11 @@ struct NutritionViewEF: View, Identifiable {
                     }
                 }
                 .onAppear {
-                    NUTRNavStyler.apply(background: UIColor(named: "AppBackground") ?? .systemBackground)
+                    NUTRNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
                 }
-                .efScreenBackground()
+                .onDisappear {
+                    NUTRNavStylerLocal.reset()
+                }
                 .sheet(isPresented: $showMealHistory) {
                     LoggedMealsView()
                         .environmentObject(journalStore)
