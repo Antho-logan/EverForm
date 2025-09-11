@@ -2,63 +2,39 @@ import SwiftUI
 import UIKit
 
 
-// MARK: - Local styling helpers (file-scoped, no new files)
-fileprivate enum NUTRNavStylerLocal {
-    static func apply(canvas: Color) {
-        let ui = UIColor(canvas)
+// MARK: - Local Nutrition UI Theme (file-scoped, collision-safe)
+fileprivate enum NUTheme {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let cta: Color = DSColor.accentNutrition
+}
+
+// MARK: - Local nav-bar styler (file-scoped)
+fileprivate enum NUNavStylerLocal {
+    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)? = nil
+    
+    static func apply(background uiColor: UIColor) {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = ui
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-
+        appearance.backgroundColor = uiColor
+        appearance.shadowColor = .clear // remove the thin separator/stripe
+        
+        // Cache current appearances for reset
         let nav = UINavigationBar.appearance()
+        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
+        
+        // Apply new styling
         nav.standardAppearance = appearance
         nav.scrollEdgeAppearance = appearance
         nav.compactAppearance = appearance
     }
-
+    
     static func reset() {
-        let a = UINavigationBarAppearance()
-        a.configureWithDefaultBackground()
+        guard let c = cached else { return }
         let nav = UINavigationBar.appearance()
-        nav.standardAppearance = a
-        nav.scrollEdgeAppearance = a
-        nav.compactAppearance = a
-    }
-}
-
-// Disabled orange helper (same hue, lower alpha)
-fileprivate extension Color {
-    static var nutrCTA: Color { DSColor.accentNutrition }
-    static var nutrCTADisabled: Color { DSColor.accentNutrition.opacity(0.4) }
-}
-
-// Tiny helper to convert SwiftUI Color -> UIColor
-fileprivate extension UIColor {
-    static func from(_ color: Color) -> UIColor {
-        let view = UIHostingController(rootView: color).view
-        view?.bounds = .init(x: 0, y: 0, width: 1, height: 1)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
-        let image = renderer.image { ctx in view?.drawHierarchy(in: CGRect(x: 0, y: 0, width: 1, height: 1), afterScreenUpdates: true) }
-        return UIColor(patternImage: image)
-    }
-}
-
-// MARK: - File-local nav bar styling (no stripe, matches canvas)
-fileprivate enum NUTRNavStyler {
-    static func apply(background uiColor: UIColor) {
-        let ap = UINavigationBarAppearance()
-        ap.configureWithOpaqueBackground()
-        ap.backgroundColor = uiColor
-        ap.shadowColor = .clear
-        ap.titleTextAttributes = [.foregroundColor: UIColor.label]
-        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance   = ap
-        nav.scrollEdgeAppearance = ap
-        nav.compactAppearance    = ap
+        nav.standardAppearance = c.standard
+        nav.scrollEdgeAppearance = c.scroll
+        nav.compactAppearance = c.compact
+        cached = nil
     }
 }
 
@@ -150,7 +126,7 @@ struct NutritionViewEF: View, Identifiable {
 
     var body: some View {
         ZStack {
-            Theme.Colors.efBackground
+            NUTheme.canvas
                 .ignoresSafeArea()
             NavigationStack {
                 ScrollView {
@@ -257,7 +233,7 @@ struct NutritionViewEF: View, Identifiable {
                                 .padding(.vertical, 16)
                         }
                         .buttonStyle(.plain)
-                        .background(nutrCanLog ? Color.nutrCTA : Color.nutrCTADisabled)
+                        .background(nutrCanLog ? NUTheme.cta : NUTheme.cta.opacity(0.4))
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         .disabled(!nutrCanLog)
@@ -270,7 +246,7 @@ struct NutritionViewEF: View, Identifiable {
                 .navigationTitle("Nutrition")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbarBackground(.visible, for: .navigationBar)
-                .toolbarBackground(Theme.Colors.efBackground, for: .navigationBar)
+                .toolbarBackground(NUTheme.canvas, for: .navigationBar)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -283,10 +259,10 @@ struct NutritionViewEF: View, Identifiable {
                     }
                 }
                 .onAppear {
-                    NUTRNavStylerLocal.apply(canvas: Theme.Colors.efBackground)
+                    NUNavStylerLocal.apply(background: UIColor(NUTheme.canvas))
                 }
                 .onDisappear {
-                    NUTRNavStylerLocal.reset()
+                    NUNavStylerLocal.reset()
                 }
                 .sheet(isPresented: $showMealHistory) {
                     LoggedMealsView()

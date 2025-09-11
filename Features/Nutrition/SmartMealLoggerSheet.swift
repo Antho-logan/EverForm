@@ -5,6 +5,8 @@ import UIKit
 
 // MARK: - Local styling helpers (file-scoped, no new files)
 fileprivate enum SmartLogNavStylerLocal {
+    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)? = nil
+    
     static func apply(canvas: Color) {
         let ui = UIColor(canvas)
         let appearance = UINavigationBarAppearance()
@@ -15,18 +17,20 @@ fileprivate enum SmartLogNavStylerLocal {
         appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
 
         let nav = UINavigationBar.appearance()
+        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
+        
         nav.standardAppearance = appearance
         nav.scrollEdgeAppearance = appearance
         nav.compactAppearance = appearance
     }
 
     static func reset() {
-        let a = UINavigationBarAppearance()
-        a.configureWithDefaultBackground()
+        guard let c = cached else { return }
         let nav = UINavigationBar.appearance()
-        nav.standardAppearance = a
-        nav.scrollEdgeAppearance = a
-        nav.compactAppearance = a
+        nav.standardAppearance = c.standard
+        nav.scrollEdgeAppearance = c.scroll
+        nav.compactAppearance = c.compact
+        cached = nil
     }
 }
 
@@ -90,7 +94,7 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      Theme.Colors.efBackground
+      DesignSystem.Colors.backgroundSecondary
         .ignoresSafeArea()
       NavigationStack {
         ScrollView {
@@ -186,10 +190,10 @@ struct SmartMealLoggerSheet: View {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(Theme.Colors.efBackground, for: .navigationBar)
+        .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
         .scrollContentBackground(.hidden)
         .onAppear { 
-          SmartLogNavStylerLocal.apply(canvas: Theme.Colors.efBackground)
+          SmartLogNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
         }
         .onDisappear {
           SmartLogNavStylerLocal.reset()

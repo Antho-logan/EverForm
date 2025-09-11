@@ -5,10 +5,19 @@
 //  Nutrition feature page
 //
 
+
 import SwiftUI
 import UIKit
 
-// MARK: - Local navbar appearance styler (file-scoped to avoid name collisions)
+// MARK: - Local theme for this file only
+fileprivate enum NUTRThemeLocal {
+    static var canvas: Color { DesignSystem.Colors.backgroundSecondary }
+    static var card: Color { DSColor.card }
+    static var shadow: Color { Color.black.opacity(0.06) }
+    static var cta: Color { DSColor.accentNutrition }
+}
+
+// MARK: - File-local nav bar styling (no stripe, matches canvas)
 fileprivate enum NUTRNavStylerLocal {
     private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
 
@@ -34,6 +43,21 @@ fileprivate enum NUTRNavStylerLocal {
         nav.scrollEdgeAppearance = c.scroll
         nav.compactAppearance = c.compact
         cached = nil
+    }
+}
+
+// MARK: - File-local filled button for consistent pill CTA
+fileprivate struct NUTRFilledButtonStyleLocal: ButtonStyle {
+    var tint: Color
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(tint.opacity(configuration.isPressed ? 0.85 : 1))
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .shadow(color: NUTRThemeLocal.shadow, radius: 10, x: 0, y: 4)
     }
 }
 
@@ -144,8 +168,7 @@ struct NutritionView: View {
                     }
                     .disabled(!canLogLocal)
                     .opacity(canLogLocal ? 1 : 0.4)
-                    .buttonStyle(.borderedProminent)
-                    .tint(DSColor.accentNutrition)
+                    .buttonStyle(NUTRFilledButtonStyleLocal(tint: NUTRThemeLocal.cta))
                     .padding(.horizontal, 16)
                     .padding(.bottom, 8)
 
@@ -163,10 +186,10 @@ struct NutritionView: View {
             .navigationBarTitleDisplayMode(.large)
             // Blend header with page background and remove stripe
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
+            .toolbarBackground(NUTRThemeLocal.canvas, for: .navigationBar)
             .scrollContentBackground(.hidden)
             .onAppear {
-                NUTRNavStylerLocal.apply(background: UIColor(DesignSystem.Colors.backgroundSecondary))
+                NUTRNavStylerLocal.apply(background: UIColor(NUTRThemeLocal.canvas))
             }
             .onDisappear {
                 NUTRNavStylerLocal.reset()
