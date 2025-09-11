@@ -24,7 +24,8 @@ struct RootTabView: View {
                 .tag(3)
         }
         .tint(DSColor.brand)
-        .background(DSColor.appBackground.ignoresSafeArea())
+        // TEMP: Remove global background to test individual screen backgrounds
+        // .background(DSColor.appBackground.ignoresSafeArea())
         .onReceive(NotificationCenter.default.publisher(for: .efRoute)) { note in
             guard let route = note.object as? EFRoute else { return }
             switch route {

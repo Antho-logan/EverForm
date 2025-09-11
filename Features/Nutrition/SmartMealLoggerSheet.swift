@@ -90,7 +90,7 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      DesignSystem.Colors.backgroundSecondary
+      Theme.Colors.efBackground
         .ignoresSafeArea()
       NavigationStack {
         ScrollView {
@@ -186,10 +186,10 @@ struct SmartMealLoggerSheet: View {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
         .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
+        .toolbarBackground(Theme.Colors.efBackground, for: .navigationBar)
         .scrollContentBackground(.hidden)
         .onAppear { 
-          SmartLogNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
+          SmartLogNavStylerLocal.apply(canvas: Theme.Colors.efBackground)
         }
         .onDisappear {
           SmartLogNavStylerLocal.reset()

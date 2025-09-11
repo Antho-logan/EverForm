@@ -150,7 +150,7 @@ struct NutritionViewEF: View, Identifiable {
 
     var body: some View {
         ZStack {
-            DesignSystem.Colors.backgroundSecondary
+            Theme.Colors.efBackground
                 .ignoresSafeArea()
             NavigationStack {
                 ScrollView {
@@ -270,7 +270,7 @@ struct NutritionViewEF: View, Identifiable {
                 .navigationTitle("Nutrition")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbarBackground(.visible, for: .navigationBar)
-                .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
+                .toolbarBackground(Theme.Colors.efBackground, for: .navigationBar)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
@@ -283,7 +283,7 @@ struct NutritionViewEF: View, Identifiable {
                     }
                 }
                 .onAppear {
-                    NUTRNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
+                    NUTRNavStylerLocal.apply(canvas: Theme.Colors.efBackground)
                 }
                 .onDisappear {
                     NUTRNavStylerLocal.reset()
