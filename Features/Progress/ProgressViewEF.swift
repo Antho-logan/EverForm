@@ -4,30 +4,32 @@ import Charts
 #endif
 import UIKit
 
-// MARK: - Local nav bar styling helper (file-scoped; no project changes)
-fileprivate enum ProgressNavBarStyler {
-    static func apply(background uiColor: UIColor) {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = uiColor
-        appearance.shadowColor = .clear        // ← removes the faint separator/stripe
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+}
 
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
     }
+}
 
-    static func resetToDefault() {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithDefaultBackground()
-        appearance.shadowColor = .clear
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
     }
 }
 
@@ -41,7 +43,7 @@ struct ProgressViewEF: View {
 
     // If you already have a theme token, use that exact token here for both SwiftUI & UIKit.
     private var pageBackground: Color {
-        DSColor.appBackground // Using existing app theme token
+        AppThemeUIV2.canvas // Using standardized canvas color
     }
 
     // Drives chart rebuild + reveal animation
@@ -77,15 +79,12 @@ struct ProgressViewEF: View {
                     applyRange(newValue)
                 }
             )
-            .background(bg) // same color, blends header with page (no stripe)
+            .background(AppThemeUIV2.canvas) // same color, blends header with page (no stripe)
         }
         .onAppear {
-            ProgressNavBarStyler.apply(background: uiBG) // removes faint line
+            NavStylerUIV2.apply(background: uiBG) // removes faint line
             store.regenerate()
             startRevealAnimation()
-        }
-        .onDisappear {
-            ProgressNavBarStyler.resetToDefault()
         }
     }
 

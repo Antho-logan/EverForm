@@ -7,6 +7,39 @@
 
 import SwiftUI
 
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+    static let riskLow: Color = .green
+    static let riskMed: Color = .orange
+    static let riskHigh: Color = .red
+}
+
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
+    }
+}
+
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+    }
+}
+
+
 struct FixPainPlanView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
@@ -42,11 +75,8 @@ struct FixPainPlanView: View {
                 .padding(.horizontal, PainUI.Layout.hPadding)
                 .padding(.vertical, PainUI.Layout.vSpacing)
             }
-            .background(PainUI.Theme.appBackground.ignoresSafeArea(edges: .bottom))
+            .applyAppPageChromeUIV2()
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(PainUI.Theme.appBackground, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .scrollContentBackground(.hidden)
         }
         .alert("Start Relief Plan", isPresented: $showingStartConfirmation) {
             Button("Cancel", role: .cancel) { }
@@ -224,9 +254,9 @@ struct FixPainPlanView: View {
     
     private var riskLevelColor: Color {
         switch result.riskLevel {
-        case .low: return PainUI.Theme.riskLow
-        case .moderate: return PainUI.Theme.riskMedium
-        case .high: return PainUI.Theme.riskHigh
+        case .low: return AppThemeUIV2.riskLow
+        case .moderate: return AppThemeUIV2.riskMed
+        case .high: return AppThemeUIV2.riskHigh
         }
     }
     

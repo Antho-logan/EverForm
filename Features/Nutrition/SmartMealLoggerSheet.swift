@@ -3,81 +3,36 @@ import PhotosUI
 import UIKit
 
 
-// MARK: - Local styling helpers (file-scoped, no new files)
-fileprivate enum SmartLogNavStylerLocal {
-    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)? = nil
-    
-    static func apply(canvas: Color) {
-        let ui = UIColor(canvas)
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = ui
-        appearance.shadowColor = .clear
-        appearance.titleTextAttributes = [.foregroundColor: UIColor.label]
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+}
 
-        let nav = UINavigationBar.appearance()
-        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
-        
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
-    }
-
-    static func reset() {
-        guard let c = cached else { return }
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = c.standard
-        nav.scrollEdgeAppearance = c.scroll
-        nav.compactAppearance = c.compact
-        cached = nil
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
     }
 }
 
-fileprivate extension Color {
-    static var nutrCTA: Color { DSColor.accentNutrition }
-    static var nutrCTADisabled: Color { DSColor.accentNutrition.opacity(0.4) }
-}
-
-// Tiny helper to convert SwiftUI Color -> UIColor
-fileprivate extension UIColor {
-    static func from(_ color: Color) -> UIColor {
-        let view = UIHostingController(rootView: color).view
-        view?.bounds = .init(x: 0, y: 0, width: 1, height: 1)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 1, height: 1))
-        let image = renderer.image { ctx in view?.drawHierarchy(in: CGRect(x: 0, y: 0, width: 1, height: 1), afterScreenUpdates: true) }
-        return UIColor(patternImage: image)
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
     }
 }
 
-// MARK: - File-local nav bar styling (no stripe, matches canvas)
-fileprivate enum NUTRNavStylerLocal {
-    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
 
-    static func apply(background uiColor: UIColor) {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = uiColor
-        appearance.shadowColor = .clear
-
-        // Keep title fonts/colors as-is; we just remove the stripe and set bg.
-        let nav = UINavigationBar.appearance()
-        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
-
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
-    }
-
-    static func reset() {
-        guard let c = cached else { return }
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = c.standard
-        nav.scrollEdgeAppearance = c.scroll
-        nav.compactAppearance = c.compact
-        cached = nil
-    }
-}
 
 // Adapt to your real model names & JournalStore APIs.
 struct SmartMealLoggerSheet: View {
@@ -91,6 +46,10 @@ struct SmartMealLoggerSheet: View {
 
   @State private var isAnalyzing = false
   @State private var estimate: MealEstimate?
+  
+  init() {
+      NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+  }
 
   var body: some View {
     ZStack {
@@ -143,7 +102,7 @@ struct SmartMealLoggerSheet: View {
               .padding(.vertical, 14)
             }
             .buttonStyle(.plain)
-            .background(canAnalyze ? Color.nutrCTA : Color.nutrCTADisabled)
+            .background(canAnalyze ? AppThemeUIV2.ctaNutrition : AppThemeUIV2.ctaNutrition.opacity(0.4))
             .foregroundStyle(Color.white)
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .disabled(!canAnalyze)
@@ -174,7 +133,7 @@ struct SmartMealLoggerSheet: View {
                     .padding(.vertical, 14)
                 }
                 .buttonStyle(.plain)
-                .background(Color.nutrCTA)
+                .background(AppThemeUIV2.ctaNutrition)
                 .foregroundStyle(Color.white)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
               }
@@ -189,15 +148,7 @@ struct SmartMealLoggerSheet: View {
         .toolbar {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarBackground(DesignSystem.Colors.backgroundSecondary, for: .navigationBar)
-        .scrollContentBackground(.hidden)
-        .onAppear { 
-          SmartLogNavStylerLocal.apply(canvas: DesignSystem.Colors.backgroundSecondary)
-        }
-        .onDisappear {
-          SmartLogNavStylerLocal.reset()
-        }
+        .applyAppPageChromeUIV2()
       }
     }
   }

@@ -8,31 +8,33 @@
 import SwiftUI
 import PhotosUI
 
-// MARK: - Look Maxing local theme (file-scoped; no global collisions)
-fileprivate enum LMTheme {
-    // Use the SAME tokens used by Scan Food
-    static var canvas: Color {
-        DSColor.appBackground
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+    static let accentGreen: Color = Color.green
+}
+
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
     }
-    
-    static var cardStroke: Color {
-        Color.black.opacity(0.06)
-    }
-    
-    static var cardShadow: Color {
-        Color.black.opacity(0.07)
-    }
-    
-    static var accentGreen: Color {
-        Color.green  // Same as Scan Food CTA buttons
-    }
-    
-    static var textPrimary: Color {
-        DSColor.textPrimary
-    }
-    
-    static var textSecondary: Color {
-        DSColor.textSecondary
+}
+
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
     }
 }
 
@@ -43,11 +45,15 @@ struct LookMaxingView: View {
     @State private var selectedImage: UIImage?
     @State private var goalText: String = ""
     @State private var howItWorksExpanded: Bool = true
+    
+    init() {
+        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+    }
 
     var body: some View {
         ZStack {
             // Canvas background identical to Scan Food
-            LMTheme.canvas.ignoresSafeArea()
+            AppThemeUIV2.canvas.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -56,12 +62,12 @@ struct LookMaxingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Look Maxing")
                             .font(.system(size: 34, weight: .bold, design: .default))
-                            .foregroundStyle(LMTheme.textPrimary)
+                            .foregroundStyle(DSColor.textPrimary)
                             .accessibilityAddTraits(.isHeader)
 
                         Text("Upload a photo and tell us your goal")
                             .font(.body)
-                            .foregroundStyle(LMTheme.textSecondary)
+                            .foregroundStyle(DSColor.textSecondary)
                     }
                     .padding(.top, 4)
                     .padding(.bottom, 4)
@@ -74,10 +80,10 @@ struct LookMaxingView: View {
                             PhotosPicker(selection: $selectedItem, matching: .images, preferredItemEncoding: .automatic) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .fill(LMTheme.canvas)
+                                        .fill(AppThemeUIV2.canvas)
                                         .overlay(
                                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                                .stroke(LMTheme.cardStroke, lineWidth: 1)
+                                                .stroke(Color.black.opacity(0.06), lineWidth: 1)
                                         )
                                         .frame(height: 180)
 
@@ -92,9 +98,9 @@ struct LookMaxingView: View {
                                         VStack(spacing: 10) {
                                             Image(systemName: "camera.fill")
                                                 .font(.system(size: 28, weight: .semibold))
-                                                .foregroundStyle(LMTheme.textSecondary)
+                                                .foregroundStyle(DSColor.textSecondary)
                                             Text("Tap to select photo")
-                                                .foregroundStyle(LMTheme.textSecondary)
+                                                .foregroundStyle(DSColor.textSecondary)
                                         }
                                     }
                                 }
@@ -144,7 +150,7 @@ struct LookMaxingView: View {
                                 } label: {
                                     Image(systemName: howItWorksExpanded ? "chevron.down" : "chevron.right")
                                         .font(.subheadline.weight(.semibold))
-                                        .foregroundStyle(LMTheme.textSecondary)
+                                        .foregroundStyle(DSColor.textSecondary)
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(howItWorksExpanded ? "Collapse" : "Expand")
@@ -189,10 +195,10 @@ private struct LMStepRow: View {
                 .font(.headline.weight(.semibold))
                 .frame(width: 24, height: 24)
                 .foregroundStyle(.white)
-                .background(Circle().fill(LMTheme.accentGreen))
+                .background(Circle().fill(AppThemeUIV2.accentGreen))
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.headline)
-                Text(text).font(.subheadline).foregroundStyle(LMTheme.textSecondary)
+                Text(text).font(.subheadline).foregroundStyle(DSColor.textSecondary)
             }
         }
     }
@@ -230,7 +236,7 @@ extension LookMaxingView {
                     .fill(DSColor.card) // e.g. EFTheme.Colors.card or the token used elsewhere
             )
             // ⬇️ Use the SAME card shadow token used across the app
-            .shadow(color: LMTheme.cardShadow, radius: 8, x: 0, y: 2)
+            .shadow(color: Color.black.opacity(0.07), radius: 8, x: 0, y: 2)
         }
     }
 
@@ -243,7 +249,7 @@ extension LookMaxingView {
                 .padding(.vertical, 16)
                 .foregroundStyle(.white)
                 // ⬇️ Use the EXACT green token used on Scan Food buttons
-                .background(LMTheme.accentGreen)
+                .background(AppThemeUIV2.accentGreen)
                 .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .opacity(configuration.isPressed ? 0.85 : 1.0)
                 .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)

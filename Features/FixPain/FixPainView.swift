@@ -7,6 +7,35 @@
 
 import SwiftUI
 
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
+    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+}
+
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
+    }
+}
+
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+    }
+}
+
 private let FIX_PAIN_TILE_HEIGHT: CGFloat = 124
 
 struct FixPainView: View {
@@ -15,6 +44,10 @@ struct FixPainView: View {
     @State private var selectedRegion: PainRegion?
     @State private var showingAssessment = false
     @State private var toastText: String?
+    
+    init() {
+        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+    }
     
     enum PainRegion: String, CaseIterable {
         case back = "Back"
@@ -98,19 +131,21 @@ struct FixPainView: View {
                 }) {
                     Text("Start Assessment")
                 }
-                .painCTA()
+                .buttonStyle(.plain)
+                .background(AppThemeUIV2.ctaPain)
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
                 .padding(.horizontal, PainUI.Layout.hPadding)
                 .padding(.bottom, 8)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
         .padding(.top, PainUI.Layout.vSpacing)
-        .background(PainUI.Theme.appBackground.ignoresSafeArea())
+        .applyAppPageChromeUIV2()
         .navigationTitle("Fix Pain")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(PainUI.Theme.appBackground, for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .scrollContentBackground(.hidden)
         .sheet(isPresented: $showingAssessment) {
             if let selectedRegion = selectedRegion {
                 FixPainAssessmentView(area: convertToPainArea(selectedRegion)) { shouldShowToast in
@@ -161,20 +196,20 @@ struct PainTile: View {
                 iconView
                     .imageScale(.large)
                     .font(.system(size: 24, weight: .regular))
-                    .foregroundColor(isSelected ? .white : PainUI.Theme.textPrimary)
+                    .foregroundColor(isSelected ? .white : DSColor.textPrimary)
                     .frame(width: 32, height: 32)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(isSelected ? .white : PainUI.Theme.textPrimary)
+                        .foregroundStyle(isSelected ? .white : DSColor.textPrimary)
                         .lineLimit(1)
                         .allowsTightening(true)
                         .minimumScaleFactor(0.9)
                     
                     Text(subtitle)
                         .font(.system(size: 12))
-                        .foregroundStyle(isSelected ? .white.opacity(0.8) : PainUI.Theme.textSecondary)
+                        .foregroundStyle(isSelected ? .white.opacity(0.8) : DSColor.textSecondary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -188,7 +223,7 @@ struct PainTile: View {
                    alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isSelected ? PainUI.Theme.brand : PainUI.Theme.card)
+                    .fill(isSelected ? AppThemeUIV2.ctaPain : DSColor.card)
                     .shadow(color: .black.opacity(0.06), radius: 8, y: 4)
             )
             .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))

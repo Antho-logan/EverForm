@@ -2,39 +2,37 @@ import SwiftUI
 import UIKit
 
 
-// MARK: - Local Nutrition UI Theme (file-scoped, collision-safe)
-fileprivate enum NUTheme {
+// MARK: - Local theme + nav bar helpers (file-scoped)
+fileprivate enum AppThemeUIV2 {
     static let canvas: Color = DesignSystem.Colors.backgroundSecondary
-    static let cta: Color = DSColor.accentNutrition
+    static let ctaNutrition: Color = DSColor.accentNutrition
+    static let ctaPain: Color = EFColor.painAccent
+
+    // risk badge colors (swap to DS tokens later if available)
+    static let riskLow: Color = .green
+    static let riskMed: Color = .orange
+    static let riskHigh: Color = .red
 }
 
-// MARK: - Local nav-bar styler (file-scoped)
-fileprivate enum NUNavStylerLocal {
-    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)? = nil
-    
-    static func apply(background uiColor: UIColor) {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = uiColor
-        appearance.shadowColor = .clear // remove the thin separator/stripe
-        
-        // Cache current appearances for reset
-        let nav = UINavigationBar.appearance()
-        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
-        
-        // Apply new styling
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
+fileprivate enum NavStylerUIV2 {
+    static func apply(background: UIColor) {
+        let app = UINavigationBarAppearance()
+        app.configureWithOpaqueBackground()
+        app.backgroundColor = background
+        app.shadowColor = .clear // remove 1px stripe
+        UINavigationBar.appearance().standardAppearance = app
+        UINavigationBar.appearance().scrollEdgeAppearance = app
+        UINavigationBar.appearance().compactAppearance = app
     }
-    
-    static func reset() {
-        guard let c = cached else { return }
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = c.standard
-        nav.scrollEdgeAppearance = c.scroll
-        nav.compactAppearance = c.compact
-        cached = nil
+}
+
+fileprivate extension View {
+    /// Apply warm canvas bg and visible toolbar background like Scan Food
+    func applyAppPageChromeUIV2() -> some View {
+        self
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
     }
 }
 
@@ -47,6 +45,68 @@ fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
         case .lunch:     return "Lunch"
         case .dinner:    return "Dinner"
         case .snack:     return "Snack"
+        }
+    }
+}
+
+// MARK: - Meal History View
+fileprivate struct MealHistoryViewUIV2: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var journalStore: JournalStore
+    
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    ForEach(journalStore.mealEntries.sorted(by: { $0.date > $1.date })) { entry in
+                        MealHistoryCard(entry: entry)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+            }
+            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .navigationTitle("Meal History")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Done") { dismiss() }
+                }
+            }
+        }
+    }
+}
+
+fileprivate struct MealHistoryCard: View {
+    let entry: JournalMealEntry
+    
+    var body: some View {
+        EFCard {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(entry.mealType.rawValue.capitalized)
+                        .font(.headline)
+                        .foregroundStyle(Color("TextPrimary"))
+                    Spacer()
+                    Text(entry.date, style: .date)
+                        .font(.caption)
+                        .foregroundStyle(Color("TextSecondary"))
+                }
+                
+                ForEach(entry.items) { item in
+                    HStack {
+                        Text(item.name)
+                            .font(.subheadline)
+                            .foregroundStyle(Color("TextPrimary"))
+                        Spacer()
+                        Text("\(item.calories) cal")
+                            .font(.caption)
+                            .foregroundStyle(Color("TextSecondary"))
+                    }
+                }
+            }
         }
     }
 }
@@ -69,6 +129,10 @@ struct NutritionViewEF: View, Identifiable {
     @State private var nutrNotes: String = ""
     @State private var showMealHistory = false
     @State private var showSmartLogSheet = false
+    
+    init() {
+        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+    }
 
     private var nutrCurrent: Binding<NUTRMacros> {
         Binding(
@@ -125,12 +189,9 @@ struct NutritionViewEF: View, Identifiable {
     }
 
     var body: some View {
-        ZStack {
-            NUTheme.canvas
-                .ignoresSafeArea()
-            NavigationStack {
-                ScrollView {
-                    VStack(spacing: 16) {
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
                         // Smart Log (AI) CTA
                         Button {
                             showSmartLogSheet = true
@@ -233,45 +294,37 @@ struct NutritionViewEF: View, Identifiable {
                                 .padding(.vertical, 16)
                         }
                         .buttonStyle(.plain)
-                        .background(nutrCanLog ? NUTheme.cta : NUTheme.cta.opacity(0.4))
+                        .background(nutrCanLog ? AppThemeUIV2.ctaNutrition : AppThemeUIV2.ctaNutrition.opacity(0.4))
                         .foregroundStyle(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                         .disabled(!nutrCanLog)
                         .padding(.horizontal, 16)
                     }
-                  }
+                }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
             }
-                .navigationTitle("Nutrition")
-                .navigationBarTitleDisplayMode(.large)
-                .toolbarBackground(.visible, for: .navigationBar)
-                .toolbarBackground(NUTheme.canvas, for: .navigationBar)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showMealHistory = true
-                        } label: {
-                            Label("History", systemImage: "clock.arrow.circlepath")
-                                .labelStyle(.titleAndIcon)
-                        }
-                        .tint(.primary)
+            .applyAppPageChromeUIV2()
+            .navigationTitle("Nutrition")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showMealHistory = true
+                    } label: {
+                        Label("History", systemImage: "clock.arrow.circlepath")
+                            .labelStyle(.titleAndIcon)
                     }
+                    .tint(.primary)
                 }
-                .onAppear {
-                    NUNavStylerLocal.apply(background: UIColor(NUTheme.canvas))
-                }
-                .onDisappear {
-                    NUNavStylerLocal.reset()
-                }
-                .sheet(isPresented: $showMealHistory) {
-                    LoggedMealsView()
-                        .environmentObject(journalStore)
-                }
-                .sheet(isPresented: $showSmartLogSheet) {
-                    SmartMealLoggerSheet()
-                        .environmentObject(journalStore)
-                }
+            }
+            .sheet(isPresented: $showMealHistory) {
+                MealHistoryViewUIV2()
+                    .applyAppPageChromeUIV2()
+            }
+            .sheet(isPresented: $showSmartLogSheet) {
+                SmartMealLoggerSheet()
+                    .environmentObject(journalStore)
             }
         }
     }
