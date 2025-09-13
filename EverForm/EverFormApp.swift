@@ -13,6 +13,7 @@ struct EverFormApp: App {
     @StateObject private var theme = EFTheme.shared
     @State private var appearance = AppearanceStore()
     @State private var themeManager = ThemeManager()
+    @State private var forceDiag = ProcessInfo.processInfo.environment["EF_FORCE_DIAG"] == "1"
 
     // Own long-lived state here (create only for types that exist in the repo)
     @State private var appRouter          = AppRouter()
@@ -27,7 +28,7 @@ struct EverFormApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootSwitcher()
                 .environment(appearance)
                 // Inject Observation (@Observable) stores
                 .environment(appRouter)
@@ -48,8 +49,32 @@ struct EverFormApp: App {
 
                 .onAppear {
                     print("EverForm launched; stores injected")
-                    checkOnboardingStatus()
+                    if !forceDiag {
+                        checkOnboardingStatus()
+                    }
                 }
+        }
+    }
+
+    @ViewBuilder
+    private func RootSwitcher() -> some View {
+        if forceDiag {
+            DiagBootView { forceDiag = false }
+                .environment(appearance)
+                .environment(appRouter)
+                .environment(workoutStore)
+                .environment(nutritionStore)
+                .environment(hydrationService)
+                .environment(profileStore)
+                .environment(notesStore)
+                .environment(attachmentStore)
+                .environment(themeManager)
+                .environmentObject(CoachCoordinator.shared)
+                .environmentObject(theme)
+                .environmentObject(journalStore)
+                .preferredColorScheme(theme.preferredScheme)
+        } else {
+            ContentView()
         }
     }
     

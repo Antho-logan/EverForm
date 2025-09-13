@@ -1,197 +1,38 @@
 import SwiftUI
 
-enum Theme {
-    enum Mode: String, CaseIterable {
-        case system = "system"
-        case light = "light"
-        case dark = "dark"
-
-        var displayName: String {
-            switch self {
-            case .system: return "System"
-            case .light: return "Light"
-            case .dark: return "Dark"
-            }
-        }
-
-        var colorScheme: ColorScheme? {
-            switch self {
-            case .system: return nil
-            case .light: return .light
-            case .dark: return .dark
-            }
-        }
-    }
-
-    // MARK: - EF Theme (for surgical theme patch)
-    enum EFTheme: String, CaseIterable, Identifiable {
-        case system, light, dark
-        var id: String { rawValue }
-    }
+// MARK: - Layout, Spacing and UI Constants
+enum Layout {
+    static let hPadding: CGFloat = 16
+    static let vSpacing: CGFloat = 16
+    static let gridSpacing: CGFloat = 12
+    static let kpiTileHeight: CGFloat = 84
+    static let planCardHeight: CGFloat = 144
+    static let quickCardHeight: CGFloat = 92
+    static let ringSize: CGFloat = 108
     
-    enum Layout {
-        static let hPadding: CGFloat = 16
-        static let vSpacing: CGFloat = 16
-        static let gridSpacing: CGFloat = 12
-        static let kpiTileHeight: CGFloat = 84
-        static let planCardHeight: CGFloat = 144
-        static let quickCardHeight: CGFloat = 92
-        static let ringSize: CGFloat = 108
-        
-        // Section spacing
-        static let headerToKPI: CGFloat = 12
-        static let kpiToPlan: CGFloat = 16
-        static let planToQuick: CGFloat = 16
-        static let sectionTitleSpacing: CGFloat = 8
-        static let ringToGrid: CGFloat = 16
-    }
-    
-    enum Spacing { static let xs: CGFloat = 8; static let sm: CGFloat = 12
-        static let md: CGFloat = 16; static let lg: CGFloat = 20; static let xl: CGFloat = 24 }
-    enum Radius { static let card: CGFloat = 18; static let pill: CGFloat = 12 }
-    enum Shadow { static let card = Color.black.opacity(0.30) }
+    // Section spacing
+    static let headerToKPI: CGFloat = 12
+    static let kpiToPlan: CGFloat = 16
+    static let planToQuick: CGFloat = 16
+    static let sectionTitleSpacing: CGFloat = 8
+    static let ringToGrid: CGFloat = 16
+}
 
-    // MARK: - Action Colors
-    enum Colors {
-        static let background      = Color(hex: 0x0B0B0D)
-        static let surface         = Color(hex: 0x141416)
-        static let surfaceElevated = Color(hex: 0x181A1D)
-        static let border          = Color.white.opacity(0.06)
-        static let textPrimary     = Color.white
-        static let textSecondary   = Color.white.opacity(0.7)
-        static let accent          = Color(hex: 0x2ECC71)
+enum Spacing { 
+    static let xs: CGFloat = 8; 
+    static let sm: CGFloat = 12
+    static let md: CGFloat = 16; 
+    static let lg: CGFloat = 20; 
+    static let xl: CGFloat = 24 
+}
 
-        // Action tints
-        static let blue    = Color(hex: 0x3BA0FF)
-        static let teal    = Color(hex: 0x1FB7A5)
-        static let red     = Color(hex: 0xE05252)
-        static let indigo  = Color(hex: 0x5B6CFF)
-        static let orange  = Color(hex: 0xFFA43B)
-        static let purple  = Color(hex: 0xA56BFF)
-        static let blueSoft = Color(hex: 0x3BA0FF).opacity(0.18)
-        static let tealSoft = Color(hex: 0x1FB7A5).opacity(0.18)
-        static let redSoft  = Color(hex: 0xE05252).opacity(0.18)
-        static let indigoSoft = Color(hex: 0x5B6CFF).opacity(0.18)
+enum Radius { 
+    static let card: CGFloat = 18; 
+    static let pill: CGFloat = 12 
+}
 
-        // MARK: - EF Dynamic Colors (for surgical theme patch)
-        static let efBackground = Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.06, green: 0.06, blue: 0.08, alpha: 1.0)   // #0F1014
-            : UIColor(red: 0.96, green: 0.93, blue: 0.88, alpha: 1.0)   // warm beige
-        })
-        static let efSurface = Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.09, green: 0.09, blue: 0.11, alpha: 1.0)   // #181A1E
-            : UIColor(red: 0.97, green: 0.95, blue: 0.91, alpha: 1.0)   // light beige
-        })
-        static let efCard = Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-            ? UIColor(red: 0.11, green: 0.11, blue: 0.14, alpha: 1.0)   // #1D1F24
-            : UIColor(red: 0.98, green: 0.96, blue: 0.93, alpha: 1.0)
-        })
-        static let efText = Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark ? .white : .black
-        })
-        static let efTextMuted = Color(UIColor { trait in
-            trait.userInterfaceStyle == .dark
-            ? UIColor(white: 0.75, alpha: 1.0)
-            : UIColor(white: 0.25, alpha: 1.0)
-        })
-    }
-
-    struct Palette {
-        let background: Color
-        let surface: Color
-        let surfaceElevated: Color
-        let textPrimary: Color
-        let textSecondary: Color
-        let accent: Color
-        let stroke: Color
-
-        // Light = warm beige
-        static let light = Palette(
-            background: Color(hex: "F2E9DE"),
-            surface: Color(hex: "F7F0E7"),
-            surfaceElevated: Color.white,
-            textPrimary: Color.black.opacity(0.9),
-            textSecondary: Color.black.opacity(0.65),
-            accent: Color(red: 0.20, green: 0.70, blue: 0.35),
-            stroke: Color.black.opacity(0.08)
-        )
-
-        // Dark = match Scan Food styling
-        static let dark = Palette(
-            background: Color(hex: 0x0B0B0D),
-            surface: Color(hex: 0x141416),
-            surfaceElevated: Color(hex: 0x181A1D),
-            textPrimary: .white,
-            textSecondary: .white.opacity(0.7),
-            accent: Color(hex: 0x2ECC71),
-            stroke: .white.opacity(0.06)
-        )
-    }
-
-    // MARK: - Semantic Colors
-
-    struct Semantic {
-        let success: Color
-        let info: Color
-        let danger: Color
-        let water: Color
-
-        static let light = Semantic(
-            success: Color(red: 0.20, green: 0.70, blue: 0.35), // accentGreen
-            info: Color(red: 0.20, green: 0.50, blue: 0.90),    // accentBlue
-            danger: Color(red: 0.90, green: 0.30, blue: 0.30),  // accentRed
-            water: Color(red: 0.20, green: 0.80, blue: 0.80)    // accentAqua
-        )
-
-        static let dark = Semantic(
-            success: Color(red: 0.47, green: 0.90, blue: 0.38), // accentGreen
-            info: Color(red: 0.40, green: 0.70, blue: 1.0),     // accentBlue
-            danger: Color(red: 1.0, green: 0.50, blue: 0.50),   // accentRed
-            water: Color(red: 0.40, green: 0.90, blue: 0.90)    // accentAqua
-        )
-    }
-
-    @AppStorage("themeMode") private static var storedMode: String = Mode.system.rawValue
-    
-    static var currentMode: Mode {
-        Mode(rawValue: storedMode) ?? .system
-    }
-    
-    static func palette(_ cs: ColorScheme) -> Palette {
-        switch currentMode {
-        case .system: return cs == .dark ? .dark : .light
-        case .light: return .light
-        case .dark: return .dark
-        }
-    }
-
-    static func semantic(_ cs: ColorScheme) -> Semantic {
-        switch currentMode {
-        case .system: return cs == .dark ? .dark : .light
-        case .light: return .light
-        case .dark: return .dark
-        }
-    }
-    
-    static func color(_ token: ColorToken, scheme: ColorScheme) -> Color {
-        let palette = palette(scheme)
-        switch token {
-        case .background: return palette.background
-        case .surface: return palette.surface
-        case .surfaceElevated: return palette.surfaceElevated
-        case .textPrimary: return palette.textPrimary
-        case .textSecondary: return palette.textSecondary
-        case .accent: return palette.accent
-        case .stroke: return palette.stroke
-        }
-    }
-    
-    enum ColorToken {
-        case background, surface, surfaceElevated, textPrimary, textSecondary, accent, stroke
-    }
+enum Shadow { 
+    static let card = Color.black.opacity(0.30) 
 }
 
 extension Color {
@@ -206,14 +47,16 @@ extension Color {
     }
 }
 
+// Removed problematic UIColor extension that caused infinite recursion
+// UIColor.init(Color) should use native iOS 15+ behavior
+
 extension View {
     func efCardStyle(scheme: ColorScheme) -> some View {
-        let p = Theme.palette(scheme)
         return self
-            .background(p.surface)
-            .overlay(RoundedRectangle(cornerRadius: Theme.Radius.card).stroke(p.stroke, lineWidth: 1))
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
-            .shadow(color: scheme == .dark ? Theme.Shadow.card : .black.opacity(0.06), radius: 8, x: 0, y: 4)
+            .background(scheme == .dark ? Color(hex: 0x141416) : Color.white.opacity(0.85))
+            .overlay(RoundedRectangle(cornerRadius: Radius.card).stroke(scheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.08), lineWidth: 1))
+            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+            .shadow(color: scheme == .dark ? Shadow.card : .black.opacity(0.06), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -339,12 +182,60 @@ public struct EFPill: View {
 // MARK: - Design System Colors (Asset-based)
 // Design tokens used across the app
 public struct DSColor {
-    public static var appBackground: Color { Color("AppBackground") }
-    public static var surface: Color       { Color("Surface") }
-    public static var card: Color          { Color("Card") }
-    public static var cardElevated: Color  { Color("CardElevated") }
+    // Legacy tokens (delegating to new system for compatibility)
+    public static var appBackground: Color { appearanceAwareCanvas }
+    public static var surface: Color       { appearanceAwareElevated }
+    public static var card: Color          { appearanceAwareCard }
+    public static var cardElevated: Color  { appearanceAwareElevated }
     public static var textPrimary: Color   { Color("TextPrimary") }
     public static var textSecondary: Color { Color("TextSecondary") }
+
+    // New appearance-aware tokens
+    public static var canvas: Color        { appearanceAwareCanvas }
+    public static var elevated: Color      { appearanceAwareElevated }
+    public static var stroke: Color        { appearanceAwareStroke }
+    
+    // Appearance-aware computed properties
+    private static var appearanceAwareCanvas: Color {
+      switch AppAppearanceLocal.current() {
+      case .system: return Color(hex: "EEDFCB")
+      case .light:  return Color(hex: "F7F7F9")
+      case .dark:   return Color("AppBackground")
+      }
+    }
+    
+    private static var appearanceAwareElevated: Color {
+      switch AppAppearanceLocal.current() {
+      case .system: return Color(hex: "F4E9DA")
+      case .light:  return Color(hex: "FAFBFC")
+      case .dark:   return Color("Surface")
+      }
+    }
+    
+    private static var appearanceAwareCard: Color {
+      switch AppAppearanceLocal.current() {
+      case .system: return Color(hex: "FCFAF6")
+      case .light:  return .white
+      case .dark:   return Color("Card")
+      }
+    }
+    
+    private static var appearanceAwareStroke: Color {
+      switch AppAppearanceLocal.current() {
+      case .system: return Color(hex: "E3D6C4")
+      case .light:  return Color(hex: "E9EDF2")
+      case .dark:   return Color(.separator)
+      }
+    }
+    
+    // Shadow opacity guidance
+    public static var shadowOpacity: Double {
+      switch AppAppearanceLocal.current() {
+      case .system: return 0.08
+      case .light:  return 0.06
+      case .dark:   return 0.20
+      }
+    }
 
     // Brand and chat tokens
     public static var brand: Color { Color("Brand") }                 // green for tint
@@ -423,8 +314,8 @@ final class EFThemeManager: ObservableObject {
 final class EFThemeManagerOld: ObservableObject {
     static let shared = EFThemeManagerOld()
 
-    @AppStorage("ef.theme") private var storedTheme: String = Theme.EFTheme.system.rawValue
-    @Published var selection: Theme.EFTheme
+    @AppStorage("ef.theme") private var storedTheme: String = EFAppearance.system.rawValue
+    @Published var selection: EFAppearance
 
     var resolvedColorScheme: ColorScheme? {
         switch selection {
@@ -435,14 +326,37 @@ final class EFThemeManagerOld: ObservableObject {
     }
 
     private init() {
-        let stored = UserDefaults.standard.string(forKey: "ef.theme") ?? Theme.EFTheme.system.rawValue
-        self.selection = Theme.EFTheme(rawValue: stored) ?? .system
+        let stored = UserDefaults.standard.string(forKey: "ef.theme") ?? EFAppearance.system.rawValue
+        self.selection = EFAppearance(rawValue: stored) ?? .system
     }
 
-    func set(_ theme: Theme.EFTheme) {
+    func set(_ theme: EFAppearance) {
         selection = theme
         storedTheme = theme.rawValue
     }
+}
+
+// MARK: - App Appearance System
+fileprivate enum AppAppearanceLocal: String {
+  case system, light, dark
+  static func current() -> AppAppearanceLocal {
+    let raw = UserDefaults.standard.string(forKey: "display.appearance") ?? "system"
+    return AppAppearanceLocal(rawValue: raw) ?? .system
+  }
+}
+
+// MARK: - NavBlendLocal helper for navigation bar blending
+enum NavBlendLocal {
+  static func apply() {
+    let bg = UIColor(DSColor.canvas)
+    let appearance = UINavigationBarAppearance()
+    appearance.configureWithOpaqueBackground()
+    appearance.backgroundColor = bg
+    appearance.shadowColor = .clear
+    UINavigationBar.appearance().standardAppearance = appearance
+    UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    UINavigationBar.appearance().compactAppearance = appearance
+  }
 }
 
 // MARK: - Primary CTA Style
@@ -462,4 +376,157 @@ extension View {
     func primaryCTA() -> some View {
         modifier(PrimaryCTA())
     }
+}
+
+// MARK: - Global Nav Bar Styler (shared, internal)
+internal enum EFNavBarStyler {
+    static func applyCanvasBackground() {
+        let bg = UIColor(DSColor.appBackground)
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = bg
+        appearance.shadowColor = .clear // remove the stripe
+
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+
+    static func resetToDefault() {
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithDefaultBackground()
+        let nav = UINavigationBar.appearance()
+        nav.standardAppearance = appearance
+        nav.scrollEdgeAppearance = appearance
+        nav.compactAppearance = appearance
+    }
+}
+
+
+// Persisted selection
+final class ThemeStore: ObservableObject {
+    @AppStorage("ef.appearance") var selection: EFAppearance = .system
+    static let shared = ThemeStore()
+}
+
+// MARK: - Theme palette
+enum Theme {
+    // Backward compatibility for existing code
+    static func palette(_ colorScheme: ColorScheme) -> ThemePalette {
+        switch ThemeStore.shared.selection {
+        case .system: return colorScheme == .dark ? .dark : .light
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+    
+    // Backward compatible palette struct
+    struct ThemePalette {
+        let background: Color
+        let surface: Color
+        let surfaceElevated: Color
+        let textPrimary: Color
+        let textSecondary: Color
+        let accent: Color
+        let stroke: Color
+        
+        static let light = ThemePalette(
+            background: Color.white,
+            surface: Color.white.opacity(0.85),
+            surfaceElevated: Color.white,
+            textPrimary: Color.black.opacity(0.9),
+            textSecondary: Color.black.opacity(0.65),
+            accent: Color(red: 0.20, green: 0.70, blue: 0.35),
+            stroke: Color.black.opacity(0.08)
+        )
+        
+        static let dark = ThemePalette(
+            background: Color(hex: 0x0B0B0D),
+            surface: Color(hex: 0x141416),
+            surfaceElevated: Color(hex: 0x181A1D),
+            textPrimary: .white,
+            textSecondary: .white.opacity(0.7),
+            accent: Color(hex: 0x2ECC71),
+            stroke: .white.opacity(0.06)
+        )
+    }
+  
+    // Reuse existing beige (System) tokens – DO NOT change these references.
+    static var systemPageBackground: Color { DesignSystem.Colors.backgroundSecondary } // current beige
+    static var systemCardBackground: Color { DSColor.card } // whatever the app uses today
+    static var systemNavBackground: UIColor { 
+        switch AppAppearanceLocal.current() {
+        case .system: return UIColor(Color(hex: "EEDFCB"))
+        case .light:  return UIColor(Color(hex: "F7F7F9"))
+        case .dark:   return UIColor(Color("AppBackground"))
+        }
+    }
+
+    // New dark tokens (careful: use fixed colors, not system)
+    static let darkPageBackground = Color(hex: "0F1113")
+    static let darkCardBackground  = Color(hex: "16181A")
+    static let darkStroke          = Color.white.opacity(0.06)
+    static let darkTextPrimary     = Color(hex: "F2F3F4")
+    static let darkTextSecondary   = Color(hex: "A6A9AE")
+
+    // Convenience accessors that switch by current theme
+    static var pageBackground: Color {
+        switch ThemeStore.shared.selection {
+        case .system: return systemPageBackground
+        case .light:  return Color.white // placeholder until we do Light
+        case .dark:   return darkPageBackground
+        }
+    }
+
+    static var cardBackground: Color {
+        switch ThemeStore.shared.selection {
+        case .system: return systemCardBackground
+        case .light:  return Color.white // placeholder
+        case .dark:   return darkCardBackground
+        }
+    }
+
+    static var textPrimary: Color {
+        switch ThemeStore.shared.selection {
+        case .system, .light: return DSColor.textPrimary
+        case .dark:           return darkTextPrimary
+        }
+    }
+
+    static var textSecondary: Color {
+        switch ThemeStore.shared.selection {
+        case .system, .light: return DSColor.textSecondary
+        case .dark:           return darkTextSecondary
+        }
+    }
+
+    // Nav background UIColor (UIKit)
+    static var navBackground: UIColor {
+        switch ThemeStore.shared.selection {
+        case .system, .light:
+            return systemNavBackground
+        case .dark:
+            return UIColor(Theme.darkPageBackground)
+        }
+    }
+}
+
+// MARK: - Theme applier (UIKit override + notification)
+enum ThemeApplier {
+    static func apply(_ appearance: EFAppearance) {
+        // Make UIKit respect the look (status bar, sheets, etc.)
+        let style: UIUserInterfaceStyle = (appearance == .dark) ? .dark : .light
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .forEach { $0.overrideUserInterfaceStyle = style }
+
+        // Broadcast so SwiftUI can refresh instantly
+        NotificationCenter.default.post(name: .EFThemeChanged, object: appearance)
+    }
+}
+
+extension Notification.Name {
+    static let EFThemeChanged = Notification.Name("EFThemeChanged")
 }
