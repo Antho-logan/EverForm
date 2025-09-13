@@ -188,13 +188,13 @@ public struct DSColor {
     public static var card: Color          { appearanceAwareCard }
     public static var cardElevated: Color  { appearanceAwareElevated }
     public static var textPrimary: Color   { 
-        AppAppearanceLocal.current() == .dark ? DarkTheme.label : Color("TextPrimary") 
+        AppAppearanceLocal.current() == .dark ? Color.white : Color("TextPrimary") 
     }
     public static var textSecondary: Color { 
-        AppAppearanceLocal.current() == .dark ? DarkTheme.secondary : Color("TextSecondary") 
+        AppAppearanceLocal.current() == .dark ? Color(hex: 0xA9ACB2) : Color("TextSecondary") 
     }
     public static var textTertiary: Color { 
-        AppAppearanceLocal.current() == .dark ? DarkTheme.tertiary : Color("TextTertiary") 
+        AppAppearanceLocal.current() == .dark ? Color(hex: 0x6B7280) : Color("TextTertiary") 
     }
 
     // New appearance-aware tokens
@@ -202,7 +202,7 @@ public struct DSColor {
     public static var elevated: Color      { appearanceAwareElevated }
     public static var stroke: Color        { appearanceAwareStroke }
     public static var inputBackground: Color {
-        AppAppearanceLocal.current() == .dark ? DarkTheme.input : .white
+        AppAppearanceLocal.current() == .dark ? Color(hex: 0x222428) : .white
     }
     
     // Appearance-aware computed properties
@@ -210,7 +210,7 @@ public struct DSColor {
       switch AppAppearanceLocal.current() {
       case .system: return Color(hex: "EEDFCB")
       case .light:  return Color(hex: "F7F7F9")
-      case .dark:   return DarkTheme.background
+      case .dark:   return Color(hex: 0x0B0B0D) // Pure dark background
       }
     }
     
@@ -218,7 +218,7 @@ public struct DSColor {
       switch AppAppearanceLocal.current() {
       case .system: return Color(hex: "F4E9DA")
       case .light:  return Color(hex: "FAFBFC")
-      case .dark:   return DarkTheme.elevated
+      case .dark:   return Color(hex: 0x1A1B1E) // Dark elevated surface
       }
     }
     
@@ -226,7 +226,7 @@ public struct DSColor {
       switch AppAppearanceLocal.current() {
       case .system: return Color(hex: "FCFAF6")
       case .light:  return .white
-      case .dark:   return DarkTheme.surface
+      case .dark:   return Color(hex: 0x1A1B1E) // Dark card surface
       }
     }
     
@@ -234,7 +234,7 @@ public struct DSColor {
       switch AppAppearanceLocal.current() {
       case .system: return Color(hex: "E3D6C4")
       case .light:  return Color(hex: "E9EDF2")
-      case .dark:   return DarkTheme.stroke
+      case .dark:   return Color(hex: 0x25262B) // Dark border
       }
     }
     

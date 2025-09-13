@@ -31,9 +31,9 @@ extension Theme {
         let lightCard   = rgb(0xF7F7F7)
         let lightStroke = Color.black.opacity(0.06)
 
-        let darkPage    = rgb(0x0F0F10)
-        let darkCard    = rgb(0x1A1A1C)
-        let darkStroke  = Color.white.opacity(0.08)
+        let darkPage    = rgb(0x0B0B0D)
+        let darkCard    = rgb(0x1A1B1E)
+        let darkStroke  = rgb(0x25262B)
 
         let accent      = DSColor.accentPrimary ?? Color.accentColor
         let textPrimaryLight   = Color.black

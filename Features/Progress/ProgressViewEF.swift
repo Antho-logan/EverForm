@@ -38,6 +38,7 @@ struct ProgressViewEF: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var appearance: AppearanceStore
     private var isCompact: Bool { hSize == .compact }
+    private var isDark: Bool { colorScheme == .dark }
 
     // Drives chart rebuild + reveal animation
     @State private var chartIdentity: Int = 0
@@ -52,7 +53,7 @@ struct ProgressViewEF: View {
 
     var body: some View {
         ZStack {
-            DSColor.appBackground.ignoresSafeArea()
+            (isDark ? Color.clear : DSColor.appBackground).ignoresSafeArea()
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 16) {
                     // ----- Your existing chart sections go here (unchanged) -----
@@ -71,9 +72,10 @@ struct ProgressViewEF: View {
                         applyRange(newValue)
                     }
                 )
-                .background(DSColor.appBackground) // same color, blends header with page (no stripe)
+                .background(isDark ? Color.clear : DSColor.appBackground) // same color, blends header with page (no stripe)
             }
         }
+        .efDarkCanvas()
         .toolbarBackground(DSColor.appBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
@@ -180,7 +182,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                         if selection == value {
                             // filled (selected)
                             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(.ultraThinMaterial) // or your app's selected fill
+                                .fill(DSColor.inputBackground) // use app's input background token to avoid gray overlay
                         } else {
                             Color.clear
                         }

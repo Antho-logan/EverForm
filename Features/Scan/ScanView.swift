@@ -4,6 +4,8 @@ struct ScanView: View {
     @EnvironmentObject private var appearance: AppearanceStore
     @Environment(\.colorScheme) private var colorScheme
     
+    private var isDark: Bool { colorScheme == .dark }
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -39,7 +41,8 @@ struct ScanView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.appBackground.ignoresSafeArea())
+            .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
+            .efDarkCanvas()
             .toolbarBackground(DSColor.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Scan Food")

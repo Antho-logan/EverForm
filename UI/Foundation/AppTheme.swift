@@ -47,14 +47,14 @@ enum AppTheme {
     // System (beige) pulls from existing design tokens to avoid regressions.
     // If you already have DSColor / DesignSystem.Colors for beige, reuse them here.
     private static let systemBeige = Palette(
-        bg: DesignSystem.Colors.backgroundSecondary,   // existing beige page background
-        surface: DSColor.card,                         // your existing surface/blocks
-        card: DSColor.card,                            // same card look as today
+        bg: DSColor.canvas,                           // existing beige page background from DSColor system
+        surface: DSColor.card,                        // your existing surface/blocks
+        card: DSColor.card,                           // same card look as today
         stroke: Color.black.opacity(0.08),
         textPrimary: DSColor.textPrimary,
         textSecondary: DSColor.textSecondary,
-        control: Color.white.opacity(0.85),           // use your existing control bg
-        chartFill: Color(hex: "#F8E6CB")              // fallback to beige chart fill
+        control: Color.white.opacity(0.85),          // use your existing control bg
+        chartFill: Color(hex: "#F8E6CB")             // fallback to beige chart fill
     )
 
     // MARK: - Resolve

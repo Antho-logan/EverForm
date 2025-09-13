@@ -14,6 +14,8 @@ struct OverviewView: View {
     @State private var toastText: String? = nil
     @State private var customMl: String = ""
     @AppStorage("profile.weight") private var lastWeight: String = ""
+    
+    private var isDark: Bool { colorScheme == .dark }
 
     // MARK: - Calories (today)
     private var ov_todayCalories: Int {
@@ -98,7 +100,8 @@ struct OverviewView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.appBackground.ignoresSafeArea())
+            .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
+            .efDarkCanvas()
             .toolbarBackground(DSColor.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Overview")
@@ -133,7 +136,7 @@ struct OverviewView: View {
                     Text(toastText)
                         .font(.subheadline).bold()
                         .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(.ultraThinMaterial, in: Capsule())
+                        .background(isDark ? AnyShapeStyle(Color.black.opacity(0.3)) : AnyShapeStyle(.ultraThinMaterial), in: Capsule())
                         .padding(.bottom, 8)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }

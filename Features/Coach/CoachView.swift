@@ -31,6 +31,8 @@ struct CoachView: View {
     @Environment(\.colorScheme) private var scheme
     @State private var messageText: String = ""
     @ObservedObject private var voice = EFVoiceCapture.shared
+    
+    private var isDark: Bool { scheme == .dark }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -80,7 +82,8 @@ struct CoachView: View {
                 vm.send(text: text, images: images)
             }
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
+        .efDarkCanvas()
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {
