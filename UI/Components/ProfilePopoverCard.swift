@@ -28,7 +28,7 @@ struct ProfilePopoverCard: View {
             // Main card content
             VStack(spacing: 0) {
                 // User info header
-                VStack(spacing: Theme.Spacing.xs) {
+                VStack(spacing: Spacing.xs) {
                     HStack {
                         Circle()
                             .fill(palette.accent.opacity(0.2))
@@ -51,8 +51,8 @@ struct ProfilePopoverCard: View {
                         
                         Spacer()
                     }
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .padding(.vertical, Theme.Spacing.sm)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
                 }
                 
                 Divider()
@@ -115,7 +115,7 @@ struct ProfilePopoverCard: View {
                 }
             }
             .background(palette.surfaceElevated)
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
             .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 4)
         }
         .frame(width: 240)
@@ -170,7 +170,7 @@ private struct PopoverMenuRow<Trailing: View>: View {
             impact.impactOccurred()
             action()
         }) {
-            HStack(spacing: Theme.Spacing.sm) {
+            HStack(spacing: Spacing.sm) {
                 Image(systemName: icon)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundStyle(palette.textSecondary)
@@ -186,8 +186,8 @@ private struct PopoverMenuRow<Trailing: View>: View {
                     trailing()
                 }
             }
-            .padding(.horizontal, Theme.Spacing.md)
-            .padding(.vertical, Theme.Spacing.sm)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.sm)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -203,8 +203,8 @@ private struct DisplaySettingsSheet: View {
         let palette = Theme.palette(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.lg) {
-                VStack(spacing: Theme.Spacing.sm) {
+            VStack(spacing: Spacing.lg) {
+                VStack(spacing: Spacing.sm) {
                     ForEach(ThemeManager.ThemeMode.allCases, id: \.self) { mode in
                         Button(action: {
                             themeManager.setTheme(mode)
@@ -224,14 +224,14 @@ private struct DisplaySettingsSheet: View {
                                         .foregroundStyle(palette.accent)
                                 }
                             }
-                            .padding(.horizontal, Theme.Spacing.lg)
-                            .padding(.vertical, Theme.Spacing.md)
+                            .padding(.horizontal, Spacing.lg)
+                            .padding(.vertical, Spacing.md)
                             .background(
                                 themeManager.selectedTheme == mode ?
                                 palette.accent.opacity(0.1) :
                                 Color.clear
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                         }
                         .buttonStyle(.plain)
                     }
@@ -239,7 +239,7 @@ private struct DisplaySettingsSheet: View {
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationTitle("Display")
             .navigationBarTitleDisplayMode(.inline)

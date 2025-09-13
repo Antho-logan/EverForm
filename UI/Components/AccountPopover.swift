@@ -7,37 +7,37 @@ struct AccountPopover: View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 12) {
                 Circle()
-                    .fill(Theme.Colors.accent.opacity(0.2))
+                    .fill(EFColor.green.opacity(0.2))
                     .frame(width: 36, height: 36)
                     .overlay(
                         Image(systemName: "person.fill")
-                            .foregroundColor(Theme.Colors.accent)
+                            .foregroundColor(EFColor.green)
                     )
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Alex Chen")
                         .font(.headline)
-                        .foregroundColor(Theme.Colors.textPrimary)
+                        .foregroundColor(EFColor.textLight)
                     Text("alex@example.com")
                         .font(.subheadline)
-                        .foregroundStyle(Theme.Colors.textSecondary)
+                        .foregroundStyle(EFColor.subTextLight)
                 }
             }
             .padding(16)
 
             Divider()
-                .background(Theme.Colors.border)
+                .background(EFColor.dividerLight)
 
             MenuRow(icon: "person.circle", title: "Profile", trailing: EmptyView())
-            MenuRow(icon: "paintbrush", title: "Display", trailing: Text(currentThemeLabel()).foregroundStyle(Theme.Colors.textSecondary))
+            MenuRow(icon: "paintbrush", title: "Display", trailing: Text(currentThemeLabel()).foregroundStyle(EFColor.subTextLight))
             MenuRow(icon: "lock", title: "Security", trailing: EmptyView())
             MenuRow(icon: "square.and.arrow.down", title: "Export Data", trailing: EmptyView())
             MenuRow(icon: "questionmark.circle", title: "Help", trailing: EmptyView())
             MenuRow(icon: "ladybug", title: "Report a Bug", trailing: EmptyView())
         }
-        .background(Theme.Colors.surface)
+        .background(EFColor.surfaceLight)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Theme.Colors.border))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(EFColor.dividerLight))
         .padding(.vertical, 4)
         .frame(maxWidth: 320)
     }
@@ -65,17 +65,17 @@ private struct MenuRow<Trailing: View>: View {
             HStack {
                 Image(systemName: icon)
                     .frame(width: 22)
-                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .foregroundStyle(EFColor.subTextLight)
 
                 Text(title)
-                    .foregroundColor(Theme.Colors.textPrimary)
+                    .foregroundColor(EFColor.textLight)
 
                 Spacer()
 
                 trailing
 
                 Image(systemName: "chevron.right")
-                    .foregroundStyle(Theme.Colors.textSecondary.opacity(0.6))
+                    .foregroundStyle(EFColor.subTextLight.opacity(0.6))
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)

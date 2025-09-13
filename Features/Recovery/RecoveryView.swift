@@ -34,7 +34,7 @@ struct RecoveryView: View {
             VStack(spacing: 16) {
                 // Wind-down Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "moon.fill")
                                 .font(.system(size: 20, weight: .medium))
@@ -47,7 +47,7 @@ struct RecoveryView: View {
                             Spacer()
                         }
 
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             // Bedtime
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Bedtime")
@@ -93,7 +93,7 @@ struct RecoveryView: View {
 
                 // Session Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "timer")
                                 .font(.system(size: 20, weight: .medium))
@@ -107,12 +107,12 @@ struct RecoveryView: View {
                         }
 
                         if isSessionActive {
-                            VStack(spacing: Theme.Spacing.md) {
+                            VStack(spacing: Spacing.md) {
                                 Text(formatTime(sessionSeconds))
                                     .font(.system(size: 32, weight: .bold, design: .monospaced))
                                     .foregroundStyle(palette.textPrimary)
 
-                                HStack(spacing: Theme.Spacing.md) {
+                                HStack(spacing: Spacing.md) {
                                     EFPillButton(
                                         title: "Pause",
                                         style: .secondary
@@ -130,7 +130,7 @@ struct RecoveryView: View {
                                 }
                             }
                         } else {
-                            VStack(spacing: Theme.Spacing.md) {
+                            VStack(spacing: Spacing.md) {
                                 // Duration picker
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Duration")

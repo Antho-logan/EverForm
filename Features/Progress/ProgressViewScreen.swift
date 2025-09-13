@@ -1,14 +1,28 @@
 import SwiftUI
 import Charts
+import UIKit
 
 struct ProgressViewScreen: View {
     @State private var range: RangeOption = .d7
     private let now = Date()
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var semanticColors: Theme.SemanticColors {
+        Theme.semantic(colorScheme)
+    }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                Text("Progress").font(.largeTitle.bold())
+            ZStack {
+                semanticColors.page
+                    .ignoresSafeArea()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                
+                VStack(alignment: .leading, spacing: 16) {
+                Text("Progress")
+                    .font(.largeTitle.bold())
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
 
                 // Range selector
                 HStack(spacing: 10) {
@@ -24,18 +38,33 @@ struct ProgressViewScreen: View {
                         }
                     }
                 }
+                .padding(.horizontal, 20)
 
                 summaryRow
+                    .padding(.horizontal, 20)
 
                 MetricChart(title: "Training", icon: "dumbbell.fill", tint: EFColor.green, data: makeData(days: range.days, max: 60))
+                    .padding(.horizontal, 20)
                 MetricChart(title: "Nutrition", icon: "fork.knife", tint: EFColor.orange, data: makeData(days: range.days, max: 3000))
+                    .padding(.horizontal, 20)
                 MetricChart(title: "Mobility", icon: "figure.run", tint: EFColor.purple, data: makeData(days: range.days, max: 30))
+                    .padding(.horizontal, 20)
                 MetricChart(title: "Recovery", icon: "moon.fill", tint: EFColor.blue, data: makeData(days: range.days, max: 10))
+                    .padding(.horizontal, 20)
                 MetricChart(title: "Hydration", icon: "drop.fill", tint: EFColor.blue, data: makeData(days: range.days, max: 3000))
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 24)
+                }
             }
-            .padding(16)
         }
-        .efBackground()
+        .scrollContentBackground(.hidden)
+        .background(semanticColors.page.ignoresSafeArea())
+        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationTitle("Progress")
+        .navigationBarTitleDisplayMode(.large)
+        .onAppear { NavBlendLocal.apply() }
+        .onDisappear { EFNavBarStyler.resetToDefault() }
     }
 
     private var summaryRow: some View {

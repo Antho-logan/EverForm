@@ -1,7 +1,10 @@
 import SwiftUI
+import UIKit
 
 struct RootTabView: View {
     @EnvironmentObject private var journalStore: JournalStore
+    @EnvironmentObject private var appearance: AppearanceStore
+    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedTab: Int = 0
     @State private var activeRoute: EFRoute?
 
@@ -24,8 +27,10 @@ struct RootTabView: View {
                 .tag(3)
         }
         .tint(DSColor.brand)
-        // TEMP: Remove global background to test individual screen backgrounds
-        // .background(DSColor.appBackground.ignoresSafeArea())
+        .scrollContentBackground(.hidden)
+        .background(AppTheme.bg(for: colorScheme, appearance.appAppearance).ignoresSafeArea())
+        .toolbarBackground(AppTheme.bg(for: colorScheme, appearance.appAppearance), for: .navigationBar)
+        .toolbarColorScheme(colorScheme, for: .navigationBar)
         .onReceive(NotificationCenter.default.publisher(for: .efRoute)) { note in
             guard let route = note.object as? EFRoute else { return }
             switch route {

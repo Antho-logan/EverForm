@@ -16,7 +16,7 @@ struct ProfilePopover: View {
         
         VStack(spacing: 0) {
             // User info header
-            VStack(spacing: Theme.Spacing.sm) {
+            VStack(spacing: Spacing.sm) {
                 HStack {
                     Circle()
                         .fill(palette.accent.opacity(0.2))
@@ -92,7 +92,7 @@ struct ProfilePopover: View {
         }
         .frame(width: 280)
         .background(palette.surfaceElevated)
-        .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.card))
         .shadow(color: .black.opacity(colorScheme == .dark ? 0.4 : 0.15), radius: 16, x: 0, y: 8)
         .sheet(isPresented: $showingDisplaySettings) {
             DisplaySettingsSheet()
@@ -119,7 +119,7 @@ private struct PopoverMenuRow: View {
             impact.impactOccurred()
             action()
         }) {
-            HStack(spacing: Theme.Spacing.sm) {
+            HStack(spacing: Spacing.sm) {
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(palette.textSecondary)
@@ -147,35 +147,36 @@ private struct DisplaySettingsSheet: View {
         let palette = Theme.palette(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.lg) {
-                VStack(spacing: Theme.Spacing.sm) {
-                    ForEach(Theme.Mode.allCases, id: \.self) { mode in
+            VStack(spacing: Spacing.lg) {
+                VStack(spacing: Spacing.sm) {
+                    ForEach(EFAppearance.allCases, id: \.self) { mode in
                         Button(action: {
                             // Set theme mode
+                            ThemeStore.shared.selection = mode
                             let impact = UIImpactFeedbackGenerator(style: .light)
                             impact.impactOccurred()
                         }) {
                             HStack {
-                                Text(mode.displayName)
+                                Text(mode.rawValue.capitalized)
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundStyle(palette.textPrimary)
 
                                 Spacer()
 
-                                if Theme.currentMode == mode {
+                                if ThemeStore.shared.selection == mode {
                                     Image(systemName: "checkmark")
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundStyle(palette.accent)
                                 }
                             }
-                            .padding(.horizontal, Theme.Spacing.lg)
-                            .padding(.vertical, Theme.Spacing.md)
+                            .padding(.horizontal, Spacing.lg)
+                            .padding(.vertical, Spacing.md)
                             .background(
-                                Theme.currentMode == mode ?
+                                ThemeStore.shared.selection == mode ?
                                 palette.accent.opacity(0.1) :
                                 Color.clear
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                         }
                         .buttonStyle(.plain)
                     }
@@ -183,7 +184,7 @@ private struct DisplaySettingsSheet: View {
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationTitle("Display")
             .navigationBarTitleDisplayMode(.inline)

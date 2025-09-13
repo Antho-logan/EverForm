@@ -37,9 +37,9 @@ struct EFPillButton: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
                 .background(style == .primary ? buttonColor : buttonColor.opacity(0.1))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.pill))
+                .clipShape(RoundedRectangle(cornerRadius: Radius.pill))
                 .overlay(
-                    RoundedRectangle(cornerRadius: Theme.Radius.pill)
+                    RoundedRectangle(cornerRadius: Radius.pill)
                         .stroke(style == .primary ? Color.clear : buttonColor, lineWidth: 1)
                 )
         }

@@ -7,35 +7,14 @@
 
 import SwiftUI
 import PhotosUI
+import UIKit
 
 // MARK: - Local theme + nav bar helpers (file-scoped)
 fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let canvas: Color = DSColor.canvas
     static let ctaNutrition: Color = DSColor.accentNutrition
     static let ctaPain: Color = EFColor.painAccent
     static let accentGreen: Color = Color.green
-}
-
-fileprivate enum NavStylerUIV2 {
-    static func apply(background: UIColor) {
-        let app = UINavigationBarAppearance()
-        app.configureWithOpaqueBackground()
-        app.backgroundColor = background
-        app.shadowColor = .clear // remove 1px stripe
-        UINavigationBar.appearance().standardAppearance = app
-        UINavigationBar.appearance().scrollEdgeAppearance = app
-        UINavigationBar.appearance().compactAppearance = app
-    }
-}
-
-fileprivate extension View {
-    /// Apply warm canvas bg and visible toolbar background like Scan Food
-    func applyAppPageChromeUIV2() -> some View {
-        self
-            .background(AppThemeUIV2.canvas.ignoresSafeArea())
-            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-    }
 }
 
 
@@ -45,15 +24,20 @@ struct LookMaxingView: View {
     @State private var selectedImage: UIImage?
     @State private var goalText: String = ""
     @State private var howItWorksExpanded: Bool = true
+    @Environment(\.colorScheme) private var colorScheme
+    
+    private var semanticColors: Theme.SemanticColors {
+        Theme.semantic(colorScheme)
+    }
     
     init() {
-        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+        // Navigation styling now handled by global EFNavBarStyler
     }
 
     var body: some View {
         ZStack {
             // Canvas background identical to Scan Food
-            AppThemeUIV2.canvas.ignoresSafeArea()
+            semanticColors.page.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -174,13 +158,10 @@ struct LookMaxingView: View {
                 .padding(.bottom, 24) // for home indicator
             }
         }
-        // Hide default Apple nav UI + stripe/divider
-        .toolbar(.hidden, for: .navigationBar)
-        .navigationBarHidden(true)
-        .onAppear {
-            // Defensive: if any previous screen forced a bar, hide it here too.
-            UINavigationBar.appearance().isHidden = true
-        }
+        .scrollContentBackground(.hidden)
+        .background(semanticColors.page.ignoresSafeArea())
+        .onAppear { NavBlendLocal.apply() }
+        .onDisappear { EFNavBarStyler.resetToDefault() }
     }
 }
 
@@ -233,7 +214,7 @@ extension LookMaxingView {
             .background(
                 // ⬇️ Use the SAME card background token as other screens (replace with your repo's token)
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(DSColor.card) // e.g. EFTheme.Colors.card or the token used elsewhere
+                    .fill(DSColor.card) // e.g. EFEFColor.card or the token used elsewhere
             )
             // ⬇️ Use the SAME card shadow token used across the app
             .shadow(color: Color.black.opacity(0.07), radius: 8, x: 0, y: 2)

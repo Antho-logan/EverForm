@@ -25,7 +25,7 @@ struct ChatInputBar: View {
 
         VStack(spacing: 0) {
             // Single full-width dock
-            HStack(spacing: Theme.Spacing.sm) {
+            HStack(spacing: Spacing.sm) {
                 // Paperclip button (left)
                 Button(action: {
                     let impact = UIImpactFeedbackGenerator(style: .light)
@@ -48,8 +48,8 @@ struct ChatInputBar: View {
                     .foregroundStyle(palette.textPrimary)
                     .focused($isTextFieldFocused)
                     .lineLimit(1...3)
-                    .padding(.horizontal, Theme.Spacing.md)
-                    .padding(.vertical, Theme.Spacing.sm)
+                    .padding(.horizontal, Spacing.md)
+                    .padding(.vertical, Spacing.sm)
                     .background(palette.surface)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                     .overlay(
@@ -86,14 +86,14 @@ struct ChatInputBar: View {
                 .accessibilityLabel(isRecording ? "Stop recording" : "Start recording")
                 .accessibilityValue(isRecording ? "Recording in progress" : "Tap and hold to record")
             }
-            .padding(.horizontal, Theme.Spacing.md)
-            .padding(.vertical, Theme.Spacing.md)
+            .padding(.horizontal, Spacing.md)
+            .padding(.vertical, Spacing.md)
             .background(.ultraThinMaterial)
             .clipShape(RoundedRectangle(cornerRadius: 24))
             .shadow(color: .black.opacity(0.1), radius: 12, x: 0, y: 4)
         }
-        .padding(.horizontal, Theme.Spacing.md)
-        .padding(.bottom, Theme.Spacing.sm)
+        .padding(.horizontal, Spacing.md)
+        .padding(.bottom, Spacing.sm)
         .background(palette.background.opacity(0.8))
     }
     

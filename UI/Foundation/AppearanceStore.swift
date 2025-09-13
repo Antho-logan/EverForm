@@ -2,7 +2,7 @@ import SwiftUI
 import Observation
 
 @Observable
-final class AppearanceStore {
+final class AppearanceStore: ObservableObject {
     enum Mode: String, CaseIterable, Identifiable { case system, light, dark
         var id: String { rawValue }
         var title: String {
@@ -18,5 +18,14 @@ final class AppearanceStore {
 
     var preferredColorScheme: ColorScheme? {
         switch mode { case .system: nil; case .light: .light; case .dark: .dark }
+    }
+    
+    // Convert to AppAppearance for use with AppTheme
+    var appAppearance: AppAppearance {
+        switch mode {
+        case .system: return .system
+        case .light: return .light
+        case .dark: return .dark
+        }
     }
 }

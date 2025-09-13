@@ -23,7 +23,7 @@ struct CoachInputBar: View {
                     .textFieldStyle(.plain)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(.regularMaterial, in: Capsule())
+                    .background(DSColor.inputBackground, in: Capsule())
                     .focused($focused)
 
                 if hasText {

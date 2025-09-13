@@ -93,7 +93,7 @@ public struct EFRingGauge: View {
         
         var body: some View {
             let p = Theme.palette(scheme)
-            VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+            VStack(alignment: .leading, spacing: Spacing.xs) {
                 Text(label)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(p.textSecondary)

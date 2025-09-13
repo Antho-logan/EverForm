@@ -32,7 +32,7 @@ struct TrainingView: View {
             VStack(spacing: 16) {
                 // Plan Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 20, weight: .medium))
@@ -45,7 +45,7 @@ struct TrainingView: View {
                             Spacer()
                         }
 
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             // Training Type
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Type")
@@ -75,7 +75,7 @@ struct TrainingView: View {
 
                 // Exercises Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 20, weight: .medium))
@@ -107,7 +107,7 @@ struct TrainingView: View {
                 // Timer Section
                 if isTimerActive || autoFocusTimer {
                     EFCard {
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             HStack {
                                 Image(systemName: "stopwatch")
                                     .font(.system(size: 20, weight: .medium))
@@ -124,7 +124,7 @@ struct TrainingView: View {
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
                                 .foregroundStyle(palette.textPrimary)
 
-                            HStack(spacing: Theme.Spacing.md) {
+                            HStack(spacing: Spacing.md) {
                                 EFPillButton(
                                     title: isTimerActive ? "Pause" : "Start",
                                     style: isTimerActive ? .secondary : .primary
@@ -144,7 +144,7 @@ struct TrainingView: View {
                 }
 
                 // Action Buttons
-                VStack(spacing: Theme.Spacing.md) {
+                VStack(spacing: Spacing.md) {
                     if !isTimerActive && !autoFocusTimer {
                         EFPillButton(
                             title: "Start Workout",

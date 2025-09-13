@@ -32,9 +32,9 @@ struct ReorderQuickActionsView: View {
         let palette = Theme.palette(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.lg) {
+            VStack(spacing: Spacing.lg) {
                 // Instructions
-                VStack(spacing: Theme.Spacing.sm) {
+                VStack(spacing: Spacing.sm) {
                     Text("Reorder Quick Actions")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(palette.textPrimary)
@@ -48,7 +48,7 @@ struct ReorderQuickActionsView: View {
                 // Reorderable list
                 List {
                     ForEach(actions) { action in
-                        HStack(spacing: Theme.Spacing.md) {
+                        HStack(spacing: Spacing.md) {
                             // Tile preview
                             ZStack {
                                 Circle()
@@ -72,7 +72,7 @@ struct ReorderQuickActionsView: View {
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundStyle(palette.textSecondary)
                         }
-                        .padding(.vertical, Theme.Spacing.xs)
+                        .padding(.vertical, Spacing.xs)
                         .listRowBackground(palette.surface)
                         .listRowSeparator(.hidden)
                     }
@@ -83,7 +83,7 @@ struct ReorderQuickActionsView: View {
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -4,6 +4,8 @@ struct EFQuickActionCard: View {
     let systemIcon: String
     let title: String
     var action: () -> Void
+    @EnvironmentObject private var appearance: AppearanceStore
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         Button(action: action) {
@@ -11,11 +13,12 @@ struct EFQuickActionCard: View {
                 Image(systemName: systemIcon)
                     .font(.system(size: 18, weight: .semibold))
                     .frame(width: 36, height: 36)
-                    .background(Color(.systemFill))
+                    .background(AppTheme.control(for: colorScheme, appearance.appAppearance))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Text(title)
                     .font(.system(size: 16, weight: .semibold, design: .rounded))
+                    .foregroundStyle(AppTheme.textPrimary(for: colorScheme, appearance.appAppearance))
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -24,10 +27,10 @@ struct EFQuickActionCard: View {
             .padding(.horizontal, 14)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color(.secondarySystemBackground))
+                    .fill(AppTheme.card(for: colorScheme, appearance.appAppearance))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color.black.opacity(0.06), lineWidth: 0.5)
+                            .stroke(AppTheme.stroke(for: colorScheme, appearance.appAppearance), lineWidth: 0.5)
                     )
                     .shadow(color: Color.black.opacity(0.12), radius: 8, x: 0, y: 4)
             )
@@ -37,6 +40,8 @@ struct EFQuickActionCard: View {
         .accessibilityLabel(Text(title))
     }
 }
+
+
 
 
 

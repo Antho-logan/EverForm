@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DisplaySettingsView: View {
-    @ObservedObject private var theme = EFTheme.shared
+    @ObservedObject private var themeStore = ThemeStore.shared
     @AppStorage("ef.display.reduceMotion") private var reduceMotion = false
     @AppStorage("ef.display.contentSize") private var contentSize: Double = 1.0 // 0.9...1.3
 
@@ -26,12 +26,15 @@ struct DisplaySettingsView: View {
                 EFCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Appearance").font(.subheadline).foregroundStyle(DSColor.textSecondary)
-                        Picker("", selection: $theme.selection) {
-                            Text("System").tag(EFUserTheme.system)
-                            Text("Light").tag(EFUserTheme.light)
-                            Text("Dark").tag(EFUserTheme.dark)
+                        Picker("", selection: $themeStore.selection) {
+                            Text("System").tag(EFAppearance.system)
+                            Text("Light").tag(EFAppearance.light)
+                            Text("Dark").tag(EFAppearance.dark)
                         }
                         .pickerStyle(.segmented)
+                        .onChange(of: themeStore.selection) { newValue in
+                            ThemeApplier.apply(newValue)   // <- immediate switch
+                        }
                         Text("Changes apply immediately.").font(.footnote).foregroundStyle(DSColor.textSecondary)
                     }
                 }
@@ -51,7 +54,8 @@ struct DisplaySettingsView: View {
             }
             .padding(16)
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .background(Theme.pageBackground.ignoresSafeArea())
+        .onAppear { ThemeApplier.apply(themeStore.selection) } // ensure consistency on open
         .environment(\.sizeCategory, sizeCategory)
         .navigationBarTitleDisplayMode(.inline)
     }

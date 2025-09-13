@@ -49,9 +49,9 @@ struct PainHelperSheet: View {
         let palette = Theme.palette(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.lg) {
+            VStack(spacing: Spacing.lg) {
                 // Header
-                VStack(spacing: Theme.Spacing.sm) {
+                VStack(spacing: Spacing.sm) {
                     Text("Fix Pain")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(palette.textPrimary)
@@ -64,16 +64,16 @@ struct PainHelperSheet: View {
                 
                 // Region selection grid
                 LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: Theme.Spacing.sm),
-                    GridItem(.flexible(), spacing: Theme.Spacing.sm)
-                ], spacing: Theme.Spacing.sm) {
+                    GridItem(.flexible(), spacing: Spacing.sm),
+                    GridItem(.flexible(), spacing: Spacing.sm)
+                ], spacing: Spacing.sm) {
                     ForEach(PainRegion.allCases, id: \.self) { region in
                         Button(action: {
                             selectedRegion = region
                             let impact = UIImpactFeedbackGenerator(style: .light)
                             impact.impactOccurred()
                         }) {
-                            VStack(spacing: Theme.Spacing.sm) {
+                            VStack(spacing: Spacing.sm) {
                                 Image(systemName: region.icon)
                                     .font(.system(size: 24, weight: .medium))
                                     .foregroundStyle(
@@ -103,16 +103,16 @@ struct PainHelperSheet: View {
                                         .lineLimit(2)
                                 }
                             }
-                            .padding(Theme.Spacing.md)
+                            .padding(Spacing.md)
                             .frame(height: 120)
                             .background(
                                 selectedRegion == region ?
                                 Color.red :
                                 palette.surface
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                             .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                                RoundedRectangle(cornerRadius: Radius.card)
                                     .stroke(
                                         selectedRegion == region ?
                                         Color.red :
@@ -141,16 +141,16 @@ struct PainHelperSheet: View {
                     }
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, Theme.Spacing.md)
+                    .padding(.vertical, Spacing.md)
                     .background(selectedRegion != nil ? Color.red : palette.textSecondary)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                 }
                 .buttonStyle(.plain)
                 .disabled(selectedRegion == nil)
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

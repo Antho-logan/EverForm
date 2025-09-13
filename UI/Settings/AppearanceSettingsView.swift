@@ -1,15 +1,15 @@
 import SwiftUI
 
 struct AppearanceSettingsView: View {
-    @AppStorage("themeMode") private var themeMode: String = Theme.Mode.system.rawValue
+    @AppStorage("ef.appearance") private var themeMode: String = EFAppearance.system.rawValue
 
     var body: some View {
         NavigationStack {
             Form {
                 Section("Theme") {
                     Picker("Appearance", selection: $themeMode) {
-                        ForEach(Theme.Mode.allCases, id: \.rawValue) { mode in
-                            Text(mode.displayName).tag(mode.rawValue)
+                        ForEach(EFAppearance.allCases, id: \.rawValue) { mode in
+                            Text(mode.rawValue.capitalized).tag(mode.rawValue)
                         }
                     }
                     .pickerStyle(.segmented)

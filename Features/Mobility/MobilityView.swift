@@ -34,7 +34,7 @@ struct MobilityView: View {
             VStack(spacing: 16) {
                 // Focus Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "figure.flexibility")
                                 .font(.system(size: 20, weight: .medium))
@@ -47,7 +47,7 @@ struct MobilityView: View {
                             Spacer()
                         }
 
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             Text("Select body regions to focus on")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundStyle(palette.textSecondary)
@@ -83,7 +83,7 @@ struct MobilityView: View {
 
                 // Routine Section
                 EFCard {
-                    VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Spacing.md) {
                         HStack {
                             Image(systemName: "list.bullet")
                                 .font(.system(size: 20, weight: .medium))
@@ -115,7 +115,7 @@ struct MobilityView: View {
                 // Session Section
                 if isSessionActive {
                     EFCard {
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             HStack {
                                 Image(systemName: "timer")
                                     .font(.system(size: 20, weight: .medium))
@@ -132,7 +132,7 @@ struct MobilityView: View {
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
                                 .foregroundStyle(palette.textPrimary)
 
-                            HStack(spacing: Theme.Spacing.md) {
+                            HStack(spacing: Spacing.md) {
                                 EFPillButton(
                                     title: "Pause",
                                     style: .secondary
@@ -153,11 +153,11 @@ struct MobilityView: View {
                 }
 
                 // Action Buttons
-                VStack(spacing: Theme.Spacing.md) {
+                VStack(spacing: Spacing.md) {
                     if !isSessionActive {
                         // Duration picker
                         EFCard {
-                            VStack(alignment: .leading, spacing: Theme.Spacing.md) {
+                            VStack(alignment: .leading, spacing: Spacing.md) {
                                 Text("Session Duration")
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundStyle(palette.textPrimary)

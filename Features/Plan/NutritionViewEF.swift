@@ -4,7 +4,7 @@ import UIKit
 
 // MARK: - Local theme + nav bar helpers (file-scoped)
 fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let canvas: Color = DSColor.canvas
     static let ctaNutrition: Color = DSColor.accentNutrition
     static let ctaPain: Color = EFColor.painAccent
 
@@ -12,28 +12,6 @@ fileprivate enum AppThemeUIV2 {
     static let riskLow: Color = .green
     static let riskMed: Color = .orange
     static let riskHigh: Color = .red
-}
-
-fileprivate enum NavStylerUIV2 {
-    static func apply(background: UIColor) {
-        let app = UINavigationBarAppearance()
-        app.configureWithOpaqueBackground()
-        app.backgroundColor = background
-        app.shadowColor = .clear // remove 1px stripe
-        UINavigationBar.appearance().standardAppearance = app
-        UINavigationBar.appearance().scrollEdgeAppearance = app
-        UINavigationBar.appearance().compactAppearance = app
-    }
-}
-
-fileprivate extension View {
-    /// Apply warm canvas bg and visible toolbar background like Scan Food
-    func applyAppPageChromeUIV2() -> some View {
-        self
-            .background(AppThemeUIV2.canvas.ignoresSafeArea())
-            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-    }
 }
 
 fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
@@ -52,24 +30,32 @@ fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
 // MARK: - Meal History View
 fileprivate struct MealHistoryViewUIV2: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
+    
+    private var semanticColors: Theme.SemanticColors {
+        Theme.semantic(colorScheme)
+    }
     
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
-                    ForEach(journalStore.mealEntries.sorted(by: { $0.date > $1.date })) { entry in
+                    ForEach(journalStore.meals.sorted(by: { $0.date > $1.date })) { entry in
                         MealHistoryCard(entry: entry)
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
             }
-            .background(AppThemeUIV2.canvas.ignoresSafeArea())
+            .scrollContentBackground(.hidden)
+            .background(semanticColors.page.ignoresSafeArea())
             .navigationTitle("Meal History")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
+            .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
+            .onAppear { NavBlendLocal.apply() }
+            .onDisappear { EFNavBarStyler.resetToDefault() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
@@ -101,7 +87,7 @@ fileprivate struct MealHistoryCard: View {
                             .font(.subheadline)
                             .foregroundStyle(Color("TextPrimary"))
                         Spacer()
-                        Text("\(item.calories) cal")
+                        Text("\(item.calories ?? 0) cal")
                             .font(.caption)
                             .foregroundStyle(Color("TextSecondary"))
                     }
@@ -123,6 +109,10 @@ struct NutritionViewEF: View, Identifiable {
     let id = UUID()
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
+    
+    private var semanticColors: Theme.SemanticColors {
+        Theme.semantic(colorScheme)
+    }
     @State private var nutrSelected: NUTRMealKind = .lunch
     @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
         Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, .init()) })
@@ -131,7 +121,7 @@ struct NutritionViewEF: View, Identifiable {
     @State private var showSmartLogSheet = false
     
     init() {
-        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+        // Navigation styling now handled by global EFNavBarStyler
     }
 
     private var nutrCurrent: Binding<NUTRMacros> {
@@ -304,9 +294,14 @@ struct NutritionViewEF: View, Identifiable {
                 .padding(.horizontal, 20)
                 .padding(.vertical, 16)
             }
-            .applyAppPageChromeUIV2()
+            .scrollContentBackground(.hidden)
+            .background(semanticColors.page.ignoresSafeArea())
+            .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Nutrition")
             .navigationBarTitleDisplayMode(.large)
+            .onAppear { NavBlendLocal.apply() }
+            .onDisappear { EFNavBarStyler.resetToDefault() }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
@@ -320,7 +315,12 @@ struct NutritionViewEF: View, Identifiable {
             }
             .sheet(isPresented: $showMealHistory) {
                 MealHistoryViewUIV2()
-                    .applyAppPageChromeUIV2()
+                    .scrollContentBackground(.hidden)
+                    .background(semanticColors.page.ignoresSafeArea())
+                    .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+                    .toolbarBackground(.visible, for: .navigationBar)
+                    .onAppear { NavBlendLocal.apply() }
+                    .onDisappear { EFNavBarStyler.resetToDefault() }
             }
             .sheet(isPresented: $showSmartLogSheet) {
                 SmartMealLoggerSheet()

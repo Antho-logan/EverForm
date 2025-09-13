@@ -62,9 +62,9 @@ struct BreathworkSheet: View {
         let palette = Theme.palette(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.lg) {
+            VStack(spacing: Spacing.lg) {
                 // Header
-                VStack(spacing: Theme.Spacing.sm) {
+                VStack(spacing: Spacing.sm) {
                     Text("Breathwork")
                         .font(.system(size: 24, weight: .bold))
                         .foregroundStyle(palette.textPrimary)
@@ -77,7 +77,7 @@ struct BreathworkSheet: View {
                 
                 if !isActive {
                     // Preset selection
-                    VStack(spacing: Theme.Spacing.sm) {
+                    VStack(spacing: Spacing.sm) {
                         ForEach(BreathworkPreset.allCases, id: \.self) { preset in
                             Button(action: {
                                 selectedPreset = preset
@@ -103,15 +103,15 @@ struct BreathworkSheet: View {
                                             .foregroundStyle(palette.accent)
                                     }
                                 }
-                                .padding(Theme.Spacing.md)
+                                .padding(Spacing.md)
                                 .background(
                                     selectedPreset == preset ?
                                     palette.accent.opacity(0.1) :
                                     palette.surface
                                 )
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                                .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: Theme.Radius.card)
+                                    RoundedRectangle(cornerRadius: Radius.card)
                                         .stroke(
                                             selectedPreset == preset ?
                                             palette.accent :
@@ -130,14 +130,14 @@ struct BreathworkSheet: View {
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, Theme.Spacing.md)
+                            .padding(.vertical, Spacing.md)
                             .background(palette.accent)
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                     }
                     .buttonStyle(.plain)
                 } else {
                     // Active breathing session
-                    VStack(spacing: Theme.Spacing.xl) {
+                    VStack(spacing: Spacing.xl) {
                         // Breathing circle
                         ZStack {
                             Circle()
@@ -166,10 +166,10 @@ struct BreathworkSheet: View {
                             Text("Stop Session")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundStyle(palette.accent)
-                                .padding(.vertical, Theme.Spacing.sm)
-                                .padding(.horizontal, Theme.Spacing.lg)
+                                .padding(.vertical, Spacing.sm)
+                                .padding(.horizontal, Spacing.lg)
                                 .background(palette.accent.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                                .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                         }
                         .buttonStyle(.plain)
                     }
@@ -177,7 +177,7 @@ struct BreathworkSheet: View {
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

@@ -31,7 +31,7 @@ struct ProgressDashboardView: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }
-        .background(Theme.Colors.efBackground.ignoresSafeArea())
+        .background(Theme.pageBackground.ignoresSafeArea())
     }
 
     private var rangePicker: some View {

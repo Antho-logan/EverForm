@@ -9,31 +9,9 @@ import SwiftUI
 
 // MARK: - Local theme + nav bar helpers (file-scoped)
 fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
+    static let canvas: Color = DSColor.canvas
     static let ctaNutrition: Color = DSColor.accentNutrition
     static let ctaPain: Color = EFColor.painAccent
-}
-
-fileprivate enum NavStylerUIV2 {
-    static func apply(background: UIColor) {
-        let app = UINavigationBarAppearance()
-        app.configureWithOpaqueBackground()
-        app.backgroundColor = background
-        app.shadowColor = .clear // remove 1px stripe
-        UINavigationBar.appearance().standardAppearance = app
-        UINavigationBar.appearance().scrollEdgeAppearance = app
-        UINavigationBar.appearance().compactAppearance = app
-    }
-}
-
-fileprivate extension View {
-    /// Apply warm canvas bg and visible toolbar background like Scan Food
-    func applyAppPageChromeUIV2() -> some View {
-        self
-            .background(AppThemeUIV2.canvas.ignoresSafeArea())
-            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-    }
 }
 
 private let FIX_PAIN_TILE_HEIGHT: CGFloat = 124
@@ -42,11 +20,15 @@ struct FixPainView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     @State private var selectedRegion: PainRegion?
+    
+    private var semanticColors: Theme.SemanticColors {
+        Theme.semantic(colorScheme)
+    }
     @State private var showingAssessment = false
     @State private var toastText: String?
     
     init() {
-        NavStylerUIV2.apply(background: UIColor(AppThemeUIV2.canvas))
+        // Navigation styling now handled by global EFNavBarStyler
     }
     
     enum PainRegion: String, CaseIterable {
@@ -143,9 +125,14 @@ struct FixPainView: View {
             }
         }
         .padding(.top, PainUI.Layout.vSpacing)
-        .applyAppPageChromeUIV2()
+        .scrollContentBackground(.hidden)
+        .background(semanticColors.page.ignoresSafeArea())
+        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Fix Pain")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear { NavBlendLocal.apply() }
+        .onDisappear { EFNavBarStyler.resetToDefault() }
         .sheet(isPresented: $showingAssessment) {
             if let selectedRegion = selectedRegion {
                 FixPainAssessmentView(area: convertToPainArea(selectedRegion)) { shouldShowToast in

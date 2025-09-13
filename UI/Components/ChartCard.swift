@@ -4,6 +4,8 @@ struct ChartCard<Header: View, ChartArea: View, Footer: View>: View {
     var header: Header
     var chart: ChartArea
     var footer: Footer
+    @EnvironmentObject private var appearance: AppearanceStore
+    @Environment(\.colorScheme) private var colorScheme
 
     init(@ViewBuilder header: () -> Header,
          @ViewBuilder chart: () -> ChartArea,
@@ -27,8 +29,8 @@ struct ChartCard<Header: View, ChartArea: View, Footer: View>: View {
                 .overlay(
                     LinearGradient(
                         colors: [
-                            Color.white.opacity(0.06),
-                            Color.white.opacity(0.00)
+                            DSColor.brand.opacity(0.1),
+                            DSColor.brand.opacity(0.00)
                         ],
                         startPoint: .topLeading, endPoint: .bottomTrailing
                     )
@@ -36,9 +38,9 @@ struct ChartCard<Header: View, ChartArea: View, Footer: View>: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                        .stroke(DSColor.stroke, lineWidth: 1)
                 )
         )
-        .shadow(color: Color.black.opacity(0.10), radius: 14, x: 0, y: 10)
+        .shadow(color: DSColor.black.opacity(DSColor.shadowOpacity), radius: 14, x: 0, y: 10)
     }
 }

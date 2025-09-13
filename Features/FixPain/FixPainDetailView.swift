@@ -76,11 +76,11 @@ struct FixPainDetailView: View {
         let semantic = Theme.semantic(colorScheme)
         
         NavigationView {
-            VStack(spacing: Theme.Spacing.xl) {
+            VStack(spacing: Spacing.xl) {
                 if !isStarted {
                     // Routine overview
-                    VStack(spacing: Theme.Spacing.lg) {
-                        VStack(spacing: Theme.Spacing.sm) {
+                    VStack(spacing: Spacing.lg) {
+                        VStack(spacing: Spacing.sm) {
                             Text("\(region.rawValue) Relief")
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundStyle(palette.textPrimary)
@@ -92,7 +92,7 @@ struct FixPainDetailView: View {
                         }
                         
                         // Routine steps
-                        VStack(spacing: Theme.Spacing.md) {
+                        VStack(spacing: Spacing.md) {
                             ForEach(Array(routine.enumerated()), id: \.offset) { index, step in
                                 EFCard {
                                     HStack {
@@ -133,17 +133,17 @@ struct FixPainDetailView: View {
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, Theme.Spacing.md)
+                                .padding(.vertical, Spacing.md)
                                 .background(semantic.danger)
-                                .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+                                .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                         }
                         .buttonStyle(.plain)
                     }
                 } else {
                     // Active routine
-                    VStack(spacing: Theme.Spacing.xl) {
+                    VStack(spacing: Spacing.xl) {
                         // Progress
-                        VStack(spacing: Theme.Spacing.sm) {
+                        VStack(spacing: Spacing.sm) {
                             Text("Step \(currentStep + 1) of \(routine.count)")
                                 .font(.system(size: 16, weight: .medium))
                                 .foregroundStyle(palette.textSecondary)
@@ -155,7 +155,7 @@ struct FixPainDetailView: View {
                         Spacer()
                         
                         // Current step
-                        VStack(spacing: Theme.Spacing.lg) {
+                        VStack(spacing: Spacing.lg) {
                             Text(routine[currentStep].name)
                                 .font(.system(size: 28, weight: .bold))
                                 .foregroundStyle(palette.textPrimary)
@@ -182,7 +182,7 @@ struct FixPainDetailView: View {
                         Spacer()
                         
                         // Controls
-                        HStack(spacing: Theme.Spacing.lg) {
+                        HStack(spacing: Spacing.lg) {
                             Button("Skip") {
                                 nextStep()
                             }
@@ -196,17 +196,17 @@ struct FixPainDetailView: View {
                             }
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundStyle(semantic.danger)
-                            .padding(.horizontal, Theme.Spacing.lg)
-                            .padding(.vertical, Theme.Spacing.sm)
+                            .padding(.horizontal, Spacing.lg)
+                            .padding(.vertical, Spacing.sm)
                             .background(semantic.danger.opacity(0.1))
-                            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.pill))
+                            .clipShape(RoundedRectangle(cornerRadius: Radius.pill))
                         }
                     }
                 }
                 
                 Spacer()
             }
-            .padding(Theme.Spacing.lg)
+            .padding(Spacing.lg)
             .background(palette.background)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

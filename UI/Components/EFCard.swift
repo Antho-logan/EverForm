@@ -14,7 +14,7 @@ struct EFCard<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DSColor.card)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .shadow(color: Color.black.opacity(scheme == .light ? 0.06 : 0.0), radius: 12, x: 0, y: 6)
+            .shadow(color: Color.black.opacity(DSColor.shadowOpacity), radius: 12, x: 0, y: 6)
     }
 }
 

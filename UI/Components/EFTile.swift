@@ -22,7 +22,7 @@ public struct EFTile: View {
             impact.impactOccurred()
             action()
         }) {
-            VStack(spacing: Theme.Spacing.sm) {
+            VStack(spacing: Spacing.sm) {
                 ZStack {
                     Circle()
                         .fill(Theme.palette(scheme).accent.opacity(0.15))
@@ -49,15 +49,15 @@ public struct EFTile: View {
                 }
             }
             .frame(minWidth: 56, minHeight: 56)
-            .padding(Theme.Spacing.md)
+            .padding(Spacing.md)
             .background(Theme.palette(scheme).surfaceElevated)
             .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.card)
+                RoundedRectangle(cornerRadius: Radius.card)
                     .stroke(Theme.palette(scheme).stroke, lineWidth: 1)
             )
-            .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.card))
+            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
             .shadow(
-                color: Theme.Shadow.card,
+                color: Shadow.card,
                 radius: 8,
                 x: 0,
                 y: 4

@@ -32,8 +32,8 @@ struct EFChip: View {
             .font(.footnote.weight(.semibold))
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(Theme.Colors.surface)
+            .background(DSColor.card)
             .clipShape(Capsule())
-            .overlay(Capsule().stroke(Theme.Colors.border))
+            .overlay(Capsule().stroke(DSColor.stroke))
     }
 }

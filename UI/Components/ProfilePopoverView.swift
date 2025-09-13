@@ -19,7 +19,7 @@ struct ProfilePopoverView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // Account header
-                VStack(spacing: Theme.Spacing.sm) {
+                VStack(spacing: Spacing.sm) {
                     Circle()
                         .fill(palette.accent.opacity(0.2))
                         .frame(width: 60, height: 60)
@@ -39,7 +39,7 @@ struct ProfilePopoverView: View {
                             .foregroundStyle(palette.textSecondary)
                     }
                 }
-                .padding(.vertical, Theme.Spacing.lg)
+                .padding(.vertical, Spacing.lg)
                 
                 Divider()
                     .background(palette.stroke)
@@ -106,7 +106,7 @@ struct ProfilePopoverView: View {
                     
                     Divider()
                         .background(palette.stroke)
-                        .padding(.vertical, Theme.Spacing.xs)
+                        .padding(.vertical, Spacing.xs)
                     
                     MenuRow(
                         icon: "rectangle.portrait.and.arrow.right",
@@ -172,7 +172,7 @@ private struct MenuRow<Trailing: View>: View {
         let palette = Theme.palette(colorScheme)
         
         Button(action: action) {
-            HStack(spacing: Theme.Spacing.md) {
+            HStack(spacing: Spacing.md) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(titleColor ?? palette.textPrimary)
@@ -192,8 +192,8 @@ private struct MenuRow<Trailing: View>: View {
                         .foregroundStyle(palette.textSecondary)
                 }
             }
-            .padding(.horizontal, Theme.Spacing.lg)
-            .padding(.vertical, Theme.Spacing.sm)
+            .padding(.horizontal, Spacing.lg)
+            .padding(.vertical, Spacing.sm)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }

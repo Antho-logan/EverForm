@@ -1,26 +1,13 @@
 import SwiftUI
 import UIKit
 
-fileprivate enum OVNavStyler {
-    static func apply(background uiColor: UIColor) {
-        let ap = UINavigationBarAppearance()
-        ap.configureWithOpaqueBackground()
-        ap.backgroundColor = uiColor
-        ap.shadowColor = .clear
-        ap.titleTextAttributes = [.foregroundColor: UIColor.label]
-        ap.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = ap
-        nav.scrollEdgeAppearance = ap
-        nav.compactAppearance = ap
-    }
-}
-
 struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
     @Environment(HydrationService.self) private var hydrationService
     @EnvironmentObject private var journalStore: JournalStore
+    @EnvironmentObject private var appearance: AppearanceStore
+    @Environment(\.colorScheme) private var colorScheme
     @State private var showWaterOptions = false
     @State private var showWeightSheet = false
     @State private var showCustomWaterSheet = false
@@ -36,7 +23,7 @@ struct OverviewView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 18) {
+                VStack(spacing: 16) {
 
                     // ------- Stats Grid (existing cards) -------
                     // KPI grid (4 tiles)
@@ -48,44 +35,43 @@ struct OverviewView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    Section {
-                        VStack(spacing: 14) {
-                            HStack(spacing: 16) {
-                                planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: .green) {
-                                    EFRouter.open(.training)
-                                }
-                                planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: .orange) {
-                                    EFRouter.open(.nutrition)
-                                }
+                    Text("Today's Plan")
+                        .font(.title2.weight(.semibold))
+                        .padding(.top, 12)
+                        .padding(.horizontal, 20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(Color("TextPrimary"))
+
+                    VStack(spacing: 16) {
+                        HStack(spacing: 16) {
+                            planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: .green) {
+                                EFRouter.open(.training)
                             }
-                            HStack(spacing: 16) {
-                                planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: .blue) {
-                                    EFRouter.open(.recovery)
-                                }
-                                planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: .purple) {
-                                    EFRouter.open(.mobility)
-                                }
+                            planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: .orange) {
+                                EFRouter.open(.nutrition)
                             }
                         }
-                    } header: {
-                        Text("Today's Plan")
-                            .font(.system(size: 22, weight: .semibold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .foregroundStyle(Color("TextPrimary"))
-                            .padding(.horizontal, 20)
-                            .padding(.top, 12)
+                        HStack(spacing: 16) {
+                            planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: .blue) {
+                                EFRouter.open(.recovery)
+                            }
+                            planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: .purple) {
+                                EFRouter.open(.mobility)
+                            }
+                        }
                     }
                     .padding(.horizontal, 20)
 
                     // ------- Quick Actions -------
-                    VStack(spacing: 12) {
-                        Text("Quick Actions")
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(Color("TextPrimary"))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 20)
+                    Text("Quick Actions")
+                        .font(.title2.weight(.semibold))
+                        .padding(.top, 12)
+                        .padding(.horizontal, 20)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .foregroundStyle(Color("TextPrimary"))
 
-                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
                             quickActionButton(icon: "drop.fill", title: "Add Water", color: .blue) {
                                 hydrationService.addWater(ml: 250)
                                 toastText = "+250 ml"
@@ -107,19 +93,18 @@ struct OverviewView: View {
                         }
                         .padding(.horizontal, 20)
                     }
-                    .padding(.top, 4)
                     .padding(.bottom, 24)
                 }
                 .padding(.top, 8)
             }
+            .scrollContentBackground(.hidden)
             .background(DSColor.appBackground.ignoresSafeArea())
-            .navigationTitle("Overview")
-            .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(DSColor.appBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
-            .onAppear {
-                OVNavStyler.apply(background: UIColor(DSColor.appBackground))
-            }
+            .navigationTitle("Overview")
+            .navigationBarTitleDisplayMode(.large)
+            .onAppear { NavBlendLocal.apply() }
+            .onDisappear { EFNavBarStyler.resetToDefault() }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Menu {

@@ -4,32 +4,29 @@ import Charts
 #endif
 import UIKit
 
-// MARK: - Local theme + nav bar helpers (file-scoped)
-fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DesignSystem.Colors.backgroundSecondary
-    static let ctaNutrition: Color = DSColor.accentNutrition
-    static let ctaPain: Color = EFColor.painAccent
-}
-
-fileprivate enum NavStylerUIV2 {
-    static func apply(background: UIColor) {
-        let app = UINavigationBarAppearance()
-        app.configureWithOpaqueBackground()
-        app.backgroundColor = background
-        app.shadowColor = .clear // remove 1px stripe
-        UINavigationBar.appearance().standardAppearance = app
-        UINavigationBar.appearance().scrollEdgeAppearance = app
-        UINavigationBar.appearance().compactAppearance = app
+// MARK: - Progress navigation styler (file-scoped)
+private struct ProgressNavStylerLocal: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var appearance: AppearanceStore
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear {
+                let appBg = UIColor(DSColor.appBackground)
+                let app = UINavigationBarAppearance()
+                app.configureWithOpaqueBackground()
+                app.backgroundColor = appBg
+                app.shadowColor = .clear
+                UINavigationBar.appearance().standardAppearance = app
+                UINavigationBar.appearance().scrollEdgeAppearance = app
+                UINavigationBar.appearance().compactAppearance = app
+            }
     }
 }
 
-fileprivate extension View {
-    /// Apply warm canvas bg and visible toolbar background like Scan Food
-    func applyAppPageChromeUIV2() -> some View {
-        self
-            .background(AppThemeUIV2.canvas.ignoresSafeArea())
-            .toolbarBackground(AppThemeUIV2.canvas, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+extension View {
+    fileprivate func progressNavStyled() -> some View {
+        self.modifier(ProgressNavStylerLocal())
     }
 }
 
@@ -39,12 +36,8 @@ struct ProgressViewEF: View {
     
     @Environment(\.horizontalSizeClass) private var hSize
     @Environment(\.colorScheme) private var colorScheme
+    @EnvironmentObject private var appearance: AppearanceStore
     private var isCompact: Bool { hSize == .compact }
-
-    // If you already have a theme token, use that exact token here for both SwiftUI & UIKit.
-    private var pageBackground: Color {
-        AppThemeUIV2.canvas // Using standardized canvas color
-    }
 
     // Drives chart rebuild + reveal animation
     @State private var chartIdentity: Int = 0
@@ -58,31 +51,32 @@ struct ProgressViewEF: View {
     private var chartHeight: CGFloat { isCompact ? 220 : 190 }
 
     var body: some View {
-        let bg = pageBackground
-        let uiBG = UIColor(bg)
-
-        ScrollView(.vertical, showsIndicators: true) {
-            VStack(spacing: 16) {
-                // ----- Your existing chart sections go here (unchanged) -----
-                chartsContent()
-                // -------------------------------------------------------------
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 16)
-        }
-        .background(bg.ignoresSafeArea())
-        // Sticky header under status bar, like Scan Food
-        .safeAreaInset(edge: .top) {
-            ProgressStickyHeader(
-                selectedRange: $selectedRange,
-                onChange: { newValue in
-                    applyRange(newValue)
+        ZStack {
+            DSColor.appBackground.ignoresSafeArea()
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: 16) {
+                    // ----- Your existing chart sections go here (unchanged) -----
+                    chartsContent()
+                    // -------------------------------------------------------------
                 }
-            )
-            .background(AppThemeUIV2.canvas) // same color, blends header with page (no stripe)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
+            }
+            .scrollContentBackground(.hidden) // if using List elsewhere
+            // Sticky header under status bar, like Scan Food
+            .safeAreaInset(edge: .top) {
+                ProgressStickyHeader(
+                    selectedRange: $selectedRange,
+                    onChange: { newValue in
+                        applyRange(newValue)
+                    }
+                )
+                .background(DSColor.appBackground) // same color, blends header with page (no stripe)
+            }
         }
+        .toolbarBackground(DSColor.appBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
-            NavStylerUIV2.apply(background: uiBG) // removes faint line
             store.regenerate()
             startRevealAnimation()
         }
@@ -197,7 +191,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
         .padding(4)
         .background(
             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(.thinMaterial) // or your app's control background token
+                .fill(DSColor.inputBackground) // or your app's control background token
         )
     }
 }
