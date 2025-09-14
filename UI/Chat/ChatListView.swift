@@ -37,7 +37,7 @@ struct ChatListView: View {
                             .padding(.vertical, 12)
                             .background(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .fill(Color(.systemGray6))
+                                    .fill(DSColor.bgElevated)
                             )
                             Spacer()
                         }
@@ -62,6 +62,6 @@ struct ChatListView: View {
                 }
             }
         }
-        .background(Color(.systemBackground))
+        .background(DSColor.bg)
     }
 }

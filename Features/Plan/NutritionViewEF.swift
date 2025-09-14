@@ -179,14 +179,14 @@ struct NutritionViewEF: View, Identifiable {
                             HStack(spacing: 12) {
                                 Image(systemName: "sparkles")
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(.orange)
+                                    .foregroundStyle(Color(hex: "FF9F0A"))
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Smart Log (AI)")
                                         .font(.headline)
-                                        .foregroundStyle(Color("TextPrimary"))
+                                        .foregroundStyle(Color(hex: "FFFFFF"))
                                     Text("Photo or text input")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color("TextSecondary"))
+                                        .foregroundStyle(Color(hex: "A0A0A0"))
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")
@@ -202,14 +202,14 @@ struct NutritionViewEF: View, Identifiable {
                             HStack(spacing: 12) {
                                 Image(systemName: "fork.knife.circle.fill")
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(.orange) // Nutrition color
+                                    .foregroundStyle(Color(hex: "FF9F0A")) // Nutrition color
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Manual Log")
                                         .font(.headline)
-                                        .foregroundStyle(Color("TextPrimary"))
+                                        .foregroundStyle(Color(hex: "FFFFFF"))
                                     Text("Log food and macros")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color("TextSecondary"))
+                                        .foregroundStyle(Color(hex: "A0A0A0"))
                                 }
                                 Spacer()
                             }
@@ -217,7 +217,7 @@ struct NutritionViewEF: View, Identifiable {
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Type").font(.subheadline).foregroundStyle(Color("TextSecondary"))
+                                Text("Type").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                                 Picker("", selection: Binding(
                                     get: { nutrSelected.rawValue },
                                     set: { nutrSelected = NUTRMealKind(rawValue: $0) ?? .lunch }
@@ -257,7 +257,7 @@ struct NutritionViewEF: View, Identifiable {
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Notes").font(.subheadline).foregroundStyle(Color("TextSecondary"))
+                                Text("Notes").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                                 TextEditor(text: $nutrNotes).frame(minHeight: 120)
                                     .scrollContentBackground(.hidden)
                             }
@@ -285,8 +285,8 @@ struct NutritionViewEF: View, Identifiable {
                 .padding(.vertical, 16)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.bg.ignoresSafeArea())
-            .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
+            .background(Color(hex: "0B0B0D").ignoresSafeArea())
+            .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Nutrition")
             .navigationBarTitleDisplayMode(.large)
@@ -306,8 +306,8 @@ struct NutritionViewEF: View, Identifiable {
             .sheet(isPresented: $showMealHistory) {
                 MealHistoryViewUIV2()
                     .scrollContentBackground(.hidden)
-                    .background(semanticColors.page.ignoresSafeArea())
-                    .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+                    .background(Color(hex: "0B0B0D").ignoresSafeArea())
+                    .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
                     .toolbarBackground(.visible, for: .navigationBar)
                     .onAppear { NavBlendLocal.apply() }
                     .onDisappear { EFNavBarStyler.resetToDefault() }

@@ -38,15 +38,15 @@ struct ProgressViewScreen: View {
                 summaryRow
                     .padding(.horizontal, 20)
 
-                MetricChart(title: "Training", icon: "dumbbell.fill", tint: EFColor.green, data: makeData(days: range.days, max: 60))
+                MetricChart(title: "Training", icon: "dumbbell.fill", tint: DSColor.accentSuccess, data: makeData(days: range.days, max: 60))
                     .padding(.horizontal, 20)
-                MetricChart(title: "Nutrition", icon: "fork.knife", tint: EFColor.orange, data: makeData(days: range.days, max: 3000))
+                MetricChart(title: "Nutrition", icon: "fork.knife", tint: DSColor.accentNutrition, data: makeData(days: range.days, max: 3000))
                     .padding(.horizontal, 20)
-                MetricChart(title: "Mobility", icon: "figure.run", tint: EFColor.purple, data: makeData(days: range.days, max: 30))
+                MetricChart(title: "Mobility", icon: "figure.run", tint: DSColor.accentMobility, data: makeData(days: range.days, max: 30))
                     .padding(.horizontal, 20)
-                MetricChart(title: "Recovery", icon: "moon.fill", tint: EFColor.blue, data: makeData(days: range.days, max: 10))
+                MetricChart(title: "Recovery", icon: "moon.fill", tint: DSColor.accentRecovery, data: makeData(days: range.days, max: 10))
                     .padding(.horizontal, 20)
-                MetricChart(title: "Hydration", icon: "drop.fill", tint: EFColor.blue, data: makeData(days: range.days, max: 3000))
+                MetricChart(title: "Hydration", icon: "drop.fill", tint: DSColor.accentRecovery, data: makeData(days: range.days, max: 3000))
                     .padding(.horizontal, 20)
                     .padding(.bottom, 24)
                 }

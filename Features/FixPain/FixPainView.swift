@@ -122,10 +122,7 @@ struct FixPainView: View {
         .padding(.top, PainUI.Layout.vSpacing)
         .scrollContentBackground(.hidden)
         .background(DSColor.bg.ignoresSafeArea())
-        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .navigationTitle("Fix Pain")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear { NavBlendLocal.apply() }
         .onDisappear { EFNavBarStyler.resetToDefault() }
         .sheet(isPresented: $showingAssessment) {

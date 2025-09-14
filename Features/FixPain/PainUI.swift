@@ -29,7 +29,7 @@ struct PainUI {
     // MARK: - Layout Constants
     struct Layout {
         static let hPadding: CGFloat = 20
-        static let vSpacing: CGFloat = 16
+        static let vSpacing: CGFloat = 8  // Reduced from 16 to nudge content up 8pt total (8pt x 2 applications)
         static let cardSpacing: CGFloat = 12
         static let cardCornerRadius: CGFloat = 16
         static let buttonHeight: CGFloat = 56

@@ -24,11 +24,80 @@ struct EFCard<Content: View>: View {
 
 struct EFSectionHeader: View {
     let title: String
+    let subtitle: String?
+    let icon: String?
+    let accentColor: Color?
+    
+    init(title: String, subtitle: String? = nil, icon: String? = nil, accentColor: Color? = nil) {
+        self.title = title
+        self.subtitle = subtitle
+        self.icon = icon
+        self.accentColor = accentColor
+    }
+    
     var body: some View {
-        Text(title)
-            .font(.system(.title2, weight: .bold))
-            .foregroundStyle(DSColor.labelPrimary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 8)
+        HStack(spacing: DS.Spacing.sm) {
+            if let icon = icon {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(accentColor ?? EnvironmentValues().efTheme.accent)
+            }
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
+                
+                if let subtitle = subtitle {
+                    Text(subtitle)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
+                }
+            }
+            
+            Spacer()
+        }
+        .padding(.horizontal, DS.Spacing.md)
+        .padding(.vertical, DS.Spacing.sm)
+        .efCardBackground()
+    }
+}
+
+// MARK: - Convenience Initializers
+extension EFSectionHeader {
+    static func nutrition(title: String, subtitle: String? = nil) -> EFSectionHeader {
+        EFSectionHeader(
+            title: title,
+            subtitle: subtitle,
+            icon: "fork.knife",
+            accentColor: EnvironmentValues().efTheme.accentNutrition
+        )
+    }
+    
+    static func recovery(title: String, subtitle: String? = nil) -> EFSectionHeader {
+        EFSectionHeader(
+            title: title,
+            subtitle: subtitle,
+            icon: "moon.fill",
+            accentColor: EnvironmentValues().efTheme.accentRecovery
+        )
+    }
+    
+    static func mobility(title: String, subtitle: String? = nil) -> EFSectionHeader {
+        EFSectionHeader(
+            title: title,
+            subtitle: subtitle,
+            icon: "figure.flexibility",
+            accentColor: EnvironmentValues().efTheme.accentMobility
+        )
+    }
+    
+    static func training(title: String, subtitle: String? = nil) -> EFSectionHeader {
+        EFSectionHeader(
+            title: title,
+            subtitle: subtitle,
+            icon: "dumbbell.fill",
+            accentColor: EnvironmentValues().efTheme.accent
+        )
     }
 }

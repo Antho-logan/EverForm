@@ -8,7 +8,7 @@ struct TrainingViewEF: View, Identifiable {
 
     var body: some View {
         ZStack {
-            Color("AppBackground").ignoresSafeArea()
+            Color(hex: "0B0B0D").ignoresSafeArea()
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -16,14 +16,14 @@ struct TrainingViewEF: View, Identifiable {
                             HStack(spacing: 12) {
                                 Image(systemName: "dumbbell.fill")
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(.green)
+                                    .foregroundStyle(Color(hex: "32D74B"))
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Session")
                                         .font(.headline)
-                                        .foregroundStyle(Color("TextPrimary"))
+                                        .foregroundStyle(Color(hex: "FFFFFF"))
                                     Text("Set up your training session")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color("TextSecondary"))
+                                        .foregroundStyle(Color(hex: "A0A0A0"))
                                 }
                                 Spacer()
                             }
@@ -34,7 +34,7 @@ struct TrainingViewEF: View, Identifiable {
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Type")
-                                    .font(.subheadline).foregroundStyle(Color("TextSecondary"))
+                                    .font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                                 Picker("", selection: $selectedType) {
                                     Text("Strength").tag("Strength")
                                     Text("Cardio").tag("Cardio")
@@ -50,7 +50,7 @@ struct TrainingViewEF: View, Identifiable {
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Notes").font(.subheadline).foregroundStyle(Color("TextSecondary"))
+                                Text("Notes").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                                 TextEditor(text: $notes).frame(minHeight: 120)
                                     .scrollContentBackground(.hidden)
                             }
@@ -68,7 +68,7 @@ struct TrainingViewEF: View, Identifiable {
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
-                            .background(.green)
+                            .background(Color(hex: "32D74B"))
                             .clipShape(RoundedRectangle(cornerRadius: 22))
                         }
                         .buttonStyle(.plain)
@@ -77,7 +77,9 @@ struct TrainingViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Training")
-                .efScreenBackground()
+                .scrollContentBackground(.hidden)
+                .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+                .navigationBarTitleDisplayMode(.large)
             }
         }
     }

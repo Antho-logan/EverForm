@@ -1,5 +1,4 @@
 import SwiftUI
-import struct EverForm.DesignSystem
 
 public struct EFTile: View {
     @Environment(\.colorScheme) private var scheme

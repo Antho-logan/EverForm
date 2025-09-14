@@ -1,69 +1,90 @@
 import SwiftUI
 
 enum DSColor {
-    // Backgrounds
+    // Backgrounds - now using new dark theme colors
     static var bg: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#0F1114")
-        case .light:  return Color(hex: "#F6F7FA")
-        case .system: return Color(hex: "#E8D4B9")
+        case .dark:   return Color(hex: "#111214")   // New: slightly lighter black
+        case .light:  return Color(hex: "#F2F2F7")  // iOS Gray 6, soft paper
+        case .system: return Color(hex: "#EAD6BF")  // Beige theme
         }
     }
     static var bgElevated: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#13161A")
-        case .light:  return Color.white
-        case .system: return Color(hex: "#E1C9AE")
+        case .dark:   return Color(hex: "#15171A")   // New: standard surface
+        case .light:  return Color.white            // Clean white for grouped/raised
+        case .system: return Color(hex: "#F6F0E6")  // Light beige
         }
     }
 
-    // Surfaces
+    // Surfaces - using new theme values
     static var card: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#161A1F")
+        case .dark:   return Color(hex: "#20242A")   // New: highest-elevation cards
         case .light:  return Color.white
-        case .system: return Color(hex: "#F7F2EA")
+        case .system: return Color(hex: "#FFFFFF")
         }
     }
     static var input: Color {
         switch ThemeManager.shared.scheme {
         case .dark:   return Color(hex: "#191E24")
         case .light:  return Color.white
-        case .system: return Color(hex: "#F5EFE8")
+        case .system: return Color(hex: "#F6F0E6")
+        }
+    }
+    static var surfaceAlt: Color {
+        switch ThemeManager.shared.scheme {
+        case .dark:   return Color(hex: "#1B1E22")   // New: elevated surfaces
+        case .light:  return Color(.tertiarySystemBackground)
+        case .system: return Color(hex: "#F6F0E6")
+        }
+    }
+    static var fillMuted: Color {
+        switch ThemeManager.shared.scheme {
+        case .dark:   return Color(hex: "#0D0F12")   // New: control backgrounds, segmented unselected
+        case .light:  return Color(.tertiarySystemFill)
+        case .system: return Color(hex: "#F6F0E6")
         }
     }
 
     // Bars
     static var barBackground: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#0F1114")
-        case .light:  return Color.white
-        case .system: return Color(hex: "#E6D0B8")
+        case .dark:   return Color(hex: "#111214")   // New: main background
+        case .light:  return Color.white            // Clean white navbar
+        case .system: return Color(hex: "#EAD6BF")  // Beige theme
         }
     }
 
     // Lines
     static var borderHairline: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#2A3036")
-        case .light:  return Color(hex: "#E5E7EB")
-        case .system: return Color(hex: "#E0D3C4")
+        case .dark:   return Color(hex: "#2A2F36")   // New: hairlines, borders
+        case .light:  return Color.clear            // No hairline for Light theme
+        case .system: return Color(hex: "#EAD6BF")   // Beige theme
         }
     }
 
-    // Labels
+    // Labels - using new dark theme colors
     static var labelPrimary: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#F2F2F7")
+        case .dark:   return Color(hex: "#FFFFFF")   // New: pure white
         case .light:  return Color(hex: "#111827")
         case .system: return Color(hex: "#1C1C1E")
         }
     }
     static var labelSecondary: Color {
         switch ThemeManager.shared.scheme {
-        case .dark:   return Color(hex: "#C9CDD4")
+        case .dark:   return Color(hex: "#B6BEC7")   // New: better contrast
         case .light:  return Color(hex: "#6B7280")
         case .system: return Color(hex: "#6B7280")
+        }
+    }
+    static var labelTertiary: Color {
+        switch ThemeManager.shared.scheme {
+        case .dark:   return Color(hex: "#7B8591")   // New: tertiary text
+        case .light:  return Color(.tertiaryLabel)
+        case .system: return Color(.tertiaryLabel)
         }
     }
     

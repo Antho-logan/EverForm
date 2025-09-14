@@ -121,7 +121,7 @@ struct NutritionView: View {
 
     var body: some View {
         ZStack {
-            DesignSystem.Colors.backgroundSecondary.ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 16) {
                     mealCardLocal
@@ -184,11 +184,7 @@ struct NutritionView: View {
                          minus: { step(\.fat, -5) }, plus: { step(\.fat, +5) })
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color(DSColor.card))
-                .shadow(color: Color.black.opacity(0.06), radius: 8, y: 3)
-        )
+        .efCardBackground()
         .padding(.horizontal, 16)
     }
 
@@ -242,15 +238,11 @@ struct NutritionView: View {
                 .padding(10)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(DSColor.appBackground))
+                        .fill(EnvironmentValues().efTheme.inputBackground)
                 )
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color(DSColor.card))
-                .shadow(color: Color.black.opacity(0.06), radius: 8, y: 3)
-        )
+        .efCardBackground()
         .padding(.horizontal, 16)
     }
 }

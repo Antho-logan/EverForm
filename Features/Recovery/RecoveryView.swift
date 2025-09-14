@@ -28,9 +28,11 @@ struct RecoveryView: View {
     }
 
     var body: some View {
-        let palette = Theme.palette(colorScheme)
+        let theme = EnvironmentValues().efTheme
 
-        ScrollView {
+        ZStack {
+            Color(hex: "0B0B0D").ignoresSafeArea()
+            ScrollView {
             VStack(spacing: 16) {
                 // Wind-down Section
                 EFCard {
@@ -38,11 +40,11 @@ struct RecoveryView: View {
                         HStack {
                             Image(systemName: "moon.fill")
                                 .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.blue)
+                                .foregroundStyle(Color(hex: "BF5AF2"))
 
                             Text("Wind-down")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(theme.textPrimary)
 
                             Spacer()
                         }
@@ -52,7 +54,7 @@ struct RecoveryView: View {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Bedtime")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(palette.textSecondary)
+                                    .foregroundStyle(theme.textSecondary)
 
                                 DatePicker("", selection: $bedtime, displayedComponents: .hourAndMinute)
                                     .datePickerStyle(.wheel)
@@ -63,7 +65,7 @@ struct RecoveryView: View {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Routine Checklist")
                                     .font(.system(size: 14, weight: .medium))
-                                    .foregroundStyle(palette.textSecondary)
+                                    .foregroundStyle(theme.textSecondary)
 
                                 ForEach(routineSteps.indices, id: \.self) { index in
                                     HStack {
@@ -74,13 +76,13 @@ struct RecoveryView: View {
                                         }) {
                                             Image(systemName: routineSteps[index].done ? "checkmark.circle.fill" : "circle")
                                                 .font(.system(size: 20, weight: .medium))
-                                                .foregroundStyle(routineSteps[index].done ? .green : palette.textSecondary)
+                                                .foregroundStyle(routineSteps[index].done ? .green : theme.textSecondary)
                                         }
                                         .frame(width: 44, height: 44)
 
                                         Text(routineSteps[index].title)
                                             .font(.system(size: 16, weight: .medium))
-                                            .foregroundStyle(palette.textPrimary)
+                                            .foregroundStyle(theme.textPrimary)
                                             .strikethrough(routineSteps[index].done)
 
                                         Spacer()
@@ -101,7 +103,7 @@ struct RecoveryView: View {
 
                             Text("Session")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(theme.textPrimary)
 
                             Spacer()
                         }
@@ -110,7 +112,7 @@ struct RecoveryView: View {
                             VStack(spacing: Spacing.md) {
                                 Text(formatTime(sessionSeconds))
                                     .font(.system(size: 32, weight: .bold, design: .monospaced))
-                                    .foregroundStyle(palette.textPrimary)
+                                    .foregroundStyle(theme.textPrimary)
 
                                 HStack(spacing: Spacing.md) {
                                     EFPillButton(
@@ -135,7 +137,7 @@ struct RecoveryView: View {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Duration")
                                         .font(.system(size: 14, weight: .medium))
-                                        .foregroundStyle(palette.textSecondary)
+                                        .foregroundStyle(theme.textSecondary)
 
                                     Picker("Duration", selection: $selectedDuration) {
                                         ForEach(durations, id: \.self) { duration in
@@ -172,19 +174,12 @@ struct RecoveryView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Recovery")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 8)
-            .background(DSColor.appBackground)
         }
+        .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationTitle("Recovery")
+        .navigationBarTitleDisplayMode(.large)
+        .scrollContentBackground(.hidden)
         .onAppear {
             if autoFocusSession {
                 startSession()

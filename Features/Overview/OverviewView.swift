@@ -37,12 +37,8 @@ struct OverviewView: View {
                     }
                     .padding(.horizontal, 20)
 
-                    Text("Today's Plan")
-                        .font(.title2.weight(.semibold))
-                        .padding(.top, 12)
+                    EFSectionHeaderPlain(title: "Today's Plan")
                         .padding(.horizontal, 20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(DSColor.labelPrimary)
 
                     VStack(spacing: 16) {
                         HStack(spacing: 16) {
@@ -65,12 +61,8 @@ struct OverviewView: View {
                     .padding(.horizontal, 20)
 
                     // ------- Quick Actions -------
-                    Text("Quick Actions")
-                        .font(.title2.weight(.semibold))
-                        .padding(.top, 12)
+                    EFSectionHeaderPlain(title: "Quick Actions")
                         .padding(.horizontal, 20)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(DSColor.labelPrimary)
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
@@ -100,8 +92,8 @@ struct OverviewView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.bg.ignoresSafeArea())
-            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
+            .background(Color(hex: "0B0B0D").ignoresSafeArea())
+            .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Overview")
             .navigationBarTitleDisplayMode(.large)
@@ -118,10 +110,10 @@ struct OverviewView: View {
                         Button("Report a Bug", action: { route = .report })
                     } label: {
                         ZStack {
-                            Circle().fill(DSColor.card)
+                            Circle().fill(Color(hex: "232529"))
                                 .frame(width: 30, height: 30)
                             Image(systemName: "person.fill")
-                                .foregroundStyle(DSColor.brand)
+                                .foregroundStyle(Color(hex: "0A84FF"))
                                 .font(.system(size: 16, weight: .semibold))
                         }
                     }
@@ -135,7 +127,7 @@ struct OverviewView: View {
                     Text(toastText)
                         .font(.subheadline).bold()
                         .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(isDark ? AnyShapeStyle(Color.black.opacity(0.3)) : AnyShapeStyle(.ultraThinMaterial), in: Capsule())
+                        .background(isDark ? AnyShapeStyle(DSColor.cardElevated.opacity(0.3)) : AnyShapeStyle(.ultraThinMaterial), in: Capsule())
                         .padding(.bottom, 8)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
@@ -239,11 +231,13 @@ struct OverviewView: View {
                 HStack(spacing: 8) {
                     Image(systemName: system)
                         .foregroundStyle(color)
-                    Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
+                    Text(title)
+                    .font(.headline)
+                    .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
                 }
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(DSColor.textSecondary)
+                    .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
                 HStack {
                     Spacer()
                     Text(title == "Training" ? "Start Workout" : (title == "Nutrition" ? "Log Meal" : (title == "Recovery" ? "Open" : "Start")))
@@ -255,8 +249,7 @@ struct OverviewView: View {
                 }
             }
             .padding(16)
-            .background(DSColor.card, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .shadow(color: DSColor.black.opacity(0.06), radius: 10, y: 6)
+            .efCardBackground()
         }
         .buttonStyle(.plain)
     }
@@ -277,8 +270,7 @@ struct OverviewView: View {
             }
             .frame(minWidth: 72, minHeight: 72)
             .padding(12)
-            .background(DSColor.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .shadow(color: DSColor.black.opacity(0.06), radius: 8, y: 4)
+            .efCardBackground()
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -287,17 +279,35 @@ struct OverviewView: View {
 
 }
 
+// MARK: - Plain Section Header for Dark Mode
+struct EFSectionHeaderPlain: View {
+    let title: String
+    @Environment(\.colorScheme) var colorScheme
+    
+    var body: some View {
+        Text(title)
+            .font(.title2.weight(.semibold))
+            .foregroundColor(colorScheme == .dark ? .white : Color.primary)
+            .padding(.horizontal)
+            .padding(.top, 8)
+    }
+}
+
 private struct KPICard: View {
     let icon: String, title: String, subtitle: String
     var body: some View {
-        EFCard {
-            VStack(alignment: .leading, spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(DSColor.brand)
-                Text(title).font(.title3.weight(.semibold)).foregroundStyle(DSColor.textPrimary)
-                Text(subtitle).font(.caption).foregroundStyle(DSColor.textSecondary)
-            }
+        VStack(alignment: .leading, spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Color(hex: "0A84FF"))
+            Text(title)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Color(hex: "FFFFFF"))
+            Text(subtitle)
+                .font(.caption)
+                .foregroundStyle(Color(hex: "A0A0A0"))
         }
+        .padding(16)
+        .efCardBackground()
     }
 }

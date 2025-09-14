@@ -24,7 +24,7 @@ struct ProfilePopover: View {
                         .overlay(
                             Image(systemName: "person.fill")
                                 .font(.system(size: 18, weight: .medium))
-                                .foregroundStyle(palette.accent)
+                                .foregroundStyle(DSColor.accentSuccess)
                         )
                     
                     VStack(alignment: .leading, spacing: 2) {
@@ -143,40 +143,45 @@ private struct DisplaySettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     
+    private var palette: AppTheme.Palette {
+        AppTheme.palette(for: colorScheme, appearance: .system)
+    }
+    
+    private func themeButton(for mode: ThemeMode) -> some View {
+        HStack {
+            Text(mode.displayName)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(palette.textPrimary)
+
+            Spacer()
+
+            if ThemeStore.shared.selection == mode {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(DSColor.accentSuccess)
+            }
+        }
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.md)
+        .background(
+            ThemeStore.shared.selection == mode ?
+            DSColor.accentSuccess.opacity(0.1) :
+            Color.clear
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+    }
+    
     var body: some View {
-        let palette = Theme.palette(colorScheme)
-        
         NavigationView {
             VStack(spacing: Spacing.lg) {
                 VStack(spacing: Spacing.sm) {
-                    ForEach(EFAppearance.allCases, id: \.self) { mode in
+                    ForEach(ThemeMode.allCases, id: \.self) { mode in
                         Button(action: {
-                            // Set theme mode
                             ThemeStore.shared.selection = mode
                             let impact = UIImpactFeedbackGenerator(style: .light)
                             impact.impactOccurred()
                         }) {
-                            HStack {
-                                Text(mode.rawValue.capitalized)
-                                    .font(.system(size: 16, weight: .medium))
-                                    .foregroundStyle(palette.textPrimary)
-
-                                Spacer()
-
-                                if ThemeStore.shared.selection == mode {
-                                    Image(systemName: "checkmark")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundStyle(palette.accent)
-                                }
-                            }
-                            .padding(.horizontal, Spacing.lg)
-                            .padding(.vertical, Spacing.md)
-                            .background(
-                                ThemeStore.shared.selection == mode ?
-                                palette.accent.opacity(0.1) :
-                                Color.clear
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+                            themeButton(for: mode)
                         }
                         .buttonStyle(.plain)
                     }
@@ -185,7 +190,7 @@ private struct DisplaySettingsSheet: View {
                 Spacer()
             }
             .padding(Spacing.lg)
-            .background(palette.background)
+            .background(palette.bg)
             .navigationTitle("Display")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -193,7 +198,7 @@ private struct DisplaySettingsSheet: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundStyle(palette.accent)
+                    .foregroundStyle(DSColor.accentSuccess)
                 }
             }
         }

@@ -11,11 +11,24 @@ final class ThemeManager: ObservableObject, @unchecked Sendable {
     static let shared = ThemeManager()
     @AppStorage("display.appearance") private var stored: String = ThemeMode.system.rawValue
     @Published var scheme: ThemeMode = .system {
-        didSet { stored = scheme.rawValue; applyGlobalBars() }
+        didSet { 
+            stored = scheme.rawValue
+            if hasInitialized {
+                applyGlobalBars()
+            }
+        }
     }
+    
+    private var hasInitialized = false
     
     init() {
         self.scheme = ThemeMode(rawValue: stored) ?? .system
+        // Don't call applyGlobalBars() during init to avoid circular dependency
+    }
+    
+    func initialize() {
+        guard !hasInitialized else { return }
+        hasInitialized = true
         applyGlobalBars()
     }
 }
@@ -23,14 +36,41 @@ final class ThemeManager: ObservableObject, @unchecked Sendable {
 // MARK: - UIKit Bars
 extension ThemeManager {
     func applyGlobalBars() {
-        let bg = UIColor(DSColor.barBackground)
-        let hair = UIColor(DSColor.borderHairline)
+        // Use direct color values to avoid circular dependency during initialization
+        let bg: UIColor
+        let hair: UIColor?
+        
+        if hasInitialized {
+            // After initialization, use the DSColor system
+            bg = UIColor(DSColor.barBackground)
+            // Remove separator for all themes - no hairline stripes
+            hair = nil
+        } else {
+            // During initialization, use direct color values to avoid circular dependency
+            switch scheme {
+            case .dark:
+                bg = UIColor(hex: "#111214")  // New dark theme background
+                hair = nil // No separator for any theme
+            case .light:
+                bg = UIColor.white
+                hair = nil // No separator for any theme
+            case .system:
+                bg = UIColor(hex: "#EAD6BF")
+                hair = nil // No separator for any theme
+            }
+        }
 
         // UINavigationBar
         let nav = UINavigationBarAppearance()
         nav.configureWithOpaqueBackground()
         nav.backgroundColor = bg
         nav.shadowColor = hair
+        
+        // Set title colors for dark mode
+        if scheme == .dark {
+            nav.titleTextAttributes = [.foregroundColor: UIColor.white]
+            nav.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+        }
 
         UINavigationBar.appearance().standardAppearance = nav
         UINavigationBar.appearance().scrollEdgeAppearance = nav
@@ -90,7 +130,7 @@ extension ThemeMode {
     }
 }
 
-// MARK: - Hex helper
+// MARK: - Hex helpers
 extension Color {
     init(hex: String, alpha: Double = 1.0) {
         var hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -103,5 +143,20 @@ extension Color {
         default: (r, g, b) = (0, 0, 0)
         }
         self.init(.sRGB, red: Double(r)/255, green: Double(g)/255, blue: Double(b)/255, opacity: alpha)
+    }
+}
+
+extension UIColor {
+    convenience init(hex: String, alpha: CGFloat = 1.0) {
+        var hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        var int: UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&int)
+        let r, g, b: UInt64
+        switch hex.count {
+        case 3: (r, g, b) = ((int >> 8)*17, (int >> 4 & 0xF)*17, (int & 0xF)*17)
+        case 6: (r, g, b) = (int >> 16, int >> 8 & 0xFF, int & 0xFF)
+        default: (r, g, b) = (0, 0, 0)
+        }
+        self.init(red: CGFloat(r)/255, green: CGFloat(g)/255, blue: CGFloat(b)/255, alpha: alpha)
     }
 }

@@ -13,7 +13,20 @@ final class AppearanceStore: ObservableObject {
     @ObservationIgnored @AppStorage("themeMode") private var stored = Mode.system.rawValue
     var mode: Mode {
         get { Mode(rawValue: stored) ?? .system }
-        set { stored = newValue.rawValue }
+        set { 
+            stored = newValue.rawValue
+            // Sync with ThemeManager for immediate UI updates
+            DispatchQueue.main.async {
+                switch newValue {
+                case .system:
+                    ThemeManager.shared.scheme = .system
+                case .light:
+                    ThemeManager.shared.scheme = .light
+                case .dark:
+                    ThemeManager.shared.scheme = .dark
+                }
+            }
+        }
     }
 
     var preferredColorScheme: ColorScheme? {
@@ -26,6 +39,19 @@ final class AppearanceStore: ObservableObject {
         case .system: return .system
         case .light: return .light
         case .dark: return .dark
+        }
+    }
+    
+    // Initialize with ThemeManager sync
+    init() {
+        // Sync ThemeManager with stored value on launch
+        switch mode {
+        case .system:
+            ThemeManager.shared.scheme = .system
+        case .light:
+            ThemeManager.shared.scheme = .light
+        case .dark:
+            ThemeManager.shared.scheme = .dark
         }
     }
 }

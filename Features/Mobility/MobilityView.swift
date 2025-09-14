@@ -28,9 +28,11 @@ struct MobilityView: View {
     }
 
     var body: some View {
-        let palette = Theme.palette(colorScheme)
+        let theme = EnvironmentValues().efTheme
 
-        ScrollView {
+        ZStack {
+            Color(hex: "0B0B0D").ignoresSafeArea()
+            ScrollView {
             VStack(spacing: 16) {
                 // Focus Section
                 EFCard {
@@ -42,7 +44,7 @@ struct MobilityView: View {
 
                             Text("Focus")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(theme.textPrimary)
 
                             Spacer()
                         }
@@ -50,7 +52,7 @@ struct MobilityView: View {
                         VStack(spacing: Spacing.md) {
                             Text("Select body regions to focus on")
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(palette.textSecondary)
+                                .foregroundStyle(theme.textSecondary)
 
                             LazyVGrid(columns: [
                                 GridItem(.flexible(), spacing: 8),
@@ -63,14 +65,14 @@ struct MobilityView: View {
                                     }) {
                                         Text(region.rawValue)
                                             .font(.system(size: 14, weight: .medium))
-                                            .foregroundStyle(selectedRegions.contains(region) ? .white : palette.textPrimary)
+                                            .foregroundStyle(selectedRegions.contains(region) ? .white : theme.textPrimary)
                                             .padding(.horizontal, 12)
                                             .padding(.vertical, 8)
-                                            .background(selectedRegions.contains(region) ? palette.accent : palette.surface)
+                                            .background(selectedRegions.contains(region) ? theme.accent : theme.surface)
                                             .clipShape(RoundedRectangle(cornerRadius: 16))
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 16)
-                                                    .stroke(palette.stroke, lineWidth: selectedRegions.contains(region) ? 0 : 1)
+                                                    .stroke(theme.borderHairline, lineWidth: selectedRegions.contains(region) ? 0 : 1)
                                             )
                                     }
                                     .buttonStyle(.plain)
@@ -91,14 +93,14 @@ struct MobilityView: View {
 
                             Text("Routine")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(theme.textPrimary)
 
                             Spacer()
 
                             Button(action: addRoutineStep) {
                                 Image(systemName: "plus.circle.fill")
                                     .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(palette.accent)
+                                    .foregroundStyle(theme.accent)
                             }
                             .accessibilityLabel("Add routine step")
                         }
@@ -123,14 +125,14 @@ struct MobilityView: View {
 
                                 Text("Session Active")
                                     .font(.system(size: 18, weight: .semibold))
-                                    .foregroundStyle(palette.textPrimary)
+                                    .foregroundStyle(theme.textPrimary)
 
                                 Spacer()
                             }
 
                             Text(formatTime(sessionSeconds))
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
-                                .foregroundStyle(palette.textPrimary)
+                                .foregroundStyle(theme.textPrimary)
 
                             HStack(spacing: Spacing.md) {
                                 EFPillButton(
@@ -160,7 +162,7 @@ struct MobilityView: View {
                             VStack(alignment: .leading, spacing: Spacing.md) {
                                 Text("Session Duration")
                                     .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(palette.textPrimary)
+                                    .foregroundStyle(theme.textPrimary)
 
                                 Picker("Duration", selection: $selectedDuration) {
                                     ForEach(durations, id: \.self) { duration in
@@ -197,19 +199,12 @@ struct MobilityView: View {
             .padding(.horizontal, 16)
             .padding(.top, 8)
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
-        .safeAreaInset(edge: .top, spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Mobility")
-                    .font(.system(size: 36, weight: .bold))
-                    .foregroundStyle(DSColor.textPrimary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 8)
-            .background(DSColor.appBackground)
         }
+        .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .navigationTitle("Mobility")
+        .navigationBarTitleDisplayMode(.large)
+        .scrollContentBackground(.hidden)
         .onAppear {
             if autoStartSession {
                 startSession()
@@ -315,7 +310,7 @@ private struct MobilityStepRow: View {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let palette = Theme.palette(colorScheme)
+        let theme = EnvironmentValues().efTheme
 
         VStack(spacing: 8) {
             HStack {
@@ -336,7 +331,7 @@ private struct MobilityStepRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Duration/Reps")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(palette.textSecondary)
+                        .foregroundStyle(theme.textSecondary)
 
                     TextField("30s", text: $step.repsOrSecs)
                         .textFieldStyle(.roundedBorder)

@@ -44,10 +44,10 @@ public struct ShadowStyle {
 public extension View {
   func efCardBackground() -> some View {
     self
-      .background(DS.ColorToken.card)
-      .overlay(RoundedRectangle(cornerRadius: DS.Radius.card).stroke(DS.ColorToken.border, lineWidth: 1))
+      .background(EnvironmentValues().efTheme.card)
+      .overlay(RoundedRectangle(cornerRadius: DS.Radius.card).stroke(EnvironmentValues().efTheme.border, lineWidth: 1))
       .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card))
-      .shadow(color: DS.ColorToken.shadow, radius: DS.Shadow.card.radius, x: DS.Shadow.card.x, y: DS.Shadow.card.y)
+      .shadow(color: EnvironmentValues().efTheme.shadow, radius: DS.Shadow.card.radius, x: DS.Shadow.card.x, y: DS.Shadow.card.y)
   }
 }
 

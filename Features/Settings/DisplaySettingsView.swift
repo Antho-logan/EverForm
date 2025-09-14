@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DisplaySettingsView: View {
     @StateObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject private var appearanceStore: AppearanceStore
     @AppStorage("ef.display.reduceMotion") private var reduceMotion = false
     @AppStorage("ef.display.contentSize") private var contentSize: Double = 1.0 // 0.9...1.3
 
@@ -26,14 +27,22 @@ struct DisplaySettingsView: View {
                 EFCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Appearance").font(.subheadline).foregroundStyle(DSColor.textSecondary)
-                        Picker("", selection: $themeManager.scheme) {
-                            Text("System").tag(ThemeMode.system)
-                            Text("Light").tag(ThemeMode.light)
-                            Text("Dark").tag(ThemeMode.dark)
+                        Picker("", selection: $appearanceStore.mode) {
+                            ForEach(AppearanceStore.Mode.allCases) { mode in
+                                Text(mode.title).tag(mode)
+                            }
                         }
                         .pickerStyle(.segmented)
-                        .onChange(of: themeManager.scheme) { _, newValue in
-                            themeManager.scheme = newValue   // <- immediate switch
+                        .onChange(of: appearanceStore.mode) { _, newValue in
+                            // Sync with ThemeManager for immediate UI updates
+                            switch newValue {
+                            case .system:
+                                themeManager.scheme = .system
+                            case .light:
+                                themeManager.scheme = .light
+                            case .dark:
+                                themeManager.scheme = .dark
+                            }
                         }
                         Text("Changes apply immediately.").font(.footnote).foregroundStyle(DSColor.textSecondary)
                     }

@@ -32,7 +32,7 @@ struct EFKPI: View {
         .frame(height: 84)
         .padding(12)
         .efCardStyle(scheme: scheme)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: SwiftUI.AccessibilityChildBehavior.combine)
         .accessibilityLabel(title)
         .accessibilityValue(value.isEmpty ? "No data" : value)
     }

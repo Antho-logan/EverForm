@@ -28,7 +28,7 @@ struct ProgressViewEF: View {
 
     var body: some View {
         ZStack {
-            DSColor.bg.ignoresSafeArea()
+            Color(hex: "0B0B0D").ignoresSafeArea()
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 16) {
                     // ----- Your existing chart sections go here (unchanged) -----
@@ -47,10 +47,10 @@ struct ProgressViewEF: View {
                         applyRange(newValue)
                     }
                 )
-                .background(DSColor.bg) // same color, blends header with page (no stripe)
+                .background(Color(hex: "0B0B0D")) // same color, blends header with page (no stripe)
             }
         }
-          .toolbarBackground(DSColor.barBackground, for: .navigationBar)
+          .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             store.regenerate()
@@ -147,7 +147,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                 } label: {
                     Text(label)
                         .font(.headline.weight(.semibold))
-                        .foregroundStyle(selection == value ? DSColor.labelPrimary : DSColor.labelSecondary)
+                        .foregroundStyle(selection == value ? Color(hex: "FFFFFF") : Color(hex: "A0A0A0"))
                         .padding(.vertical, 10)
                         .frame(maxWidth: .infinity)
                 }
@@ -155,11 +155,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                 .background(
                     Group {
                         if selection == value {
-                            if ThemeManager.shared.scheme == .dark {
-                                Color.white.opacity(0.06)
-                            } else {
-                                Color.black.opacity(0.06)
-                            }
+                            Color(hex: "2A2C30")
                         } else { 
                             Color.clear 
                         }
@@ -170,11 +166,11 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
             }
         }
         .padding(6)
-        .background(DSColor.card)
+        .background(Color(hex: "232529"))
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(DSColor.borderHairline, lineWidth: 0.5)
+                .stroke(Color(hex: "383A3E"), lineWidth: 0.5)
         )
     }
 }
@@ -190,12 +186,12 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
 
         ChartCard {
             HStack {
-                Text(title).font(.headline).foregroundStyle(DSColor.textPrimary)
+                Text(title).font(.headline).foregroundStyle(Color(hex: "FFFFFF"))
                 Spacer()
                 if !isEmptyDay {
                     Text(valueFormatter(latest))
                         .font(.title3.monospacedDigit()).bold()
-                        .foregroundStyle(DSColor.textPrimary)
+                        .foregroundStyle(Color(hex: "FFFFFF"))
                         .contentTransition(.numericText())
                 }
             }
@@ -210,11 +206,11 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                     VStack(spacing: 8) {
                         Text("Today")
                             .font(.headline)
-                            .foregroundStyle(DSColor.textPrimary)
+                            .foregroundStyle(Color(hex: "FFFFFF"))
                         
                         Text("No data for today yet")
                             .font(.subheadline)
-                            .foregroundStyle(DSColor.textSecondary)
+                            .foregroundStyle(Color(hex: "A0A0A0"))
                             .multilineTextAlignment(.center)
                     }
                     
@@ -261,9 +257,9 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                 )
                 #else
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12).fill(DSColor.surface)
+                    RoundedRectangle(cornerRadius: 12).fill(Color(hex: "1A1B1E"))
                     Text("Charts framework not available")
-                        .foregroundStyle(DSColor.textSecondary)
+                        .foregroundStyle(Color(hex: "A0A0A0"))
                         .font(.footnote)
                 }
                 .frame(minHeight: chartHeight)
@@ -273,9 +269,9 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
             if !isEmptyDay {
                 HStack(spacing: 8) {
                     Circle().fill(color.opacity(0.9)).frame(width: 8, height: 8)
-                    Text(series.unit).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                    Text(series.unit).foregroundStyle(Color(hex: "A0A0A0")).font(.footnote)
                     Spacer()
-                    Text(labelForRange(selectedRange)).foregroundStyle(DSColor.textSecondary).font(.footnote)
+                    Text(labelForRange(selectedRange)).foregroundStyle(Color(hex: "A0A0A0")).font(.footnote)
                 }
             }
         }

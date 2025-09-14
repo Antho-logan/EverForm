@@ -5,9 +5,9 @@ import UIKit
 
 // MARK: - Local theme + nav bar helpers (file-scoped)
 fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DSColor.canvas
-    static let ctaNutrition: Color = DSColor.accentNutrition
-    static let ctaPain: Color = EFColor.painAccent
+    static let canvas: Color = EnvironmentValues().efTheme.background
+    static let ctaNutrition: Color = EnvironmentValues().efTheme.accentNutrition
+    static let ctaPain: Color = EnvironmentValues().efTheme.accentDanger
 }
 
 
@@ -30,7 +30,7 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      DSColor.bg
+      Color(hex: "0B0B0D")
         .ignoresSafeArea()
       NavigationStack {
         ScrollView {
@@ -39,8 +39,9 @@ struct SmartMealLoggerSheet: View {
             // Photo picker
             PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
               ZStack {
-                RoundedRectangle(cornerRadius: 16).fill(DSColor.card)
-                  .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+                RoundedRectangle(cornerRadius: 16)
+                  .fill(Color(hex: "232529"))
+                  .shadow(color: EnvironmentValues().efTheme.shadow.opacity(0.06), radius: 12, y: 4)
                   .frame(maxWidth: .infinity, minHeight: 200)
                 if let image = uiImage {
                   Image(uiImage: image)
@@ -49,8 +50,12 @@ struct SmartMealLoggerSheet: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 } else {
                   VStack(spacing: 8) {
-                    Image(systemName: "camera.viewfinder").font(.title)
-                    Text("Tap to select photo").font(.subheadline).foregroundStyle(.secondary)
+                    Image(systemName: "camera.viewfinder")
+                      .font(.title)
+                      .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
+                    Text("Tap to select photo")
+                      .font(.subheadline)
+                      .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
                   }
                 }
               }
@@ -61,9 +66,11 @@ struct SmartMealLoggerSheet: View {
 
             // Text prompt
             VStack(alignment: .leading, spacing: 8) {
-              Text("Describe your meal").font(.headline)
+              Text("Describe your meal")
+                .font(.headline)
+                .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
               TextField("e.g., 2 eggs, avocado, buttered toast", text: $textPrompt, axis: .vertical)
-                .textFieldStyle(.roundedBorder)
+                .darkGlamorousTextFieldStyle()
             }
 
             // Analyze button
@@ -87,7 +94,9 @@ struct SmartMealLoggerSheet: View {
             // Result card
             if let e = estimate {
               VStack(alignment: .leading, spacing: 10) {
-                Text("Estimated Nutrition").font(.headline)
+                Text("Estimated Nutrition")
+                  .font(.headline)
+                  .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
                 HStack(spacing: 16) {
                   Tag("Calories", value: "\(e.calories) kcal")
                   Tag("Protein",  value: "\(e.protein) g")
@@ -97,7 +106,7 @@ struct SmartMealLoggerSheet: View {
                 if !e.explanation.isEmpty {
                   Text(e.explanation)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
                 }
 
                 Button {
@@ -115,8 +124,7 @@ struct SmartMealLoggerSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
               }
               .padding(16)
-              .background(RoundedRectangle(cornerRadius: 16).fill(DSColor.card))
-              .shadow(color: .black.opacity(0.06), radius: 12, y: 4)
+              .efCardBackground()
             }
           }
           .padding(16)
@@ -126,8 +134,8 @@ struct SmartMealLoggerSheet: View {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
         .scrollContentBackground(.hidden)
-        .background(DSColor.bg.ignoresSafeArea())
-        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
+        .background(Color(hex: "0B0B0D").ignoresSafeArea())
+        .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear { NavBlendLocal.apply() }
         .onDisappear { EFNavBarStyler.resetToDefault() }
@@ -198,11 +206,18 @@ private struct Tag: View {
   init(_ title: String, value: String) { self.title = title; self.value = value }
   var body: some View {
     VStack(alignment: .leading, spacing: 2) {
-      Text(title).font(.caption).foregroundStyle(.secondary)
-      Text(value).font(.headline)
+      Text(title)
+        .font(.caption)
+        .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
+      Text(value)
+        .font(.headline)
+        .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
     }
     .padding(10)
-    .background(RoundedRectangle(cornerRadius: 10).fill(DSColor.card.opacity(0.6)))
+    .background(
+      RoundedRectangle(cornerRadius: 10)
+        .fill(EnvironmentValues().efTheme.surface)
+    )
   }
 }
 

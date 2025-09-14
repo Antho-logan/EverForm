@@ -34,9 +34,9 @@ enum AppTheme {
     )
 
     private static let dark = Palette(
-        bg: Color(hex: "#0F1114"),
-        surface: Color(hex: "#13161A"),
-        card: Color(hex: "#171B21"),
+        bg: Color(hex: "#121417"),
+        surface: Color(hex: "#15181C"),
+        card: Color(hex: "#1A1E22"),
         stroke: Color(hex: "#222832"),
         textPrimary: Color(hex: "#E9EDF5"),
         textSecondary: Color(hex: "#A7AFBA"),

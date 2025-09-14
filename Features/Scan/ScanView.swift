@@ -14,9 +14,9 @@ struct ScanView: View {
                     
                     EFCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Calorie & Macros").font(.headline).foregroundStyle(AppTheme.textPrimary(for: colorScheme, appearance.appAppearance))
+                            Text("Calorie & Macros").font(.headline).foregroundStyle(Color(hex: "FFFFFF"))
                             Text("Scan barcode or nutrition label for accurate calorie and macro information")
-                                .font(.subheadline).foregroundStyle(AppTheme.textSecondary(for: colorScheme, appearance.appAppearance))
+                                .font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                             Button("Generate Mock Result") {}
                                 .frame(maxWidth: .infinity).padding(.vertical, 12)
                                 .background(DSColor.accentNutrition)
@@ -31,9 +31,9 @@ struct ScanView: View {
                     
                     EFCard {
                         VStack(spacing: 12) {
-                            Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(AppTheme.textSecondary(for: colorScheme, appearance.appAppearance))
-                            Text("Nothing scanned yet").font(.headline).foregroundStyle(AppTheme.textPrimary(for: colorScheme, appearance.appAppearance))
-                            Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(AppTheme.textSecondary(for: colorScheme, appearance.appAppearance))
+                            Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(Color(hex: "A0A0A0"))
+                            Text("Nothing scanned yet").font(.headline).foregroundStyle(Color(hex: "FFFFFF"))
+                            Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
                         }.frame(maxWidth: .infinity)
                     }
                 }
@@ -41,8 +41,8 @@ struct ScanView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.bg.ignoresSafeArea())
-            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
+            .background(Color(hex: "0B0B0D").ignoresSafeArea())
+            .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Scan Food")
             .navigationBarTitleDisplayMode(.large)
@@ -60,9 +60,9 @@ private struct SegmentedTabs: View {
             ForEach(items.indices, id: \.self) { i in
                 Text(items[i])
                     .font(.subheadline.weight(i == idx ? .bold : .regular))
-                    .foregroundStyle(i == idx ? DSColor.textPrimary : DSColor.textSecondary)
+                    .foregroundStyle(i == idx ? Color(hex: "FFFFFF") : Color(hex: "A0A0A0"))
                     .padding(.vertical, 8).padding(.horizontal, 14)
-                    .background(DSColor.elevated.opacity(i == idx ? 1 : 0.7))
+                    .background(Color(hex: "232529").opacity(i == idx ? 1 : 0.7))
                     .clipShape(Capsule())
                     .onTapGesture { idx = i }
             }

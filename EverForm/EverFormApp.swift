@@ -49,6 +49,8 @@ struct EverFormApp: App {
 
                 .onAppear {
                     print("EverForm launched; stores injected")
+                    // Initialize theme manager after app is fully loaded to avoid circular dependency
+                    ThemeManager.shared.initialize()
                     if !forceDiag {
                         checkOnboardingStatus()
                     }

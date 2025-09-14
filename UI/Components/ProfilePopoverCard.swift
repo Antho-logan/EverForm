@@ -205,9 +205,9 @@ private struct DisplaySettingsSheet: View {
         NavigationView {
             VStack(spacing: Spacing.lg) {
                 VStack(spacing: Spacing.sm) {
-                    ForEach(ThemeManager.ThemeMode.allCases, id: \.self) { mode in
+                    ForEach(ThemeMode.allCases, id: \.self) { mode in
                         Button(action: {
-                            themeManager.setTheme(mode)
+                            themeManager.scheme = mode
                             let impact = UIImpactFeedbackGenerator(style: .light)
                             impact.impactOccurred()
                         }) {

@@ -64,7 +64,7 @@ struct ScanResultView: View {
             }
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(DSColor.bgElevated))
     }
 
     private func ingredientsCard(_ ingredients: [IngredientAssessment]) -> some View {
@@ -135,7 +135,7 @@ struct ScanResultView: View {
             }
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(DSColor.bgElevated))
     }
 
     private func plateCard(_ est: PlateEstimate) -> some View {
@@ -167,7 +167,7 @@ struct ScanResultView: View {
             }
         }
         .padding()
-        .background(RoundedRectangle(cornerRadius: 14).fill(Color(.secondarySystemBackground)))
+        .background(RoundedRectangle(cornerRadius: 14).fill(DSColor.bgElevated))
     }
 
     private var saveSection: some View {

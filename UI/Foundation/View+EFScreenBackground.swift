@@ -4,7 +4,7 @@ import SwiftUI
 public extension View {
     func efScreenBackground() -> some View {
         self
-            .background(Color("AppBackground"))
+            .background(DSColor.bg.ignoresSafeArea())
             .toolbarBackground(.clear, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
     }

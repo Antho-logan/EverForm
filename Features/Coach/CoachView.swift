@@ -82,19 +82,18 @@ struct CoachView: View {
                 vm.send(text: text, images: images)
             }
         }
-        .background(DSColor.bg.ignoresSafeArea())
+        .background(Color(hex: "0B0B0D").ignoresSafeArea())
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {
         let bg: Color = {
             if isBot {
-                // Green in LIGHT mode, dark bubble in DARK mode
-                return scheme == .light ? DSColor.chatBot : DSColor.card
+                return Color(hex: "1A1B1E")
             } else {
-                return scheme == .light ? DSColor.chatUser : DSColor.cardElevated
+                return Color(hex: "0A84FF")
             }
         }()
-        let fg: Color = (scheme == .light && isBot) ? .white : DSColor.textPrimary
+        let fg: Color = Color(hex: "FFFFFF")
 
         Text(text)
             .font(.body)
