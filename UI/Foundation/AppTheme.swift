@@ -47,7 +47,7 @@ enum AppTheme {
     // System (beige) pulls from existing design tokens to avoid regressions.
     // If you already have DSColor / DesignSystem.Colors for beige, reuse them here.
     private static let systemBeige = Palette(
-        bg: DSColor.canvas,                           // existing beige page background from DSColor system
+        bg: DSColor.appBackground,                           // existing beige page background from DSColor system
         surface: DSColor.card,                        // your existing surface/blocks
         card: DSColor.card,                           // same card look as today
         stroke: Color.black.opacity(0.08),

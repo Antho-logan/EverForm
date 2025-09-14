@@ -1,4 +1,5 @@
 import SwiftUI
+import struct EverForm.DesignSystem
 
 public struct EFTile: View {
     @Environment(\.colorScheme) private var scheme
@@ -22,15 +23,15 @@ public struct EFTile: View {
             impact.impactOccurred()
             action()
         }) {
-            VStack(spacing: Spacing.sm) {
+            VStack(spacing: DesignSystem.Spacing.sm) {
                 ZStack {
                     Circle()
-                        .fill(Theme.palette(scheme).accent.opacity(0.15))
+                        .fill(DSColor.accentSuccess.opacity(0.15))
                         .frame(width: 28, height: 28)
                     
                     Image(systemName: icon)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(Theme.palette(scheme).accent)
+                        .foregroundStyle(DSColor.accentSuccess)
                 }
                 
                 VStack(spacing: 2) {
@@ -38,26 +39,26 @@ public struct EFTile: View {
                         Text(value)
                             .font(.title2)
                             .fontWeight(.bold)
-                            .foregroundStyle(Theme.palette(scheme).textPrimary)
+                            .foregroundStyle(DSColor.labelPrimary)
                     }
                     
                     Text(title.uppercased())
                         .font(.caption2)
                         .fontWeight(.medium)
-                        .foregroundStyle(Theme.palette(scheme).textSecondary)
+                        .foregroundStyle(DSColor.labelSecondary)
                         .multilineTextAlignment(.center)
                 }
             }
             .frame(minWidth: 56, minHeight: 56)
-            .padding(Spacing.md)
-            .background(Theme.palette(scheme).surfaceElevated)
+            .padding(DesignSystem.Spacing.md)
+            .background(DSColor.bgElevated)
             .overlay(
-                RoundedRectangle(cornerRadius: Radius.card)
-                    .stroke(Theme.palette(scheme).stroke, lineWidth: 1)
+                RoundedRectangle(cornerRadius: DesignSystem.Radius.lg)
+                    .stroke(DSColor.borderHairline, lineWidth: 0.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: Radius.card))
+            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.lg))
             .shadow(
-                color: Shadow.card,
+                color: DSColor.shadow,
                 radius: 8,
                 x: 0,
                 y: 4
@@ -86,5 +87,5 @@ public struct EFTile: View {
         EFTile(icon: "drop.fill", title: "Water", value: "6 cups") {}
     }
     .padding()
-    .background(Theme.palette(.dark).background)
+    .background(DSColor.bg)
 }

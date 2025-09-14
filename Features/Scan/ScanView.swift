@@ -41,9 +41,8 @@ struct ScanView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
-            .efDarkCanvas()
-            .toolbarBackground(DSColor.appBackground, for: .navigationBar)
+            .background(DSColor.bg.ignoresSafeArea())
+            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Scan Food")
             .navigationBarTitleDisplayMode(.large)

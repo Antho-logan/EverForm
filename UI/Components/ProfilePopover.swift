@@ -203,5 +203,5 @@ private struct DisplaySettingsSheet: View {
 #Preview {
     ProfilePopover()
         .padding()
-        .background(Theme.palette(.light).background)
+        .background(DSColor.bg)
 }

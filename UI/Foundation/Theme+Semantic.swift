@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension Theme {
+extension LegacyTheme {
     struct SemanticColors {
         public let page: Color
         public let card: Color

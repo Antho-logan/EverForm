@@ -1,5 +1,7 @@
 import SwiftUI
 
+// Import legacy palette for compatibility
+
 struct QuickActionTile: View {
     let icon: String
     let title: String
@@ -13,12 +15,11 @@ struct QuickActionTile: View {
         case success, info, danger, water
 
         func color(for colorScheme: ColorScheme) -> Color {
-            let semantic = Theme.semantic(colorScheme)
             switch self {
-            case .success: return semantic.success
-            case .info: return semantic.info
-            case .danger: return semantic.danger
-            case .water: return semantic.water
+            case .success: return .green
+            case .info: return .blue
+            case .danger: return .red
+            case .water: return .cyan
             }
         }
     }
@@ -80,7 +81,7 @@ struct QuickActionTile: View {
 }
 
 #Preview {
-    let palette = Theme.palette(.light)
+    // Using DSColor instead of legacy Theme palette
     
     VStack(spacing: 16) {
         HStack(spacing: 12) {
@@ -112,5 +113,5 @@ struct QuickActionTile: View {
         }
     }
     .padding()
-    .background(palette.background)
+    .background(DSColor.bg)
 }

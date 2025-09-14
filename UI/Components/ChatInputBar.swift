@@ -170,5 +170,5 @@ private struct MicRippleView: View {
             onSend: { text in print("Send: \(text)") }
         )
     }
-    .background(Theme.palette(.light).background)
+    .background(DSColor.bg)
 }

@@ -5,16 +5,11 @@ import UIKit
 struct ProgressViewScreen: View {
     @State private var range: RangeOption = .d7
     private let now = Date()
-    @Environment(\.colorScheme) private var colorScheme
-    
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(colorScheme)
-    }
 
     var body: some View {
         ScrollView {
             ZStack {
-                semanticColors.page
+                DSColor.bg
                     .ignoresSafeArea()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
@@ -58,8 +53,8 @@ struct ProgressViewScreen: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .background(semanticColors.page.ignoresSafeArea())
-        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .background(DSColor.bg.ignoresSafeArea())
+        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Progress")
         .navigationBarTitleDisplayMode(.large)

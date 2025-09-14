@@ -42,22 +42,22 @@ struct OverviewView: View {
                         .padding(.top, 12)
                         .padding(.horizontal, 20)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(Color("TextPrimary"))
+                        .foregroundStyle(DSColor.labelPrimary)
 
                     VStack(spacing: 16) {
                         HStack(spacing: 16) {
-                            planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: .green) {
+                            planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: DSColor.accentSuccess) {
                                 EFRouter.open(.training)
                             }
-                            planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: .orange) {
+                            planCard(title: "Nutrition", subtitle: "2661 kcal target", system: "fork.knife", color: DSColor.accentNutrition) {
                                 EFRouter.open(.nutrition)
                             }
                         }
                         HStack(spacing: 16) {
-                            planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: .blue) {
+                            planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: DSColor.accentRecovery) {
                                 EFRouter.open(.recovery)
                             }
-                            planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: .purple) {
+                            planCard(title: "Mobility", subtitle: "Hips & Shoulders", system: "figure.walk.motion", color: DSColor.accentMobility) {
                                 EFRouter.open(.mobility)
                             }
                         }
@@ -70,26 +70,26 @@ struct OverviewView: View {
                         .padding(.top, 12)
                         .padding(.horizontal, 20)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .foregroundStyle(Color("TextPrimary"))
+                        .foregroundStyle(DSColor.labelPrimary)
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 12) {
-                            quickActionButton(icon: "drop.fill", title: "Add Water", color: .blue) {
+                            quickActionButton(icon: "drop.fill", title: "Add Water", color: DSColor.accentRecovery) {
                                 hydrationService.addWater(ml: 250)
                                 toastText = "+250 ml"
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
                             }
                             .onLongPressGesture { showWaterOptions = true }
 
-                            quickActionButton(icon: "wind", title: "Breathwork", color: .green) {
+                            quickActionButton(icon: "wind", title: "Breathwork", color: DSColor.accentSuccess) {
                                 route = .breathwork
                             }
 
-                            quickActionButton(icon: "cross.case.fill", title: "Fix Pain", color: .red) {
+                            quickActionButton(icon: "cross.case.fill", title: "Fix Pain", color: DSColor.accentDanger) {
                                 route = .fixPain
                             }
 
-                            quickActionButton(icon: "person.fill.viewfinder", title: "Look Maxing", color: .purple) {
+                            quickActionButton(icon: "person.fill.viewfinder", title: "Look Maxing", color: DSColor.accentMobility) {
                                 route = .lookMaxing
                             }
                         }
@@ -100,9 +100,8 @@ struct OverviewView: View {
                 .padding(.top, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
-            .efDarkCanvas()
-            .toolbarBackground(DSColor.appBackground, for: .navigationBar)
+            .background(DSColor.bg.ignoresSafeArea())
+            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Overview")
             .navigationBarTitleDisplayMode(.large)

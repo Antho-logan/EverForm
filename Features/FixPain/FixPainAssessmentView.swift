@@ -9,7 +9,6 @@ import SwiftUI
 
 struct FixPainAssessmentView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var currentStep = 0
     @State private var assessment: PainAssessment
     @State private var showPlanView = false
@@ -322,12 +321,12 @@ struct StepPainQuality: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.qualities.contains(quality) ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.qualities.contains(quality) ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )
@@ -383,12 +382,12 @@ struct StepSymptoms: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.symptoms.contains(symptom) ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.symptoms.contains(symptom) ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )
@@ -444,12 +443,12 @@ struct StepAggravatingFactors: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.aggravatingFactors.contains(factor) ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.aggravatingFactors.contains(factor) ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )
@@ -505,12 +504,12 @@ struct StepRelievingFactors: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.relievingFactors.contains(factor) ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.relievingFactors.contains(factor) ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )
@@ -565,12 +564,12 @@ struct StepFunctionalImpact: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.functionalImpact == impact ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.functionalImpact == impact ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )
@@ -631,12 +630,12 @@ struct StepRedFlags: View {
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(assessment.redFlags.contains(flag) ? 
-                                      Theme.semantic(.light).danger.opacity(0.1) : 
+                                      Color.red.opacity(0.1) : 
                                       DSColor.card)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 12)
                                         .stroke(assessment.redFlags.contains(flag) ? 
-                                               Theme.semantic(.light).danger : 
+                                               Color.red : 
                                                DSColor.textSecondary.opacity(0.2), 
                                                lineWidth: 1)
                                 )

@@ -82,8 +82,7 @@ struct CoachView: View {
                 vm.send(text: text, images: images)
             }
         }
-        .background(isDark ? AnyView(Color.clear.ignoresSafeArea()) : AnyView(DSColor.appBackground.ignoresSafeArea()))
-        .efDarkCanvas()
+        .background(DSColor.bg.ignoresSafeArea())
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {

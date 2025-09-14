@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct AccountPopover: View {
-    @Environment(ThemeManager.self) private var themeManager
+    @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {

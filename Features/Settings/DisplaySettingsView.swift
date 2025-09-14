@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DisplaySettingsView: View {
-    @ObservedObject private var themeStore = ThemeStore.shared
+    @StateObject private var themeManager = ThemeManager.shared
     @AppStorage("ef.display.reduceMotion") private var reduceMotion = false
     @AppStorage("ef.display.contentSize") private var contentSize: Double = 1.0 // 0.9...1.3
 
@@ -26,14 +26,14 @@ struct DisplaySettingsView: View {
                 EFCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Appearance").font(.subheadline).foregroundStyle(DSColor.textSecondary)
-                        Picker("", selection: $themeStore.selection) {
-                            Text("System").tag(EFAppearance.system)
-                            Text("Light").tag(EFAppearance.light)
-                            Text("Dark").tag(EFAppearance.dark)
+                        Picker("", selection: $themeManager.scheme) {
+                            Text("System").tag(ThemeMode.system)
+                            Text("Light").tag(ThemeMode.light)
+                            Text("Dark").tag(ThemeMode.dark)
                         }
                         .pickerStyle(.segmented)
-                        .onChange(of: themeStore.selection) { newValue in
-                            ThemeApplier.apply(newValue)   // <- immediate switch
+                        .onChange(of: themeManager.scheme) { _, newValue in
+                            themeManager.scheme = newValue   // <- immediate switch
                         }
                         Text("Changes apply immediately.").font(.footnote).foregroundStyle(DSColor.textSecondary)
                     }
@@ -54,8 +54,8 @@ struct DisplaySettingsView: View {
             }
             .padding(16)
         }
-        .background(Theme.pageBackground.ignoresSafeArea())
-        .onAppear { ThemeApplier.apply(themeStore.selection) } // ensure consistency on open
+        .background(DSColor.bg.ignoresSafeArea())
+        .onAppear { themeManager.applyGlobalBars() } // ensure consistency on open
         .environment(\.sizeCategory, sizeCategory)
         .navigationBarTitleDisplayMode(.inline)
     }

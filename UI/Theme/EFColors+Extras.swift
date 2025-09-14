@@ -1,18 +1,5 @@
 import SwiftUI
 
-extension Color {
-    init(hex: String, alpha: Double = 1.0) {
-        let s = hex.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: "#", with: "")
-        var v: UInt64 = 0
-        Scanner(string: s).scanHexInt64(&v)
-        let r, g, b: UInt64
-        switch s.count {
-        case 3: (r, g, b) = ((v >> 8) * 17, (v >> 4 & 0xF) * 17, (v & 0xF) * 17)
-        default: (r, g, b) = (v >> 16, v >> 8 & 0xFF, v & 0xFF)
-        }
-        self.init(.sRGB, red: Double(r)/255, green: Double(g)/255, blue: Double(b)/255, opacity: alpha)
-    }
-}
 
 extension Color {
     // CTA red for Fix Pain buttons (tweak if you already have a brand red token)

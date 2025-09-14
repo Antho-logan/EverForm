@@ -17,34 +17,6 @@ fileprivate enum NUTRThemeLocal {
     static var cta: Color { DSColor.accentNutrition }
 }
 
-// MARK: - File-local nav bar styling (no stripe, matches canvas)
-fileprivate enum NUTRNavStylerLocal {
-    private static var cached: (standard: UINavigationBarAppearance, scroll: UINavigationBarAppearance, compact: UINavigationBarAppearance)?
-
-    static func apply(background uiColor: UIColor) {
-        let appearance = UINavigationBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = uiColor
-        appearance.shadowColor = .clear
-
-        // Keep title fonts/colors as-is; we just remove the stripe and set bg.
-        let nav = UINavigationBar.appearance()
-        cached = (nav.standardAppearance, nav.scrollEdgeAppearance ?? nav.standardAppearance, nav.compactAppearance ?? nav.standardAppearance)
-
-        nav.standardAppearance = appearance
-        nav.scrollEdgeAppearance = appearance
-        nav.compactAppearance = appearance
-    }
-
-    static func reset() {
-        guard let c = cached else { return }
-        let nav = UINavigationBar.appearance()
-        nav.standardAppearance = c.standard
-        nav.scrollEdgeAppearance = c.scroll
-        nav.compactAppearance = c.compact
-        cached = nil
-    }
-}
 
 // MARK: - File-local filled button for consistent pill CTA
 fileprivate struct NUTRFilledButtonStyleLocal: ButtonStyle {

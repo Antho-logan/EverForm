@@ -38,14 +38,14 @@ struct EverFormApp: App {
                 .environment(profileStore)
                 .environment(notesStore)
                 .environment(attachmentStore)
-                .environment(themeManager)
+                .environmentObject(themeManager)
 
                 // ALSO inject as EnvironmentObject for any store that conforms to ObservableObject.
                 // CoachCoordinator uses singleton pattern, so we don't inject it here
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(theme.preferredScheme)
+                .preferredColorScheme(nil) // Let system handle based on theme manager
 
                 .onAppear {
                     print("EverForm launched; stores injected")
@@ -68,11 +68,11 @@ struct EverFormApp: App {
                 .environment(profileStore)
                 .environment(notesStore)
                 .environment(attachmentStore)
-                .environment(themeManager)
+                .environmentObject(themeManager)
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(theme.preferredScheme)
+                .preferredColorScheme(nil) // Let system handle based on theme manager
         } else {
             ContentView()
         }

@@ -18,12 +18,7 @@ private let FIX_PAIN_TILE_HEIGHT: CGFloat = 124
 
 struct FixPainView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var selectedRegion: PainRegion?
-    
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(colorScheme)
-    }
     @State private var showingAssessment = false
     @State private var toastText: String?
     
@@ -126,8 +121,8 @@ struct FixPainView: View {
         }
         .padding(.top, PainUI.Layout.vSpacing)
         .scrollContentBackground(.hidden)
-        .background(semanticColors.page.ignoresSafeArea())
-        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .background(DSColor.bg.ignoresSafeArea())
+        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Fix Pain")
         .navigationBarTitleDisplayMode(.inline)

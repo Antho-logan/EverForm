@@ -27,6 +27,9 @@ struct RootTabView: View {
                 .tabItem { Label("Progress", systemImage: "chart.bar.fill") }
                 .tag(3)
         }
+        .toolbarBackground(DSColor.barBackground, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
+        .tint(DSColor.accentPrimary)
         // Override color scheme if user chose Light/Dark in Display
         .environment(\.colorScheme, theme.colorSchemeOverride)
         .onReceive(NotificationCenter.default.publisher(for: .efRoute)) { n in

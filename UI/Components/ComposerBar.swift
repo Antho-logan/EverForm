@@ -22,7 +22,7 @@ struct ComposerBar: View {
     }
     
     var body: some View {
-        let palette = Theme.palette(colorScheme)
+        let palette = Theme.palette(.light)
         
         HStack(spacing: 12) {
             // Paperclip button
@@ -83,7 +83,7 @@ struct ComposerBar: View {
             HStack(spacing: 2) {
                 ForEach(0..<4, id: \.self) { index in
                     RoundedRectangle(cornerRadius: 1)
-                        .fill(Theme.semantic(colorScheme).danger)
+                        .fill(Color.red)
                         .frame(width: 2, height: 12)
                         .scaleEffect(y: waveformScale)
                         .animation(
@@ -97,14 +97,14 @@ struct ComposerBar: View {
             
             Text("Recording…")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(Theme.semantic(colorScheme).danger)
+                .foregroundStyle(Color.red)
             
             Button(action: stopRecording) {
                 Image(systemName: "stop.fill")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(.white)
                     .frame(width: 32, height: 32)
-                    .background(Theme.semantic(colorScheme).danger)
+                    .background(Color.red)
                     .clipShape(Circle())
             }
             .buttonStyle(.plain)
@@ -124,7 +124,7 @@ struct ComposerBar: View {
         Button(action: startRecording) {
             Image(systemName: "mic")
                 .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(Theme.palette(colorScheme).textSecondary)
+                .foregroundStyle(DSColor.labelSecondary)
                 .frame(width: 44, height: 44)
                 .contentShape(Rectangle())
         }
@@ -149,7 +149,7 @@ struct ComposerBar: View {
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 32, height: 32)
-                .background(Theme.palette(colorScheme).accent)
+                .background(DSColor.accent)
                 .clipShape(Circle())
         }
         .buttonStyle(.plain)
@@ -199,5 +199,5 @@ struct ComposerBar: View {
             onSend: { _ in }
         )
     }
-    .background(Theme.palette(.light).background)
+    .background(DSColor.bg)
 }

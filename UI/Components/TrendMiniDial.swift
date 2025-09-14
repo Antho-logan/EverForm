@@ -1,5 +1,7 @@
 import SwiftUI
 
+// Import legacy palette for compatibility
+
 struct TrendMiniDial: View {
     let icon: String
     let value: String
@@ -8,20 +10,18 @@ struct TrendMiniDial: View {
     @State private var animatedProgress: Double = 0
 
     var body: some View {
-        let palette = Theme.palette(colorScheme)
-
         VStack(spacing: 4) {
             ZStack {
                 // Background circle
                 Circle()
-                    .stroke(palette.stroke, lineWidth: 2)
+                    .stroke(DSColor.borderHairline, lineWidth: 2)
                     .frame(width: 56, height: 56)
 
                 // Trend arc (7-day progress)
                 Circle()
                     .trim(from: 0, to: animatedProgress)
                     .stroke(
-                        palette.accent.opacity(0.4),
+                        DSColor.accentSuccess.opacity(0.4),
                         style: StrokeStyle(lineWidth: 2, lineCap: .round)
                     )
                     .frame(width: 56, height: 56)
@@ -31,7 +31,7 @@ struct TrendMiniDial: View {
                 Circle()
                     .trim(from: max(0, animatedProgress - 0.15), to: animatedProgress)
                     .stroke(
-                        palette.accent,
+                        DSColor.accentSuccess,
                         style: StrokeStyle(lineWidth: 2, lineCap: .round)
                     )
                     .frame(width: 56, height: 56)
@@ -40,7 +40,7 @@ struct TrendMiniDial: View {
                 // Center icon
                 Image(systemName: icon)
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundStyle(palette.textPrimary)
+                    .foregroundStyle(DSColor.labelPrimary)
             }
             .onAppear {
                 withAnimation(.snappy(duration: 0.6)) {
@@ -51,7 +51,7 @@ struct TrendMiniDial: View {
             // Value caption
             Text(value)
                 .font(.system(size: 10, weight: .medium))
-                .foregroundStyle(palette.textSecondary)
+                .foregroundStyle(DSColor.labelSecondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
@@ -62,7 +62,7 @@ struct TrendMiniDial: View {
 }
 
 #Preview {
-    let palette = Theme.palette(.light)
+    // Using DSColor instead of legacy Theme palette
     VStack(spacing: 20) {
         HStack(spacing: 12) {
             TrendMiniDial(icon: "figure.walk", value: "8.4K", trendProgress: 0.75)
@@ -73,8 +73,8 @@ struct TrendMiniDial: View {
 
         Text("Mini Trend Dials")
             .font(.caption)
-            .foregroundStyle(palette.textSecondary)
+            .foregroundStyle(DSColor.labelSecondary)
     }
     .padding()
-    .background(palette.background)
+    .background(DSColor.bg)
 }

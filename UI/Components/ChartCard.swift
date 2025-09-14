@@ -23,24 +23,13 @@ struct ChartCard<Header: View, ChartArea: View, Footer: View>: View {
         }
         .padding(18)
         .background(
-            // Subtle depth: gradient + stroke
             RoundedRectangle(cornerRadius: 20, style: .continuous)
                 .fill(DSColor.card)
                 .overlay(
-                    LinearGradient(
-                        colors: [
-                            DSColor.brand.opacity(0.1),
-                            DSColor.brand.opacity(0.00)
-                        ],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                )
-                .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(DSColor.stroke, lineWidth: 1)
+                        .stroke(DSColor.borderHairline, lineWidth: 0.5)
                 )
         )
-        .shadow(color: DSColor.black.opacity(DSColor.shadowOpacity), radius: 14, x: 0, y: 10)
+        .shadow(color: Color.black.opacity(ThemeManager.shared.scheme == .dark ? 0.4 : 0.1), radius: 14, x: 0, y: 10)
     }
 }

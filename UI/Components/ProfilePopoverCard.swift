@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ProfilePopoverCard: View {
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(ThemeManager.self) private var themeManager
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showingDisplaySettings = false
     
     var body: some View {
@@ -197,7 +197,7 @@ private struct PopoverMenuRow<Trailing: View>: View {
 private struct DisplaySettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(ThemeManager.self) private var themeManager
+    @EnvironmentObject private var themeManager: ThemeManager
     
     var body: some View {
         let palette = Theme.palette(colorScheme)
@@ -257,5 +257,5 @@ private struct DisplaySettingsSheet: View {
 
 #Preview {
     ProfilePopoverCard()
-        .environment(ThemeManager())
+        .environmentObject(ThemeManager.shared)
 }

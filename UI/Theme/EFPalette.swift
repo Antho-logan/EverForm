@@ -14,11 +14,11 @@ public struct EFPalette {
             // Warm light (from Scan Food iOS 26 look)
             // Tones are intentionally subtle & warm (sand/ivory).
             return EFPalette(
-                background: Color(hex: 0xF3E8DB), // page
-                surface:    Color(hex: 0xF6EFE7), // section blocks
-                card:       Color(hex: 0xFBF7F2), // floating cards/tiles
-                chrome:     Color(hex: 0xEFE4D8), // tab "bubble", toolbars
-                stroke:     Color(hex: 0xE6D8C8),
+                background: Color(hex: "F3E8DB"), // page
+                surface:    Color(hex: "F6EFE7"), // section blocks
+                card:       Color(hex: "FBF7F2"), // floating cards/tiles
+                chrome:     Color(hex: "EFE4D8"), // tab "bubble", toolbars
+                stroke:     Color(hex: "E6D8C8"),
                 shadow:     Color.black.opacity(0.08)
             )
         } else {

@@ -26,9 +26,7 @@ struct LookMaxingView: View {
     @State private var howItWorksExpanded: Bool = true
     @Environment(\.colorScheme) private var colorScheme
     
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(colorScheme)
-    }
+    // Using DSColor semantic colors instead of Theme.semantic
     
     init() {
         // Navigation styling now handled by global EFNavBarStyler
@@ -37,7 +35,7 @@ struct LookMaxingView: View {
     var body: some View {
         ZStack {
             // Canvas background identical to Scan Food
-            semanticColors.page.ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 16) {
@@ -159,7 +157,7 @@ struct LookMaxingView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .background(semanticColors.page.ignoresSafeArea())
+        .background(DSColor.bg.ignoresSafeArea())
         .onAppear { NavBlendLocal.apply() }
         .onDisappear { EFNavBarStyler.resetToDefault() }
     }

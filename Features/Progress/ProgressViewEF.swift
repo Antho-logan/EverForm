@@ -4,31 +4,6 @@ import Charts
 #endif
 import UIKit
 
-// MARK: - Progress navigation styler (file-scoped)
-private struct ProgressNavStylerLocal: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var appearance: AppearanceStore
-    
-    func body(content: Content) -> some View {
-        content
-            .onAppear {
-                let appBg = UIColor(DSColor.appBackground)
-                let app = UINavigationBarAppearance()
-                app.configureWithOpaqueBackground()
-                app.backgroundColor = appBg
-                app.shadowColor = .clear
-                UINavigationBar.appearance().standardAppearance = app
-                UINavigationBar.appearance().scrollEdgeAppearance = app
-                UINavigationBar.appearance().compactAppearance = app
-            }
-    }
-}
-
-extension View {
-    fileprivate func progressNavStyled() -> some View {
-        self.modifier(ProgressNavStylerLocal())
-    }
-}
 
 struct ProgressViewEF: View {
     @StateObject private var store = ProgressStore()
@@ -53,7 +28,7 @@ struct ProgressViewEF: View {
 
     var body: some View {
         ZStack {
-            (isDark ? Color.clear : DSColor.appBackground).ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 16) {
                     // ----- Your existing chart sections go here (unchanged) -----
@@ -72,11 +47,10 @@ struct ProgressViewEF: View {
                         applyRange(newValue)
                     }
                 )
-                .background(isDark ? Color.clear : DSColor.appBackground) // same color, blends header with page (no stripe)
+                .background(DSColor.bg) // same color, blends header with page (no stripe)
             }
         }
-        .efDarkCanvas()
-        .toolbarBackground(DSColor.appBackground, for: .navigationBar)
+          .toolbarBackground(DSColor.barBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear {
             store.regenerate()
@@ -166,34 +140,41 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
     let segments: [(Value, String)]
 
     var body: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 8) {
             ForEach(segments, id: \.0) { value, label in
                 Button {
                     selection = value
                 } label: {
                     Text(label)
-                        .font(.system(size: 15, weight: .semibold))
-                        .frame(maxWidth: .infinity)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(selection == value ? DSColor.labelPrimary : DSColor.labelSecondary)
                         .padding(.vertical, 10)
+                        .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.plain)
                 .background(
                     Group {
                         if selection == value {
-                            // filled (selected)
-                            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                .fill(DSColor.inputBackground) // use app's input background token to avoid gray overlay
-                        } else {
-                            Color.clear
+                            if ThemeManager.shared.scheme == .dark {
+                                Color.white.opacity(0.06)
+                            } else {
+                                Color.black.opacity(0.06)
+                            }
+                        } else { 
+                            Color.clear 
                         }
                     }
                 )
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .onTapGesture { selection = value }
             }
         }
-        .padding(4)
-        .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(DSColor.inputBackground) // or your app's control background token
+        .padding(6)
+        .background(DSColor.card)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(DSColor.borderHairline, lineWidth: 0.5)
         )
     }
 }

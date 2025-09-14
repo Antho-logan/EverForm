@@ -20,7 +20,7 @@ struct SettingsSectionCard<Content: View>: View {
                 .padding(16)
                 .background(DSColor.card)
                 .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .shadow(color: Color.black.opacity(ColorScheme.current == .light ? 0.06 : 0), radius: 12, x: 0, y: 6)
+                .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: 6)
         }
     }
 }
@@ -51,8 +51,3 @@ struct SettingsRow<Right: View>: View {
     }
 }
 
-private extension ColorScheme {
-    static var current: UIUserInterfaceStyle {
-        UITraitCollection.current.userInterfaceStyle
-    }
-}

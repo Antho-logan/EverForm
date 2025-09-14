@@ -7,10 +7,7 @@ struct EFDisplaySettingsView: View {
     var body: some View {
         Form {
             Section(header: Text("Appearance")) {
-                Picker("Theme", selection: Binding(
-                    get: { theme.selection },
-                    set: { theme.set($0) }
-                )) {
+                Picker("Theme", selection: $theme.selection) {
                     Text("System").tag(EFUserTheme.system)
                     Text("Light").tag(EFUserTheme.light)
                     Text("Dark").tag(EFUserTheme.dark)

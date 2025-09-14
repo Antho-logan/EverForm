@@ -17,7 +17,7 @@ extension Color {
     static var efCardFill: Color { DSColor.card }
     static var efCardStroke: Color { Color.black.opacity(0.06) }
     static var efShadow: Color { Color.black.opacity(0.07) }
-    static var efAccentRed: Color { Color(hex: 0xE05252) }
+    static var efAccentRed: Color { Color(hex: "E05252") }
     static var efAccentGreen: Color { Color.green }
 }
 

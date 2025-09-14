@@ -14,13 +14,8 @@ fileprivate enum AppThemeUIV2 {
 
 // Adapt to your real model names & JournalStore APIs.
 struct SmartMealLoggerSheet: View {
-  @Environment(\.colorScheme) private var colorScheme
   @EnvironmentObject var journalStore: JournalStore
   @Environment(\.dismiss) private var dismiss
-  
-  private var semanticColors: Theme.SemanticColors {
-      Theme.semantic(colorScheme)
-  }
 
   @State private var pickerItem: PhotosPickerItem?
   @State private var uiImage: UIImage?
@@ -35,7 +30,7 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      semanticColors.page
+      DSColor.bg
         .ignoresSafeArea()
       NavigationStack {
         ScrollView {
@@ -131,8 +126,8 @@ struct SmartMealLoggerSheet: View {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
         .scrollContentBackground(.hidden)
-        .background(semanticColors.page.ignoresSafeArea())
-        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .background(DSColor.bg.ignoresSafeArea())
+        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear { NavBlendLocal.apply() }
         .onDisappear { EFNavBarStyler.resetToDefault() }

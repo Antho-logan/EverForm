@@ -10,7 +10,7 @@ import SwiftUI
 struct ProfilePopoverView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(ThemeManager.self) private var themeManager
+    @EnvironmentObject private var themeManager: ThemeManager
     @State private var showingDisplaySettings = false
     
     var body: some View {
@@ -205,5 +205,5 @@ private struct MenuRow<Trailing: View>: View {
 
 #Preview {
     ProfilePopoverView()
-        .environment(ThemeManager())
+        .environmentObject(ThemeManager.shared)
 }

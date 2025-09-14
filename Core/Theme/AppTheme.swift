@@ -31,7 +31,7 @@ public struct ThemePalette {
 }
 
 // MARK: - Manager (Observable + Persistence)
-public final class ThemeManager: ObservableObject {
+public final class AppThemeManager: ObservableObject {
     private let key = "app.theme.preference"
     @Published public var selection: AppTheme {
         didSet { UserDefaults.standard.set(selection.rawValue, forKey: key) }

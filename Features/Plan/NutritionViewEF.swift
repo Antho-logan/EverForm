@@ -30,12 +30,7 @@ fileprivate enum NUTRMealKind: String, CaseIterable, Identifiable {
 // MARK: - Meal History View
 fileprivate struct MealHistoryViewUIV2: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
-    
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(colorScheme)
-    }
     
     var body: some View {
         NavigationStack {
@@ -107,12 +102,7 @@ fileprivate struct NUTRMacros: Equatable {
 
 struct NutritionViewEF: View, Identifiable {
     let id = UUID()
-    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
-    
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(colorScheme)
-    }
     @State private var nutrSelected: NUTRMealKind = .lunch
     @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
         Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, .init()) })
@@ -295,8 +285,8 @@ struct NutritionViewEF: View, Identifiable {
                 .padding(.vertical, 16)
             }
             .scrollContentBackground(.hidden)
-            .background(semanticColors.page.ignoresSafeArea())
-            .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+            .background(DSColor.bg.ignoresSafeArea())
+            .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Nutrition")
             .navigationBarTitleDisplayMode(.large)

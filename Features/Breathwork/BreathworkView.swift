@@ -21,19 +21,14 @@ private let patterns: [BreathPattern] = [
 ]
 
 struct BreathworkView: View {
-    @Environment(\.colorScheme) private var scheme
     @State private var selected = patterns.first!
-    
-    private var semanticColors: Theme.SemanticColors {
-        Theme.semantic(scheme)
-    }
     @State private var running = false
     @State private var phaseIndex = 0
     @State private var t: Double = 0
 
     var body: some View {
         ZStack {
-            semanticColors.page.ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             if running {
                 sessionView
             } else {
@@ -41,7 +36,7 @@ struct BreathworkView: View {
             }
         }
         .scrollContentBackground(.hidden)
-        .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+        .toolbarBackground(Color(DSColor.bg), for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Breathwork")
         .navigationBarTitleDisplayMode(.large)

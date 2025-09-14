@@ -104,17 +104,8 @@ struct LoggedMealsView: View {
       .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } } }
       .background(DSColor.appBackground)
       .onAppear { 
-        let navStyler = UINavigationBarAppearance()
-        navStyler.configureWithOpaqueBackground()
-        navStyler.backgroundColor = UIColor(DSColor.appBackground)
-        navStyler.shadowColor = .clear
-        navStyler.titleTextAttributes = [.foregroundColor: UIColor.label]
-        navStyler.largeTitleTextAttributes = [.foregroundColor: UIColor.label]
-        UINavigationBar.appearance().standardAppearance = navStyler
-        UINavigationBar.appearance().scrollEdgeAppearance = navStyler
+        // Navigation bar styling handled by ThemeManager
       }
-      .toolbarBackground(.visible, for: .navigationBar)
-      .toolbarBackground(DSColor.appBackground, for: .navigationBar)
     }
   }
 }

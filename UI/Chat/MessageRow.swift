@@ -13,7 +13,7 @@ struct MessageRow: View {
     @State private var showingQuickLook = false
     @State private var selectedImageData: Data?
     
-    private var palette: Theme.ThemePalette {
+    private var palette: some PaletteProtocol {
         Theme.palette(colorScheme)
     }
     

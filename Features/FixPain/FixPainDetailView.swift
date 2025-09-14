@@ -11,7 +11,6 @@ struct FixPainDetailView: View {
     let region: FixPainView.PainRegion
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var isStarted = false
     @State private var currentStep = 0
     @State private var timer: Timer?
@@ -72,8 +71,7 @@ struct FixPainDetailView: View {
     }
     
     var body: some View {
-        let palette = Theme.palette(colorScheme)
-        let semantic = Theme.semantic(colorScheme)
+        let palette = Theme.palette(.light)
         
         NavigationView {
             VStack(spacing: Spacing.xl) {
@@ -99,12 +97,12 @@ struct FixPainDetailView: View {
                                         // Step number
                                         ZStack {
                                             Circle()
-                                                .fill(semantic.danger.opacity(0.15))
+                                                .fill(Color.red.opacity(0.15))
                                                 .frame(width: 32, height: 32)
                                             
                                             Text("\(index + 1)")
                                                 .font(.system(size: 14, weight: .semibold))
-                                                .foregroundStyle(semantic.danger)
+                                                .foregroundStyle(Color.red)
                                         }
                                         
                                         VStack(alignment: .leading, spacing: 4) {
@@ -134,7 +132,7 @@ struct FixPainDetailView: View {
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, Spacing.md)
-                                .background(semantic.danger)
+                                .background(Color.red)
                                 .clipShape(RoundedRectangle(cornerRadius: Radius.card))
                         }
                         .buttonStyle(.plain)
@@ -149,7 +147,7 @@ struct FixPainDetailView: View {
                                 .foregroundStyle(palette.textSecondary)
                             
                             ProgressView(value: Double(currentStep), total: Double(routine.count))
-                                .progressViewStyle(LinearProgressViewStyle(tint: semantic.danger))
+                                .progressViewStyle(LinearProgressViewStyle(tint: Color.red))
                         }
                         
                         Spacer()
@@ -169,12 +167,12 @@ struct FixPainDetailView: View {
                             // Timer
                             ZStack {
                                 Circle()
-                                    .stroke(semantic.danger.opacity(0.3), lineWidth: 8)
+                                    .stroke(Color.red.opacity(0.3), lineWidth: 8)
                                     .frame(width: 120, height: 120)
                                 
                                 Text("\(timeRemaining)")
                                     .font(.system(size: 36, weight: .bold))
-                                    .foregroundStyle(semantic.danger)
+                                    .foregroundStyle(Color.red)
                                     .contentTransition(.numericText())
                             }
                         }
@@ -195,10 +193,10 @@ struct FixPainDetailView: View {
                                 stopRoutine()
                             }
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(semantic.danger)
+                            .foregroundStyle(Color.red)
                             .padding(.horizontal, Spacing.lg)
                             .padding(.vertical, Spacing.sm)
-                            .background(semantic.danger.opacity(0.1))
+                            .background(Color.red.opacity(0.1))
                             .clipShape(RoundedRectangle(cornerRadius: Radius.pill))
                         }
                     }

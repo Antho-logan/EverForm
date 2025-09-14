@@ -1,5 +1,7 @@
 import SwiftUI
 
+// Import legacy palette for compatibility
+
 struct KPITile: View {
     let icon: String
     let value: String
@@ -55,7 +57,7 @@ struct KPITile: View {
 }
 
 #Preview {
-    let palette = Theme.palette(.light)
+    // Using DSColor instead of legacy Theme palette
     LazyVGrid(columns: [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12)
@@ -93,5 +95,5 @@ struct KPITile: View {
         }
     }
     .padding()
-    .background(palette.background)
+    .background(DSColor.bg)
 }

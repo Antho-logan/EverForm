@@ -21,9 +21,15 @@ struct CoachInputBar: View {
             ZStack(alignment: .trailing) {
                 TextField("Message", text: $text, axis: .vertical)
                     .textFieldStyle(.plain)
+                    .foregroundStyle(DSColor.labelPrimary)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(DSColor.inputBackground, in: Capsule())
+                    .background(DSColor.input)
+                    .clipShape(Capsule())
+                    .overlay(
+                        Capsule()
+                            .stroke(DSColor.borderHairline, lineWidth: 0.5)
+                    )
                     .focused($focused)
 
                 if hasText {
@@ -66,7 +72,7 @@ struct CoachInputBar: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .background(DSColor.surface, in: Rectangle())
+        .background(DSColor.barBackground, in: Rectangle())
     }
 }
 

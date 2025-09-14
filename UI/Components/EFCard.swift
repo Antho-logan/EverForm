@@ -14,7 +14,11 @@ struct EFCard<Content: View>: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(DSColor.card)
             .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .shadow(color: Color.black.opacity(DSColor.shadowOpacity), radius: 12, x: 0, y: 6)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(DSColor.borderHairline, lineWidth: 0.5)
+            )
+            .shadow(color: Color.black.opacity(ThemeManager.shared.scheme == .dark ? 0.4 : 0.1), radius: 12, x: 0, y: 6)
     }
 }
 
@@ -23,7 +27,7 @@ struct EFSectionHeader: View {
     var body: some View {
         Text(title)
             .font(.system(.title2, weight: .bold))
-            .foregroundStyle(DSColor.textPrimary)
+            .foregroundStyle(DSColor.labelPrimary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.top, 8)
     }

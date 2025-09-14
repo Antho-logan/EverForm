@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+// Local import - ThemeManager is in the same module
 
 // MARK: - Dashboard View Model (Preserved Logic)
 @Observable
