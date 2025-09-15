@@ -27,23 +27,30 @@ struct OverviewView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: DS.Spacing.lg) {
+
+                    // ------- Overview Header -------
+                    OverviewHeader()
+                        .padding(.horizontal, DS.Spacing.md)
 
                     // ------- Stats Grid (existing cards) -------
                     // KPI grid (4 tiles)
-                    LazyVGrid(columns: Array(repeating: .init(.flexible(), spacing: 16), count: 2), spacing: 16) {
+                    LazyVGrid(columns: [
+                        GridItem(.flexible(), spacing: DS.Spacing.md),
+                        GridItem(.flexible(), spacing: DS.Spacing.md)
+                    ], spacing: DS.Spacing.md) {
                         KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
                         KPICard(icon: "drop.fill", title: "\(ov_todayCalories) / 2661", subtitle: "CALORIES")
                         KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
                         KPICard(icon: "drop", title: "\(hydrationService.todayMl) ml", subtitle: "HYDRATION")
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, DS.Spacing.md)
 
                     EFSectionHeaderPlain(title: "Today's Plan")
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, DS.Spacing.md)
 
-                    VStack(spacing: 16) {
-                        HStack(spacing: 16) {
+                    VStack(spacing: DS.Spacing.md) {
+                        HStack(spacing: DS.Spacing.md) {
                             planCard(title: "Training", subtitle: "Upper Body", system: "dumbbell.fill", color: DSColor.accentSuccess) {
                                 EFRouter.open(.training)
                             }
@@ -51,7 +58,7 @@ struct OverviewView: View {
                                 EFRouter.open(.nutrition)
                             }
                         }
-                        HStack(spacing: 16) {
+                        HStack(spacing: DS.Spacing.md) {
                             planCard(title: "Recovery", subtitle: "Bedtime 22:30", system: "moon.fill", color: DSColor.accentRecovery) {
                                 EFRouter.open(.recovery)
                             }
@@ -60,14 +67,14 @@ struct OverviewView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, DS.Spacing.md)
 
                     // ------- Quick Actions -------
                     EFSectionHeaderPlain(title: "Quick Actions")
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, DS.Spacing.md)
 
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: DS.Spacing.sm) {
                             quickActionButton(icon: "drop.fill", title: "Add Water", color: DSColor.accentRecovery) {
                                 hydrationService.addWater(ml: 250)
                                 toastText = "+250 ml"
@@ -87,9 +94,9 @@ struct OverviewView: View {
                                 route = .lookMaxing
                             }
                         }
-                        .padding(.horizontal, 20)
+                        .padding(.horizontal, DS.Spacing.md)
                     }
-                    .padding(.bottom, 24)
+                    .padding(.bottom, DS.Spacing.lg)
                 }
                 .padding(.top, 8)
             }
@@ -279,6 +286,38 @@ struct OverviewView: View {
 
 }
 
+// MARK: - Overview Header
+private struct OverviewHeader: View {
+    @Environment(\.colorScheme) private var colorScheme
+    @State private var showProfileMenu = false
+    
+    var body: some View {
+        HStack(spacing: DS.Spacing.md) {
+            // Overview title
+            Text("Overview")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(colorScheme == .dark ? Color.white : Color.black.opacity(0.92))
+            
+            Spacer()
+            
+            // Profile button with brand green
+            Menu {
+                Button("Profile", action: { /* profile action */ })
+                Button("Settings", action: { /* settings action */ })
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(colorScheme == .dark ? Color(hex: "232529") : Color(.secondarySystemBackground))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "person.fill")
+                        .foregroundStyle(DS.ColorToken.accent)
+                        .font(.system(size: 18, weight: .semibold))
+                }
+            }
+        }
+    }
+}
+
 // MARK: - Plain Section Header for Dark Mode
 struct EFSectionHeaderPlain: View {
     let title: String
@@ -312,18 +351,30 @@ private extension View {
 private struct KPICard: View {
     let icon: String, title: String, subtitle: String
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(Color(hex: "0A84FF"))
-            Text(title)
-                .font(.title3.weight(.semibold))
-                .efText(.primary)
-            Text(subtitle)
-                .font(.caption)
-                .efText(.muted)
+        VStack(alignment: .leading, spacing: DS.Spacing.sm) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundStyle(DS.ColorToken.accent)
+                Spacer()
+            }
+            
+            VStack(alignment: .leading, spacing: DS.Spacing.xs) {
+                Text(title)
+                    .font(.system(size: 24, weight: .semibold))
+                    .efText(.primary)
+                    .lineLimit(1)
+                
+                Text(subtitle)
+                    .font(.system(size: 14, weight: .medium))
+                    .efText(.muted)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
         }
-        .padding(16)
+        .frame(minHeight: 120)
+        .padding(DS.Spacing.md)
         .efDarkCardBackground()
     }
 }
