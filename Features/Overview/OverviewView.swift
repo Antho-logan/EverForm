@@ -296,7 +296,7 @@ private struct OverviewHeader: View {
             // Overview title
             Text("Overview")
                 .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(colorScheme == .dark ? Color.white : Color.black.opacity(0.92))
+                .overviewSectionTitleStyle()
             
             Spacer()
             
@@ -325,7 +325,8 @@ struct EFSectionHeaderPlain: View {
     
     var body: some View {
         Text(title)
-            .efHeaderTitle()
+            .font(.system(size: 18, weight: .semibold))
+            .overviewSectionTitleStyle()
     }
 }
 
@@ -345,6 +346,21 @@ private struct OverviewNavTitleStyle: ViewModifier {
 private extension View {
     func overviewNavStyle() -> some View {
         modifier(OverviewNavTitleStyle())
+    }
+    
+    func overviewSectionTitleStyle() -> some View {
+        modifier(OverviewSectionTitleStyle())
+    }
+}
+
+// MARK: - Overview Section Title Styling
+private struct OverviewSectionTitleStyle: ViewModifier {
+    @Environment(\.colorScheme) private var scheme
+    
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(scheme == .dark ? Color.white : Color.black.opacity(0.92))
+            .background(Color.clear)
     }
 }
 
