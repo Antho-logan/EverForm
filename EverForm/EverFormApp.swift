@@ -13,6 +13,7 @@ struct EverFormApp: App {
     @StateObject private var theme = EFTheme.shared
     @State private var appearance = AppearanceStore()
     @State private var themeManager = ThemeManager()
+    @State private var efThemeManager = EFThemeManager()
     @State private var forceDiag = ProcessInfo.processInfo.environment["EF_FORCE_DIAG"] == "1"
 
     // Own long-lived state here (create only for types that exist in the repo)
@@ -39,6 +40,7 @@ struct EverFormApp: App {
                 .environment(notesStore)
                 .environment(attachmentStore)
                 .environmentObject(themeManager)
+                .environmentObject(efThemeManager)
 
                 // ALSO inject as EnvironmentObject for any store that conforms to ObservableObject.
                 // CoachCoordinator uses singleton pattern, so we don't inject it here
@@ -71,6 +73,7 @@ struct EverFormApp: App {
                 .environment(notesStore)
                 .environment(attachmentStore)
                 .environmentObject(themeManager)
+                .environmentObject(efThemeManager)
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)

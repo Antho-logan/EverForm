@@ -1,7 +1,7 @@
 import SwiftUI
 
-// MARK: - EFTheme Protocol
-public protocol EFTheme {
+// MARK: - EFThemeProtocol Protocol
+public protocol EFThemeProtocol {
     var background: Color { get }
     var surface: Color { get }
     var surfaceElevated: Color { get }
@@ -30,22 +30,23 @@ public protocol EFTheme {
     var bg: Color { get }
     var bgElevated: Color { get }
     var shadow: Color { get }
+    var inputBackground: Color { get }
 }
 
 // MARK: - Environment Key
 private struct EFThemeKey: EnvironmentKey {
-    static let defaultValue: EFTheme = DarkTheme()
+    static let defaultValue: EFThemeProtocol = DarkTheme()
 }
 
 extension EnvironmentValues {
-    var efTheme: EFTheme {
+    var efTheme: EFThemeProtocol {
         get { self[EFThemeKey.self] }
         set { self[EFThemeKey.self] = newValue }
     }
 }
 
 // MARK: - Dark Theme Implementation
-public struct DarkTheme: EFTheme {
+public struct DarkTheme: EFThemeProtocol {
     public let background = Color(hex: "0B0B0D")
     public let surface = Color(hex: "1A1B1E")
     public let surfaceElevated = Color(hex: "232529")
@@ -74,6 +75,7 @@ public struct DarkTheme: EFTheme {
     public let bg = Color(hex: "0B0B0D")
     public let bgElevated = Color(hex: "1A1B1E")
     public let shadow = Color(hex: "000000", alpha: 0.3)
+    public let inputBackground = Color(hex: "2A2C30")
     
     public init() {}
 }

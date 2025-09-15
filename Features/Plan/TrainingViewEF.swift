@@ -5,8 +5,11 @@ struct TrainingViewEF: View, Identifiable {
     @State private var selectedType: String = "Strength"
     @State private var duration: Int = 45
     @State private var notes: String = ""
+    @EnvironmentObject private var theme: EFThemeManager
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let isDark = theme.isDark(colorScheme)
         ZStack {
             Color(hex: "0B0B0D").ignoresSafeArea()
             NavigationStack {
@@ -20,10 +23,10 @@ struct TrainingViewEF: View, Identifiable {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Session")
                                         .font(.headline)
-                                        .foregroundStyle(Color(hex: "FFFFFF"))
+                                        .efText(.primary)
                                     Text("Set up your training session")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color(hex: "A0A0A0"))
+                                        .efText(.secondary)
                                 }
                                 Spacer()
                             }
@@ -34,25 +37,34 @@ struct TrainingViewEF: View, Identifiable {
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Type")
-                                    .font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
+                                    .font(.subheadline)
+                                    .efText(.secondary)
                                 Picker("", selection: $selectedType) {
                                     Text("Strength").tag("Strength")
+                                        .efText(.primary)
                                     Text("Cardio").tag("Cardio")
+                                        .efText(.primary)
                                     Text("HIIT").tag("HIIT")
+                                        .efText(.primary)
                                     Text("Mobility").tag("Mobility")
+                                        .efText(.primary)
                                 }
                                 .pickerStyle(.segmented)
 
                                 Stepper("Duration: \(duration) min", value: $duration, in: 5...180, step: 5)
                                     .font(.body)
+                                    .efText(.primary)
                             }
                         }
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Notes").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
+                                Text("Notes")
+                                    .font(.subheadline)
+                                    .efText(.secondary)
                                 TextEditor(text: $notes).frame(minHeight: 120)
                                     .scrollContentBackground(.hidden)
+                                    .efText(.primary)
                             }
                         }
 
@@ -78,7 +90,8 @@ struct TrainingViewEF: View, Identifiable {
                 }
                 .navigationTitle("Training")
                 .scrollContentBackground(.hidden)
-                .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+                .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
+                .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
                 .navigationBarTitleDisplayMode(.large)
             }
         }

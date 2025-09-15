@@ -8,8 +8,11 @@ struct RecoveryViewEF: View, Identifiable {
     @State private var stretching = false
     @State private var coldShower = false
     @State private var notes: String = ""
+    @EnvironmentObject private var theme: EFThemeManager
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
+        let isDark = theme.isDark(colorScheme)
         ZStack {
             Color("AppBackground").ignoresSafeArea()
             NavigationStack {
@@ -23,10 +26,10 @@ struct RecoveryViewEF: View, Identifiable {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Sleep & Recovery")
                                         .font(.headline)
-                                        .foregroundStyle(Color("TextPrimary"))
+                                        .efText(.primary)
                                     Text("Wind-down and routines")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color("TextSecondary"))
+                                        .efText(.secondary)
                                 }
                                 Spacer()
                             }
@@ -35,18 +38,27 @@ struct RecoveryViewEF: View, Identifiable {
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
                                 DatePicker("Bedtime", selection: $bedtime, displayedComponents: .hourAndMinute)
+                                    .efText(.primary)
                                 Stepper("Wind-down: \(windDown) min", value: $windDown, in: 0...120, step: 5)
+                                    .efText(.primary)
                                 Toggle("Breathwork", isOn: $breathwork)
+                                    .efText(.primary)
                                 Toggle("Stretching", isOn: $stretching)
+                                    .efText(.primary)
                                 Toggle("Cold shower", isOn: $coldShower)
+                                    .efText(.primary)
                             }
                         }
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Notes").font(.subheadline).foregroundStyle(Color("TextSecondary"))
-                                TextEditor(text: $notes).frame(minHeight: 120)
+                                Text("Notes")
+                                    .font(.subheadline)
+                                    .efText(.secondary)
+                                TextEditor(text: $notes)
+                                    .frame(minHeight: 120)
                                     .scrollContentBackground(.hidden)
+                                    .efText(.primary)
                             }
                         }
 
@@ -71,6 +83,8 @@ struct RecoveryViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Recovery")
+                .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
+                .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
                 .efScreenBackground()
             }
         }

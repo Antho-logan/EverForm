@@ -121,7 +121,7 @@ private struct InfoRow: View {
             Image(systemName: icon)
             VStack(alignment: .leading) {
                 Text(title).font(.headline)
-                Text(subtitle).foregroundStyle(.secondary)
+                Text(subtitle).foregroundStyle(.secondary).efText(.secondary)
             }
         }
     }
@@ -142,16 +142,16 @@ struct ScanEmptyStateView: View {
         VStack(spacing: 12) {
             Image(systemName: "camera.viewfinder")
                 .font(.system(size: 32))
-                .foregroundColor(.secondary)
+                .foregroundColor(.secondary).efText(.secondary)
             
             VStack(spacing: 4) {
                 Text("Nothing scanned yet")
                     .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.primary)
+                    .foregroundColor(.primary).efText(.primary)
                 
                 Text("Try a mock result to see how it works")
                     .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.secondary).efText(.secondary)
                     .multilineTextAlignment(.center)
             }
         }

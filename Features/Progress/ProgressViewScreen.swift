@@ -16,6 +16,7 @@ struct ProgressViewScreen: View {
                 VStack(alignment: .leading, spacing: 16) {
                 Text("Progress")
                     .font(.largeTitle.bold())
+                    .efText(.primary)
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
 
@@ -27,6 +28,7 @@ struct ProgressViewScreen: View {
                         } label: {
                             Text(opt.label)
                                 .font(.callout.weight(.semibold))
+                                .efText(.primary)
                                 .padding(.horizontal, 14).padding(.vertical, 8)
                                 .background(range == opt ? Color.blue.opacity(0.2) : Color.clear)
                                 .clipShape(Capsule())
@@ -92,9 +94,9 @@ private struct ProgressSummaryCard: View {
         EFCard {
             HStack {
                 Image(systemName: icon).foregroundStyle(tint)
-                Text(title).font(.headline)
+                Text(title).font(.headline).efText(.primary)
                 Spacer()
-                Text(value).foregroundStyle(.secondary)
+                Text(value).efText(.secondary)
             }
         }
     }
@@ -106,10 +108,10 @@ private struct MetricChart: View {
         EFCard {
             HStack(spacing: 8) {
                 Image(systemName: icon).foregroundStyle(tint)
-                Text(title).font(.headline).foregroundStyle(tint)
+                Text(title).font(.headline).foregroundStyle(tint).efText(.primary)
                 Spacer()
                 Text("\(data.count >= 60 ? "3M" : data.count >= 30 ? "1M" : data.count >= 7 ? "7D" : "1D")")
-                    .foregroundStyle(.secondary)
+                    .efText(.secondary)
             }
             .padding(.bottom, 8)
             Chart(data) {

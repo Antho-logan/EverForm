@@ -28,10 +28,12 @@ struct StartWorkoutSheet: View {
                         Text("Today's Plan")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
+                            .efText(.primary)
                         
                         Text("Ready to crush it?")
                             .font(.system(size: 16, weight: .regular, design: .rounded))
                             .foregroundColor(.secondary)
+                            .efText(.secondary)
                     }
                     
                     // Workout Overview Card
@@ -41,15 +43,18 @@ struct StartWorkoutSheet: View {
                                 Text(todaysWorkout.title)
                                     .font(.system(size: 20, weight: .semibold, design: .rounded))
                                     .foregroundColor(.primary)
+                                    .efText(.primary)
                                 
                                 HStack(spacing: 16) {
                                     Label("\(todaysWorkout.estimatedDuration) min", systemImage: "clock")
                                         .font(.system(size: 14, weight: .medium, design: .rounded))
                                         .foregroundColor(.secondary)
+                                        .efText(.secondary)
                                     
                                     Label("\(todaysWorkout.exercises.count) exercises", systemImage: "dumbbell")
                                         .font(.system(size: 14, weight: .medium, design: .rounded))
                                         .foregroundColor(.secondary)
+                                        .efText(.secondary)
                                 }
                             }
                             
@@ -58,6 +63,7 @@ struct StartWorkoutSheet: View {
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 32))
                                 .foregroundColor(.blue)
+                                .efText(.primary)
                         }
                         
                         Divider()
@@ -67,6 +73,7 @@ struct StartWorkoutSheet: View {
                             Text("Exercises")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundColor(.primary)
+                                .efText(.primary)
                             
                             LazyVStack(spacing: 8) {
                                 ForEach(todaysWorkout.exercises) { exercise in
@@ -78,12 +85,14 @@ struct StartWorkoutSheet: View {
                                         Text(exercise.name)
                                             .font(.system(size: 15, weight: .medium, design: .rounded))
                                             .foregroundColor(.primary)
+                                            .efText(.primary)
                                         
                                         Spacer()
                                         
                                         Text("\(exercise.targetSets) × \(exercise.targetReps)")
                                             .font(.system(size: 14, weight: .regular, design: .rounded))
                                             .foregroundColor(.secondary)
+                                            .efText(.secondary)
                                     }
                                 }
                             }
@@ -107,6 +116,7 @@ struct StartWorkoutSheet: View {
                                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                             }
                             .foregroundColor(.white)
+                            .efText(.inverse)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(.blue)
@@ -119,6 +129,7 @@ struct StartWorkoutSheet: View {
                         }
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
+                        .efText(.secondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(.ultraThinMaterial)

@@ -53,9 +53,11 @@ struct SmartMealLoggerSheet: View {
                     Image(systemName: "camera.viewfinder")
                       .font(.title)
                       .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
+                      .efText(.secondary)
                     Text("Tap to select photo")
                       .font(.subheadline)
                       .foregroundStyle(EnvironmentValues().efTheme.textSecondary)
+                      .efText(.secondary)
                   }
                 }
               }
@@ -69,8 +71,8 @@ struct SmartMealLoggerSheet: View {
               Text("Describe your meal")
                 .font(.headline)
                 .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
-              TextField("e.g., 2 eggs, avocado, buttered toast", text: $textPrompt, axis: .vertical)
-                .darkGlamorousTextFieldStyle()
+                .efText(.primary)
+              EFInputField(placeholder: "e.g., 2 eggs, avocado, buttered toast", text: $textPrompt)
             }
 
             // Analyze button
@@ -88,6 +90,7 @@ struct SmartMealLoggerSheet: View {
             .buttonStyle(.plain)
             .background(canAnalyze ? AppThemeUIV2.ctaNutrition : AppThemeUIV2.ctaNutrition.opacity(0.4))
             .foregroundStyle(Color.white)
+            .efText(.inverse)
             .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             .disabled(!canAnalyze)
 
@@ -97,6 +100,7 @@ struct SmartMealLoggerSheet: View {
                 Text("Estimated Nutrition")
                   .font(.headline)
                   .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
+                .efText(.primary)
                 HStack(spacing: 16) {
                   Tag("Calories", value: "\(e.calories) kcal")
                   Tag("Protein",  value: "\(e.protein) g")
@@ -121,10 +125,11 @@ struct SmartMealLoggerSheet: View {
                 .buttonStyle(.plain)
                 .background(AppThemeUIV2.ctaNutrition)
                 .foregroundStyle(Color.white)
+            .efText(.inverse)
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
               }
               .padding(16)
-              .efCardBackground()
+              .efDarkCardBackground()
             }
           }
           .padding(16)

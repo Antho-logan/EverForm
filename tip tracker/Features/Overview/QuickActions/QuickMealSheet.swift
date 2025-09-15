@@ -34,10 +34,12 @@ struct QuickMealSheet: View {
                         Text("Quick Add Meal")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
                             .foregroundColor(.primary)
+                            .efText(.primary)
                         
                         Text("Manually log your nutrition")
                             .font(.system(size: 16, weight: .regular, design: .rounded))
                             .foregroundColor(.secondary)
+                            .efText(.secondary)
                     }
                     
                     // Form
@@ -47,6 +49,7 @@ struct QuickMealSheet: View {
                             Text("Meal Name (Optional)")
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
                                 .foregroundColor(.secondary)
+                                .efText(.secondary)
                             
                             TextField("e.g., Chicken & Rice", text: $mealName)
                                 .textFieldStyle(CustomTextFieldStyle())
@@ -58,10 +61,12 @@ struct QuickMealSheet: View {
                                 Text("Calories")
                                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                                     .foregroundColor(.secondary)
+                                    .efText(.secondary)
                                 
                                 Text("*")
                                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                                     .foregroundColor(.red)
+                                    .efText(.primary)
                             }
                             
                             TextField("0", text: $calories)
@@ -73,6 +78,7 @@ struct QuickMealSheet: View {
                         Text("Macronutrients (Optional)")
                             .font(.system(size: 16, weight: .semibold, design: .rounded))
                             .foregroundColor(.primary)
+                            .efText(.primary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         HStack(spacing: 16) {
@@ -80,6 +86,7 @@ struct QuickMealSheet: View {
                                 Text("Protein (g)")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundColor(.secondary)
+                                    .efText(.secondary)
                                 
                                 TextField("0", text: $protein)
                                     .keyboardType(.decimalPad)
@@ -90,6 +97,7 @@ struct QuickMealSheet: View {
                                 Text("Carbs (g)")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundColor(.secondary)
+                                    .efText(.secondary)
                                 
                                 TextField("0", text: $carbs)
                                     .keyboardType(.decimalPad)
@@ -100,6 +108,7 @@ struct QuickMealSheet: View {
                                 Text("Fat (g)")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundColor(.secondary)
+                                    .efText(.secondary)
                                 
                                 TextField("0", text: $fat)
                                     .keyboardType(.decimalPad)
@@ -112,6 +121,7 @@ struct QuickMealSheet: View {
                             Text("Quick Presets")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundColor(.primary)
+                                .efText(.primary)
                             
                             LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
                                 PresetButton(title: "Protein Shake", calories: 150, protein: 25, carbs: 5, fat: 2) {
@@ -150,6 +160,7 @@ struct QuickMealSheet: View {
                                     .font(.system(size: 16, weight: .semibold, design: .rounded))
                             }
                             .foregroundColor(isValid ? .white : .secondary)
+                            .efText(isValid ? .inverse : .secondary)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
                             .background(isValid ? .blue : .gray.opacity(0.3))
@@ -163,6 +174,7 @@ struct QuickMealSheet: View {
                         }
                         .font(.system(size: 16, weight: .medium, design: .rounded))
                         .foregroundColor(.secondary)
+                        .efText(.secondary)
                         .frame(maxWidth: .infinity)
                         .frame(height: 50)
                         .background(.ultraThinMaterial)
@@ -251,11 +263,13 @@ struct PresetButton: View {
                 Text(title)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundColor(.primary)
+                    .efText(.primary)
                     .multilineTextAlignment(.leading)
                 
                 Text("\(calories) kcal")
                     .font(.system(size: 12, weight: .medium, design: .rounded))
                     .foregroundColor(.secondary)
+                    .efText(.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
@@ -299,16 +313,19 @@ struct MealChoiceSheet: View {
                         Image(systemName: "camera.viewfinder")
                             .font(.system(size: 20))
                             .foregroundColor(.blue)
+                            .efText(.primary)
                             .frame(width: 24)
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Scan Calories")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundColor(.primary)
+                                .efText(.primary)
                             
                             Text("Use camera to scan barcode or label")
                                 .font(.system(size: 14, weight: .regular, design: .rounded))
                                 .foregroundColor(.secondary)
+                                .efText(.secondary)
                         }
                         
                         Spacer()
@@ -316,6 +333,7 @@ struct MealChoiceSheet: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.secondary)
+                            .efText(.secondary)
                     }
                     .padding(16)
                     .background(.ultraThinMaterial)
@@ -331,16 +349,19 @@ struct MealChoiceSheet: View {
                         Image(systemName: "plus.circle")
                             .font(.system(size: 20))
                             .foregroundColor(.green)
+                            .efText(.primary)
                             .frame(width: 24)
                         
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Quick Add")
                                 .font(.system(size: 16, weight: .semibold, design: .rounded))
                                 .foregroundColor(.primary)
+                                .efText(.primary)
                             
                             Text("Manually enter calories and macros")
                                 .font(.system(size: 14, weight: .regular, design: .rounded))
                                 .foregroundColor(.secondary)
+                                .efText(.secondary)
                         }
                         
                         Spacer()
@@ -348,6 +369,7 @@ struct MealChoiceSheet: View {
                         Image(systemName: "chevron.right")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(.secondary)
+                            .efText(.secondary)
                     }
                     .padding(16)
                     .background(.ultraThinMaterial)

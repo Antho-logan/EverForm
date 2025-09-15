@@ -29,7 +29,7 @@ struct StepGoalsView: View {
                 
                 Text("What would you like to achieve?")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.secondary).efText(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding(.bottom, 8)
@@ -40,7 +40,7 @@ struct StepGoalsView: View {
                         .font(.headline)
                     Text("Short, specific outcomes for the next 30–90 days")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.secondary).efText(.secondary)
                 }
                 
                 // Add new goal
@@ -77,7 +77,7 @@ struct StepGoalsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Your Goals (\(draft.goals.count)/3)")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.secondary).efText(.secondary)
                         
                         ForEach(Array(draft.goals.enumerated()), id: \.offset) { index, goal in
                             HStack {
@@ -89,7 +89,7 @@ struct StepGoalsView: View {
                                     removeGoal(at: index)
                                 } label: {
                                     Image(systemName: "xmark.circle.fill")
-                                        .foregroundColor(.secondary)
+                                        .foregroundColor(.secondary).efText(.secondary)
                                 }
                                 .accessibilityLabel("Remove goal: \(goal)")
                             }
@@ -105,7 +105,7 @@ struct StepGoalsView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Popular goals")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.secondary).efText(.secondary)
                         
                         LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 1), spacing: 8) {
                             ForEach(goalSuggestions, id: \.self) { suggestion in

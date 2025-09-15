@@ -58,11 +58,13 @@ struct ReadinessRing: View {
                             .font(DesignSystem.Typography.monospacedNumber(size: 32, relativeTo: .largeTitle))
                             .fontWeight(.bold)
                             .foregroundColor(ringColor)
+                            .efText(.primary)
                             .contentTransition(.numericText())
                         
                         Text("Readiness")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                     }
                 }
                 
@@ -73,10 +75,12 @@ struct ReadinessRing: View {
                             .font(DesignSystem.Typography.monospacedNumber(size: 16, relativeTo: .callout))
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         Text("RHR")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                     }
                     
                     VStack(spacing: 2) {
@@ -84,10 +88,12 @@ struct ReadinessRing: View {
                             .font(DesignSystem.Typography.monospacedNumber(size: 16, relativeTo: .callout))
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         Text("HRV")
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                     }
                 }
             }

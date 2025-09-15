@@ -59,6 +59,7 @@ struct ButtonPrimary: View {
                     Text(title)
                         .font(DesignSystem.Typography.buttonLarge())
                         .fontWeight(.semibold)
+                        .efText(.primary)
                 }
             }
             .frame(maxWidth: .infinity)
@@ -124,6 +125,7 @@ struct ButtonSecondary: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: DesignSystem.TouchTarget.minimum)
                 .foregroundColor(isDisabled ? DesignSystem.Colors.textTertiary : DesignSystem.Colors.accent)
+                .efText(.primary)
                 .background(
                     RoundedRectangle(cornerRadius: DesignSystem.Radius.md)
                         .fill(DesignSystem.Colors.backgroundSecondary)
@@ -174,6 +176,7 @@ struct TextFieldPrimary: View {
             Text(label)
                 .font(DesignSystem.Typography.labelMedium())
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .efText(.secondary)
             
             Group {
                 if isSecure {
@@ -184,6 +187,7 @@ struct TextFieldPrimary: View {
             }
             .font(DesignSystem.Typography.bodyLarge())
             .foregroundColor(DesignSystem.Colors.textPrimary)
+            .efText(.primary)
             .keyboardType(keyboardType)
             .textContentType(textContentType)
             .autocorrectionDisabled(keyboardType == .emailAddress)
@@ -297,6 +301,7 @@ struct StatCard: View {
                 Text(title)
                     .font(DesignSystem.Typography.labelMedium())
                     .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .efText(.secondary)
                     .opacity(isVisible ? 1.0 : 0.0)
                     .offset(y: isVisible ? 0 : 10)
                     .animation(DesignSystem.Animation.springSlow.delay(0.1), value: isVisible)
@@ -305,6 +310,7 @@ struct StatCard: View {
                     .font(DesignSystem.Typography.monospacedNumber(size: 32, relativeTo: .title))
                     .fontWeight(.bold)
                     .foregroundColor(accentColor)
+                    .efText(.primary)
                     .contentTransition(.numericText(countsDown: false))
                     .opacity(isVisible ? 1.0 : 0.0)
                     .offset(y: isVisible ? 0 : 10)
@@ -313,6 +319,7 @@ struct StatCard: View {
                 Text(subtitle)
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.textTertiary)
+                    .efText(.muted)
                     .opacity(isVisible ? 1.0 : 0.0)
                     .offset(y: isVisible ? 0 : 10)
                     .animation(DesignSystem.Animation.springSlow.delay(0.3), value: isVisible)
@@ -364,6 +371,7 @@ struct NavBar: View {
                         Image(systemName: "chevron.left")
                             .font(.system(size: DesignSystem.IconSize.medium, weight: .medium))
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                             .frame(width: DesignSystem.TouchTarget.minimum, height: DesignSystem.TouchTarget.minimum)
                             .contentShape(Rectangle())
                     }
@@ -382,12 +390,14 @@ struct NavBar: View {
                         .font(DesignSystem.Typography.titleLarge())
                         .fontWeight(.semibold)
                         .foregroundColor(DesignSystem.Colors.textPrimary)
+                        .efText(.primary)
                         .multilineTextAlignment(.center)
                     
                     if let subtitle {
                         Text(subtitle)
                             .font(DesignSystem.Typography.caption())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                             .multilineTextAlignment(.center)
                     }
                 }
@@ -404,6 +414,7 @@ struct NavBar: View {
                         Image(systemName: "gear")
                             .font(.system(size: DesignSystem.IconSize.medium, weight: .medium))
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                             .frame(width: DesignSystem.TouchTarget.minimum, height: DesignSystem.TouchTarget.minimum)
                             .contentShape(Rectangle())
                     }
@@ -489,6 +500,7 @@ struct TabBarItemPrimary: View {
                     Image(systemName: icon)
                         .font(.system(size: DesignSystem.IconSize.small, weight: isSelected ? .semibold : .medium))
                         .foregroundColor(isSelected ? DesignSystem.Colors.accent : DesignSystem.Colors.textSecondary)
+                        .efText(isSelected ? .primary : .secondary)
                         .scaleEffect(isSelected ? 1.1 : 1.0)
                         .animation(DesignSystem.Animation.springFast, value: isSelected)
                 }
@@ -496,6 +508,7 @@ struct TabBarItemPrimary: View {
                 Text(title)
                     .font(DesignSystem.Typography.labelSmall())
                     .foregroundColor(isSelected ? DesignSystem.Colors.accent : DesignSystem.Colors.textSecondary)
+                    .efText(isSelected ? .primary : .secondary)
                     .scaleEffect(isSelected ? 1.05 : 1.0)
                     .animation(DesignSystem.Animation.springFast, value: isSelected)
             }

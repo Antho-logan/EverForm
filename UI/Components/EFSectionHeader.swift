@@ -62,7 +62,7 @@ public struct EFSectionHeader: View {
         .padding(.vertical, style == .plain ? 8 : 12)
         .background(
             style == .card ? 
-            AnyShapeStyle(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color(hex: "232529"))) :
+            AnyShapeStyle(Color(hex: "232529")) :
             AnyShapeStyle(Color.clear)
         )
     }
@@ -140,7 +140,7 @@ extension EFSectionHeader {
 
 // MARK: - Card Background Extension
 extension View {
-    func efCardBackground() -> some View {
+    func efDarkCardBackground() -> some View {
         self
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -152,7 +152,7 @@ extension View {
             )
     }
     
-    func efElevatedCardBackground() -> some View {
+    func efDarkElevatedCardBackground() -> some View {
         self
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)

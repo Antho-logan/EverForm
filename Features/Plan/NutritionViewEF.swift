@@ -103,6 +103,8 @@ fileprivate struct NUTRMacros: Equatable {
 struct NutritionViewEF: View, Identifiable {
     let id = UUID()
     @EnvironmentObject private var journalStore: JournalStore
+    @EnvironmentObject private var theme: EFThemeManager
+    @Environment(\.colorScheme) private var colorScheme
     @State private var nutrSelected: NUTRMealKind = .lunch
     @State private var nutrValues: [NUTRMealKind: NUTRMacros] =
         Dictionary(uniqueKeysWithValues: NUTRMealKind.allCases.map { ($0, .init()) })
@@ -169,7 +171,8 @@ struct NutritionViewEF: View, Identifiable {
     }
 
     var body: some View {
-        NavigationStack {
+        let isDark = theme.isDark(colorScheme)
+        return NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                         // Smart Log (AI) CTA
@@ -206,10 +209,10 @@ struct NutritionViewEF: View, Identifiable {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Manual Log")
                                         .font(.headline)
-                                        .foregroundStyle(Color(hex: "FFFFFF"))
+                                        .efText(.primary)
                                     Text("Log food and macros")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color(hex: "A0A0A0"))
+                                        .efText(.secondary)
                                 }
                                 Spacer()
                             }
@@ -217,13 +220,17 @@ struct NutritionViewEF: View, Identifiable {
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Type").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
+                                Text("Type")
+                                    .font(.subheadline)
+                                    .efText(.secondary)
                                 Picker("", selection: Binding(
                                     get: { nutrSelected.rawValue },
                                     set: { nutrSelected = NUTRMealKind(rawValue: $0) ?? .lunch }
                                 )) {
                                     ForEach(NUTRMealKind.allCases) { meal in
-                                        Text(meal.title).tag(meal.rawValue)
+                                        Text(meal.title)
+                                            .tag(meal.rawValue)
+                                            .efText(.primary)
                                     }
                                 }
                                 .pickerStyle(.segmented)
@@ -234,32 +241,40 @@ struct NutritionViewEF: View, Identifiable {
                                            set: { nutrCurrent.wrappedValue.calories = $0 }
                                        ), 
                                        in: 0...2500, step: 50)
+                                    .efText(.primary)
                                 Stepper("Protein: \(nutrCurrent.wrappedValue.protein) g", 
                                        value: Binding(
                                            get: { nutrCurrent.wrappedValue.protein },
                                            set: { nutrCurrent.wrappedValue.protein = $0 }
                                        ), 
                                        in: 0...200, step: 5)
+                                    .efText(.primary)
                                 Stepper("Carbs: \(nutrCurrent.wrappedValue.carbs) g", 
                                        value: Binding(
                                            get: { nutrCurrent.wrappedValue.carbs },
                                            set: { nutrCurrent.wrappedValue.carbs = $0 }
                                        ), 
                                        in: 0...300, step: 5)
+                                    .efText(.primary)
                                 Stepper("Fat: \(nutrCurrent.wrappedValue.fat) g", 
                                        value: Binding(
                                            get: { nutrCurrent.wrappedValue.fat },
                                            set: { nutrCurrent.wrappedValue.fat = $0 }
                                        ), 
                                        in: 0...150, step: 5)
+                                    .efText(.primary)
                             }
                         }
 
                         EFCard {
                             VStack(alignment: .leading, spacing: 12) {
-                                Text("Notes").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
-                                TextEditor(text: $nutrNotes).frame(minHeight: 120)
+                                Text("Notes")
+                                    .font(.subheadline)
+                                    .efText(.secondary)
+                                TextEditor(text: $nutrNotes)
+                                    .frame(minHeight: 120)
                                     .scrollContentBackground(.hidden)
+                                    .efText(.primary)
                             }
                         }
 
@@ -286,7 +301,8 @@ struct NutritionViewEF: View, Identifiable {
             }
             .scrollContentBackground(.hidden)
             .background(Color(hex: "0B0B0D").ignoresSafeArea())
-            .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+            .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
+            .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Nutrition")
             .navigationBarTitleDisplayMode(.large)

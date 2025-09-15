@@ -249,7 +249,7 @@ struct OverviewView: View {
                 }
             }
             .padding(16)
-            .efCardBackground()
+            .efDarkCardBackground()
         }
         .buttonStyle(.plain)
     }
@@ -270,7 +270,7 @@ struct OverviewView: View {
             }
             .frame(minWidth: 72, minHeight: 72)
             .padding(12)
-            .efCardBackground()
+            .efDarkCardBackground()
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -282,12 +282,13 @@ struct OverviewView: View {
 // MARK: - Plain Section Header for Dark Mode
 struct EFSectionHeaderPlain: View {
     let title: String
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject private var theme: EFThemeManager
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Text(title)
             .font(.title2.weight(.semibold))
-            .foregroundColor(colorScheme == .dark ? .white : Color.primary)
+            .efText(.primary)
             .padding(.horizontal)
             .padding(.top, 8)
     }
@@ -302,12 +303,12 @@ private struct KPICard: View {
                 .foregroundStyle(Color(hex: "0A84FF"))
             Text(title)
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(Color(hex: "FFFFFF"))
+                .efText(.primary)
             Text(subtitle)
                 .font(.caption)
-                .foregroundStyle(Color(hex: "A0A0A0"))
+                .efText(.muted)
         }
         .padding(16)
-        .efCardBackground()
+        .efDarkCardBackground()
     }
 }

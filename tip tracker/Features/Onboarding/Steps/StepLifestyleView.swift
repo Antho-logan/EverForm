@@ -19,7 +19,7 @@ struct StepLifestyleView: View {
                 
                 Text("Help us understand your goals and habits")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.secondary).efText(.secondary)
                     .multilineTextAlignment(.center)
             }
             
@@ -70,7 +70,7 @@ struct StepLifestyleView: View {
                             .font(.headline)
                         Text("Pick one (or skip)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.secondary).efText(.secondary)
                     }
                     
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 8) {
@@ -97,7 +97,7 @@ struct StepLifestyleView: View {
                             .font(.headline)
                         Text("Type and press return to add")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.secondary).efText(.secondary)
                     }
                     
                     // Add new allergy
@@ -132,7 +132,7 @@ struct StepLifestyleView: View {
                                         removeAllergy(allergy)
                                     } label: {
                                         Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.secondary)
+                                            .foregroundColor(.secondary).efText(.secondary)
                                     }
                                     .accessibilityLabel("Remove \(allergy)")
                                 }

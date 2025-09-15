@@ -165,7 +165,7 @@ struct ScanSheetView: View {
                 
                 Text("Position your plate in the frame and tap the camera button")
                     .font(DesignSystem.Typography.bodyMedium())
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .foregroundColor(DesignSystem.Colors.textSecondary).efText(.secondary)
                     .multilineTextAlignment(.center)
             }
             .padding()
@@ -189,7 +189,7 @@ struct ScanSheetView: View {
             
             Text("Camera scanning is not available in the simulator. Tap the button below to test with mock data.")
                 .font(DesignSystem.Typography.bodyMedium())
-                .foregroundColor(DesignSystem.Colors.textSecondary)
+                .foregroundColor(DesignSystem.Colors.textSecondary).efText(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
@@ -215,7 +215,7 @@ struct ScanSheetView: View {
             
             Text("Please grant camera access to scan food labels and barcodes.")
                 .font(DesignSystem.Typography.bodyMedium())
-                .foregroundColor(DesignSystem.Colors.textSecondary)
+                .foregroundColor(DesignSystem.Colors.textSecondary).efText(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
@@ -237,7 +237,7 @@ struct ScanSheetView: View {
                     .foregroundColor(DesignSystem.Colors.accent)
                 Text(selectedMode.instructionText)
                     .font(DesignSystem.Typography.bodyMedium())
-                    .foregroundColor(.white)
+                    .foregroundColor(.white).efText(.inverse)
                 Spacer()
             }
             .padding()
@@ -267,7 +267,7 @@ struct ScanSheetView: View {
             }
             .frame(height: DesignSystem.TouchTarget.minimum)
             .frame(maxWidth: .infinity)
-            .foregroundColor(.white)
+            .foregroundColor(.white).efText(.inverse)
             .background(
                 RoundedRectangle(cornerRadius: DesignSystem.Radius.md)
                     .fill(isScanning ? DesignSystem.Colors.neutral400 : DesignSystem.Colors.accent)

@@ -16,6 +16,7 @@ struct ProgressDashboardView: View {
                 // Title
                 Text("Progress")
                     .font(.largeTitle.weight(.bold))
+                    .efText(.primary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 8)
 
@@ -44,6 +45,7 @@ struct ProgressDashboardView: View {
                 } label: {
                     Text(r.rawValue)
                         .font(.subheadline.weight(.semibold))
+                        .efText(.primary)
                         .padding(.horizontal, 12).padding(.vertical, 8)
                         .background(store.range == r ? Color.accentColor.opacity(0.18) : Color.secondary.opacity(0.12))
                         .foregroundStyle(store.range == r ? Color.accentColor : .primary)
@@ -69,9 +71,10 @@ struct ProgressDashboardView: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(kind.title)
                             .font(.headline)
+                            .efText(.primary)
                         Text("\(format(tuple.value)) \(kind.unit)")
                             .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                            .efText(.secondary)
                     }
                     Spacer(minLength: 0)
                 }
@@ -93,7 +96,7 @@ struct ProgressDashboardView: View {
                             .foregroundStyle(kind.color)
                         Spacer()
                         Text(store.range.rawValue)
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(.caption).efText(.secondary)
                     }
 
                     #if canImport(Charts)
@@ -143,7 +146,7 @@ struct ProgressDashboardView: View {
                     Text(format(p.value) + " " + kind.unit)
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .efText(.secondary)
             }
         }
     }

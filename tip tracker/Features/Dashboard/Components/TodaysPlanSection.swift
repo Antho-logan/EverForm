@@ -17,6 +17,7 @@ struct TodaysPlanSection: View {
                 .font(DesignSystem.Typography.titleMedium())
                 .fontWeight(.semibold)
                 .foregroundColor(DesignSystem.Colors.textPrimary)
+                .efText(.primary)
 
             VStack(spacing: DesignSystem.Spacing.sm) {
                 PlanCard(
@@ -95,6 +96,7 @@ private struct PlanCard: View {
                             .font(DesignSystem.Typography.titleSmall())
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         Spacer()
                         
@@ -102,6 +104,7 @@ private struct PlanCard: View {
                             Text("Explain")
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(accentColor)
+                                .efText(.primary)
                                 .padding(.horizontal, DesignSystem.Spacing.sm)
                                 .padding(.vertical, DesignSystem.Spacing.xs)
                                 .background(
@@ -115,6 +118,7 @@ private struct PlanCard: View {
                     Text(subtitle)
                         .font(DesignSystem.Typography.bodyMedium())
                         .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .efText(.secondary)
                         .lineLimit(1)
                     
                     Spacer()
@@ -128,6 +132,7 @@ private struct PlanCard: View {
                                 .font(DesignSystem.Typography.bodyMedium())
                                 .fontWeight(.medium)
                                 .foregroundColor(accentColor)
+                                .efText(.primary)
                             
                             Image(systemName: "arrow.right.circle.fill")
                                 .font(.system(size: 16, weight: .medium))

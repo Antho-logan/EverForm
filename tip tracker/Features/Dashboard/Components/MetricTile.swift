@@ -39,6 +39,7 @@ struct MetricTile: View {
                         Text(title)
                             .font(DesignSystem.Typography.labelMedium())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                     }
                     
                     Spacer()
@@ -52,6 +53,7 @@ struct MetricTile: View {
                             Text("Loading...")
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.textTertiary)
+                                .efText(.muted)
                         }
                     } else {
                         HStack(alignment: .lastTextBaseline, spacing: 2) {
@@ -59,11 +61,13 @@ struct MetricTile: View {
                                 .font(DesignSystem.Typography.monospacedNumber(size: 24, relativeTo: .title2))
                                 .fontWeight(.bold)
                                 .foregroundColor(DesignSystem.Colors.textPrimary)
+                                .efText(.primary)
                                 .contentTransition(.numericText())
                             
                             Text(unit)
                                 .font(DesignSystem.Typography.caption())
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                                .efText(.secondary)
                         }
                     }
                 }

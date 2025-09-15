@@ -38,10 +38,12 @@ struct CoachCard: View {
                             .font(DesignSystem.Typography.titleSmall())
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         Text("Natural guidance with citations")
                             .font(DesignSystem.Typography.bodyMedium())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                             .lineLimit(2)
                     }
                     
@@ -113,6 +115,7 @@ struct InsightChip: View {
                 Text(text)
                     .font(DesignSystem.Typography.caption())
                     .foregroundColor(DesignSystem.Colors.textPrimary)
+                    .efText(.primary)
             }
             .padding(.horizontal, DesignSystem.Spacing.sm)
             .padding(.vertical, DesignSystem.Spacing.xs)

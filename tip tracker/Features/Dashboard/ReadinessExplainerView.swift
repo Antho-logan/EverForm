@@ -35,10 +35,12 @@ struct ReadinessExplainerView: View {
                             .font(DesignSystem.Typography.displayMedium())
                             .fontWeight(.bold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         Text("Your readiness score indicates how prepared your body is for training based on recovery metrics.")
                             .font(DesignSystem.Typography.bodyLarge())
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .efText(.secondary)
                     }
                     
                     // Metrics Explanation
@@ -47,6 +49,7 @@ struct ReadinessExplainerView: View {
                             .font(DesignSystem.Typography.sectionHeader())
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         MetricExplanationRow(
                             icon: "heart.fill",
@@ -76,6 +79,7 @@ struct ReadinessExplainerView: View {
                             .font(DesignSystem.Typography.sectionHeader())
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         VStack(spacing: DesignSystem.Spacing.sm) {
                             ScoreRangeRow(range: "80-100", description: "Excellent - Ready for intense training", color: .green)
@@ -91,6 +95,7 @@ struct ReadinessExplainerView: View {
                             .font(DesignSystem.Typography.sectionHeader())
                             .fontWeight(.semibold)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .efText(.primary)
                         
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                             TipRow(text: "Maintain consistent sleep schedule")
@@ -142,10 +147,12 @@ struct MetricExplanationRow: View {
                     .font(DesignSystem.Typography.titleSmall())
                     .fontWeight(.medium)
                     .foregroundColor(DesignSystem.Colors.textPrimary)
+                    .efText(.primary)
                 
                 Text(description)
                     .font(DesignSystem.Typography.bodyMedium())
                     .foregroundColor(DesignSystem.Colors.textSecondary)
+                    .efText(.secondary)
             }
         }
     }
@@ -162,11 +169,13 @@ struct ScoreRangeRow: View {
                 .font(DesignSystem.Typography.monospacedNumber(size: 14, relativeTo: .callout))
                 .fontWeight(.semibold)
                 .foregroundColor(color)
+                .efText(.primary)
                 .frame(width: 60, alignment: .leading)
             
             Text(description)
                 .font(DesignSystem.Typography.bodyMedium())
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .efText(.secondary)
             
             Spacer()
         }
@@ -182,10 +191,12 @@ struct TipRow: View {
             Text("•")
                 .font(DesignSystem.Typography.bodyMedium())
                 .foregroundColor(DesignSystem.Colors.accent)
+                .efText(.primary)
             
             Text(text)
                 .font(DesignSystem.Typography.bodyMedium())
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .efText(.secondary)
         }
     }
 }
