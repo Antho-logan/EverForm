@@ -18,6 +18,8 @@ struct OverviewView: View {
     private var isDark: Bool { colorScheme == .dark }
 
     // MARK: - Calories (today)
+
+    // MARK: - Calories (today)
     private var ov_todayCalories: Int {
         return journalStore.todaysTotalCalories
     }
@@ -93,10 +95,8 @@ struct OverviewView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color(hex: "0B0B0D").ignoresSafeArea())
-            .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Overview")
-            .navigationBarTitleDisplayMode(.large)
+            .overviewNavStyle()
             .onAppear { NavBlendLocal.apply() }
             .onDisappear { EFNavBarStyler.resetToDefault() }
             .toolbar {
@@ -283,14 +283,29 @@ struct OverviewView: View {
 struct EFSectionHeaderPlain: View {
     let title: String
     @EnvironmentObject private var theme: EFThemeManager
-    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         Text(title)
-            .font(.title2.weight(.semibold))
-            .efText(.primary)
-            .padding(.horizontal)
-            .padding(.top, 8)
+            .efHeaderTitle()
+    }
+}
+
+// MARK: - Overview-specific styling
+private struct OverviewNavTitleStyle: ViewModifier {
+    @Environment(\.colorScheme) private var scheme
+    
+    func body(content: Content) -> some View {
+        content
+            .toolbarColorScheme(scheme == .dark ? .dark : .light, for: .navigationBar)
+            .toolbarBackground(scheme == .dark ? Color(hex: "111214") : Color(hex: "111214"), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+private extension View {
+    func overviewNavStyle() -> some View {
+        modifier(OverviewNavTitleStyle())
     }
 }
 
