@@ -30,6 +30,7 @@ struct EverFormApp: App {
     var body: some Scene {
         WindowGroup {
             RootSwitcher()
+                .efProvideTextTheme()
                 .environment(appearance)
                 // Inject Observation (@Observable) stores
                 .environment(appRouter)
@@ -47,7 +48,7 @@ struct EverFormApp: App {
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(nil) // Let system handle based on theme manager
+                .preferredColorScheme(nil as ColorScheme?) // Let system handle based on theme manager
 
                 .onAppear {
                     print("EverForm launched; stores injected")
@@ -64,6 +65,7 @@ struct EverFormApp: App {
     private func RootSwitcher() -> some View {
         if forceDiag {
             DiagBootView { forceDiag = false }
+                .efProvideTextTheme()
                 .environment(appearance)
                 .environment(appRouter)
                 .environment(workoutStore)
@@ -77,7 +79,7 @@ struct EverFormApp: App {
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(nil) // Let system handle based on theme manager
+                .preferredColorScheme(nil as ColorScheme?) // Let system handle based on theme manager
         } else {
             ContentView()
         }

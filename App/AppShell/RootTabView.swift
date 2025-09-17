@@ -8,6 +8,7 @@ struct RootTabView: View {
     @StateObject private var theme = EFTheme()
     @State private var tab: Int = 0
     @State private var settingsRoute: EFRoute?
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         TabView(selection: $tab) {
@@ -32,6 +33,12 @@ struct RootTabView: View {
         .tint(DSColor.accentPrimary)
         // Override color scheme if user chose Light/Dark in Display
         .environment(\.colorScheme, theme.colorSchemeOverride)
+        .onAppear {
+            EFNavBarAppearance.apply(for: colorScheme)
+        }
+        .onChange(of: colorScheme) { newScheme in
+            EFNavBarAppearance.apply(for: newScheme)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .efRoute)) { n in
             guard let route = n.object as? EFRoute else { return }
             switch route {

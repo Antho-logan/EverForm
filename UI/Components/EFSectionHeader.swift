@@ -7,6 +7,7 @@ public struct EFSectionHeader: View {
     let icon: String?
     let accentColor: Color?
     let style: HeaderStyle
+    @Environment(\.efTextTheme) private var theme
     
     public enum HeaderStyle {
         case standard
@@ -41,12 +42,12 @@ public struct EFSectionHeader: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(Color(hex: "FFFFFF"))
+                        .foregroundStyle(theme.headerPrimary)
                     
                     if let subtitle = subtitle {
                         Text(subtitle)
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Color(hex: "A0A0A0"))
+                            .foregroundStyle(theme.headerSecondary)
                     }
                 }
                 

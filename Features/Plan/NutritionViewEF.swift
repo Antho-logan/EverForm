@@ -186,10 +186,10 @@ struct NutritionViewEF: View, Identifiable {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Smart Log (AI)")
                                         .font(.headline)
-                                        .foregroundStyle(Color(hex: "FFFFFF"))
+                                        .efText(.primary)
                                     Text("Photo or text input")
                                         .font(.subheadline)
-                                        .foregroundStyle(Color(hex: "A0A0A0"))
+                                        .efText(.secondary)
                                 }
                                 Spacer()
                                 Image(systemName: "chevron.right")

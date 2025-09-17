@@ -16,17 +16,9 @@ final class EFThemeManager: ObservableObject, @unchecked Sendable {
   func apply(style: EFThemeStyle) { self.style = style; applyNavBar() }
 
   func applyNavBar() {
-    let appearance = UINavigationBarAppearance()
-    appearance.shadowColor = .clear
-    if style == .dark {
-      appearance.backgroundColor = UIColor(red: 11/255, green: 14/255, blue: 16/255, alpha: 1)
-      appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
-      appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
-    } else {
-      appearance.configureWithDefaultBackground()
-    }
-    UINavigationBar.appearance().standardAppearance = appearance
-    UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    // Use the centralized navigation bar appearance system
+    let scheme: ColorScheme = style == .dark ? .dark : .light
+    EFNavBarAppearance.apply(for: scheme)
   }
 }
 

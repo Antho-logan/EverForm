@@ -93,7 +93,7 @@ struct CoachView: View {
                 return Color(hex: "0A84FF")
             }
         }()
-        let fg: Color = Color(hex: "FFFFFF")
+        let fg: Color = .primary
 
         Text(text)
             .font(.body)

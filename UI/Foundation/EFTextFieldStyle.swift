@@ -21,7 +21,7 @@ public struct EFTextFieldStyle: TextFieldStyle {
                     .stroke(isDarkGlamorous ? Color(hex: "0A84FF").opacity(0.3) : Color(hex: "383A3E"), lineWidth: 1)
             )
             .font(.system(size: 16, weight: .medium))
-            .foregroundStyle(Color(hex: "FFFFFF"))
+            .foregroundStyle(.primary)
             .accentColor(Color(hex: "0A84FF"))
     }
 }
@@ -52,7 +52,7 @@ extension View {
                     .stroke(Color(hex: "0A84FF").opacity(0.3), lineWidth: 1)
             )
             .font(.system(size: 16, weight: .medium))
-            .foregroundStyle(Color(hex: "FFFFFF"))
+            .foregroundStyle(.primary)
             .accentColor(Color(hex: "0A84FF"))
     }
 }

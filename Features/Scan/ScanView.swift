@@ -3,6 +3,7 @@ import SwiftUI
 struct ScanView: View {
     @EnvironmentObject private var appearance: AppearanceStore
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.efTextTheme) private var textTheme
     
     private var isDark: Bool { colorScheme == .dark }
     
@@ -14,9 +15,9 @@ struct ScanView: View {
                     
                     EFCard {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Calorie & Macros").font(.headline).foregroundStyle(Color(hex: "FFFFFF"))
+                            Text("Calorie & Macros").font(.headline).foregroundStyle(textTheme.headerPrimary)
                             Text("Scan barcode or nutrition label for accurate calorie and macro information")
-                                .font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
+                                .font(.subheadline).foregroundStyle(textTheme.headerSecondary)
                             Button("Generate Mock Result") {}
                                 .frame(maxWidth: .infinity).padding(.vertical, 12)
                                 .background(DSColor.accentNutrition)
@@ -31,9 +32,9 @@ struct ScanView: View {
                     
                     EFCard {
                         VStack(spacing: 12) {
-                            Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(Color(hex: "A0A0A0"))
-                            Text("Nothing scanned yet").font(.headline).foregroundStyle(Color(hex: "FFFFFF"))
-                            Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(Color(hex: "A0A0A0"))
+                            Image(systemName: "viewfinder").font(.largeTitle).foregroundStyle(textTheme.headerSecondary)
+                            Text("Nothing scanned yet").font(.headline).foregroundStyle(textTheme.headerPrimary)
+                            Text("Try a mock result to see how it works").font(.subheadline).foregroundStyle(textTheme.headerSecondary)
                         }.frame(maxWidth: .infinity)
                     }
                 }
@@ -60,7 +61,7 @@ private struct SegmentedTabs: View {
             ForEach(items.indices, id: \.self) { i in
                 Text(items[i])
                     .font(.subheadline.weight(i == idx ? .bold : .regular))
-                    .foregroundStyle(i == idx ? Color(hex: "FFFFFF") : Color(hex: "A0A0A0"))
+                    .efText(i == idx ? .primary : .secondary)
                     .padding(.vertical, 8).padding(.horizontal, 14)
                     .background(Color(hex: "232529").opacity(i == idx ? 1 : 0.7))
                     .clipShape(Capsule())
