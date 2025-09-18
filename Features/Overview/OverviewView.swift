@@ -1,17 +1,9 @@
 import SwiftUI
 import UIKit
 
-struct AnchorKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
 struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
-    @State private var avatarAnchorRect: CGRect = .zero
     @Environment(HydrationService.self) private var hydrationService
     @EnvironmentObject private var journalStore: JournalStore
     @EnvironmentObject private var appearance: AppearanceStore
@@ -22,7 +14,7 @@ struct OverviewView: View {
     @State private var toastText: String? = nil
     @State private var customMl: String = ""
     @AppStorage("profile.weight") private var lastWeight: String = ""
-    
+
     private var isDark: Bool { colorScheme == .dark }
 
     // MARK: - Layout
@@ -99,24 +91,22 @@ struct OverviewView: View {
             .scrollContentBackground(.hidden)
             .background(DSColor.bg.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) {
-                EFPinnedHeader("Overview") {
-                    Button {
-                        showProfileMenu = true
-                    } label: {
-                        ZStack {
-                            Circle().fill(DSColor.card)
-                                .frame(width: 30, height: 30)
-                            Image(systemName: "person.fill")
-                                .foregroundStyle(DSColor.accentPrimary)
-                                .font(.system(size: 16, weight: .semibold))
-                        }
-                        .background(GeometryReader { geometry in
-                            Color.clear
-                                .preference(key: AnchorKey.self, value: geometry.frame(in: .global))
-                        })
-                    }
-                }
+                OverviewHeader(
+                    title: "Overview",
+                    showMenu: $showProfileMenu,
+                    onTapProfile: { showProfileMenu = true },
+                    onProfile: { route = .profile },
+                    onDisplay: { route = .display },
+                    onSecurity: { route = .security },
+                    onExport: { route = .export },
+                    onHelp: { route = .help },
+                    onReport: { route = .report }
+                )
+                .padding(.horizontal, EFSpacing.page)
+                .padding(.bottom, 6)
+                .background(DSColor.bg)
             }
             .onAppear { NavBlendLocal.apply() }
             .onDisappear { EFNavBarStyler.resetToDefault() }
@@ -133,25 +123,10 @@ struct OverviewView: View {
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
-              .onPreferenceChange(AnchorKey.self) { anchorRect in
-                self.avatarAnchorRect = anchorRect
-            }
-            .overlay(alignment: .topLeading) {
-                if showProfileMenu {
-                    ProfileMenuPopover(
-                        anchorRect: avatarAnchorRect,
-                        safeBounds: UIScreen.main.bounds,
-                        onDismiss: { showProfileMenu = false },
-                        name: "User",
-                        email: "user@example.com",
-                        onProfile: { route = .profile },
-                        onDisplay: { route = .display },
-                        onSecurity: { route = .security },
-                        onExport: { route = .export },
-                        onHelp: { route = .help },
-                        onReport: { route = .report }
-                    )
-                }
+            .onAppear { NavBlendLocal.apply() }
+            .onDisappear { EFNavBarStyler.resetToDefault() }
+            .sheet(item: $route) {
+                routeSheet(for: $0)
             }
             .confirmationDialog("Add water", isPresented: $showWaterOptions, titleVisibility: .visible) {
                 Button("+250 ml") {
