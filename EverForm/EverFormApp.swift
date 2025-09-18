@@ -48,9 +48,16 @@ struct EverFormApp: App {
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(nil as ColorScheme?) // Let system handle based on theme manager
+                .preferredColorScheme(appearance.preferredColorScheme)
 
                 .onAppear {
+                    // Remove navigation bar shadow globally
+                    let appearance = UINavigationBarAppearance()
+                    appearance.configureWithOpaqueBackground()
+                    appearance.shadowColor = .clear
+                    UINavigationBar.appearance().standardAppearance = appearance
+                    UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
                     print("EverForm launched; stores injected")
                     // Initialize theme manager after app is fully loaded to avoid circular dependency
                     ThemeManager.shared.initialize()
@@ -79,7 +86,7 @@ struct EverFormApp: App {
                 .environmentObject(CoachCoordinator.shared)
                 .environmentObject(theme)
                 .environmentObject(journalStore)
-                .preferredColorScheme(nil as ColorScheme?) // Let system handle based on theme manager
+                .preferredColorScheme(appearance.preferredColorScheme)
         } else {
             ContentView()
         }

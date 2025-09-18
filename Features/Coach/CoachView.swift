@@ -82,15 +82,15 @@ struct CoachView: View {
                 vm.send(text: text, images: images)
             }
         }
-        .background(Color(hex: "0B0B0D").ignoresSafeArea())
+        .background(DSColor.bg.ignoresSafeArea())
     }
 
     @ViewBuilder private func bubble(text: String, isBot: Bool) -> some View {
         let bg: Color = {
             if isBot {
-                return Color(hex: "1A1B1E")
+                return DSColor.card
             } else {
-                return Color(hex: "0A84FF")
+                return DSColor.accentPrimary
             }
         }()
         let fg: Color = .primary

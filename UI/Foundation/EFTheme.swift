@@ -47,44 +47,43 @@ extension EnvironmentValues {
 
 // MARK: - Dark Theme Implementation
 public struct DarkTheme: EFThemeProtocol {
-    public let background = Color(hex: "0B0B0D")
-    public let surface = Color(hex: "1A1B1E")
-    public let surfaceElevated = Color(hex: "232529")
-    public let card = Color(hex: "232529")
-    public let cardElevated = Color(hex: "2A2C30")
-    public let textPrimary = Color(hex: "FFFFFF")
-    public let textSecondary = Color(hex: "A0A0A0")
-    public let textTertiary = Color(hex: "808080")
-    public let accent = Color(hex: "0A84FF")
-    public let accentSuccess = Color(hex: "32D74B")
-    public let accentWarning = Color(hex: "FF9F0A")
-    public let accentDanger = Color(hex: "FF453A")
-    public let accentNutrition = Color(hex: "FF9F0A")
-    public let accentRecovery = Color(hex: "BF5AF2")
-    public let accentMobility = Color(hex: "64D2FF")
-    public let border = Color(hex: "383A3E")
-    public let borderHairline = Color(hex: "383A3E")
-    public let divider = Color(hex: "383A3E")
-    public let fill = Color(hex: "383A3E")
-    public let overlay = Color(hex: "000000", alpha: 0.4)
-    public let barBackground = Color(hex: "111214")
-    public let labelPrimary = Color(hex: "FFFFFF")
-    public let labelSecondary = Color(hex: "A0A0A0")
-    public let chatBot = Color(hex: "1A1B1E")
-    public let chatUser = Color(hex: "0A84FF")
-    public let bg = Color(hex: "0B0B0D")
-    public let bgElevated = Color(hex: "1A1B1E")
-    public let shadow = Color(hex: "000000", alpha: 0.3)
-    public let inputBackground = Color(hex: "2A2C30")
-    
+    public let background = Color("AppBackground")
+    public let surface = Color("Surface")
+    public let surfaceElevated = Color("CardElevated")
+    public let card = Color("Card")
+    public let cardElevated = Color("CardElevated")
+    public let textPrimary = Color("TextPrimary")
+    public let textSecondary = Color("TextSecondary")
+    public let textTertiary = Color.secondary
+    public let accent = Color("AccentColor")
+    public let accentSuccess = Color.green
+    public let accentWarning = Color.orange
+    public let accentDanger = Color.red
+    public let accentNutrition = Color.orange
+    public let accentRecovery = Color.purple
+    public let accentMobility = Color.blue
+    public let border = Color("TextSecondary").opacity(0.3)
+    public let borderHairline = Color("TextSecondary").opacity(0.2)
+    public let divider = Color("TextSecondary").opacity(0.3)
+    public let fill = Color.gray
+    public let overlay = Color.black.opacity(0.4)
+    public let barBackground = Color("AppBackground")
+    public let labelPrimary = Color("TextPrimary")
+    public let labelSecondary = Color("TextSecondary")
+    public let chatBot = Color("ChatBubbleBot")
+    public let chatUser = Color("ChatBubbleUser")
+    public let bg = Color("AppBackground")
+    public let bgElevated = Color("Surface")
+    public let shadow = Color.black.opacity(0.3)
+    public let inputBackground = Color("CardElevated")
+
     public init() {}
 }
 
 // MARK: - Theme Provider
 public struct EFThemeProvider: ViewModifier {
     @Environment(\.colorScheme) private var colorScheme
-    @EnvironmentObject private var appearance: AppearanceStore
-    
+
     public func body(content: Content) -> some View {
         content
             .environment(\.efTheme, DarkTheme())

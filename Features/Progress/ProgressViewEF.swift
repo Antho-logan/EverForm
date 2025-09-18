@@ -29,7 +29,7 @@ struct ProgressViewEF: View {
 
     var body: some View {
         ZStack {
-            Color(hex: "0B0B0D").ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 16) {
                     // ----- Your existing chart sections go here (unchanged) -----
@@ -48,7 +48,7 @@ struct ProgressViewEF: View {
                         applyRange(newValue)
                     }
                 )
-                .background(Color(hex: "0B0B0D")) // same color, blends header with page (no stripe)
+                .background(DSColor.bg) // same color, blends header with page (no stripe)
             }
         }
           .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
@@ -163,7 +163,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                 .background(
                     Group {
                         if selection == value {
-                            Color(hex: "2A2C30")
+                            DSColor.bgElevated
                         } else { 
                             Color.clear 
                         }
@@ -174,11 +174,11 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
             }
         }
         .padding(6)
-        .background(Color(hex: "232529"))
+        .background(DSColor.card)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .stroke(Color(hex: "383A3E"), lineWidth: 0.5)
+                .stroke(DSColor.borderHairline, lineWidth: 0.5)
         )
     }
 }
@@ -268,7 +268,7 @@ fileprivate struct SegmentedPicker<Value: Hashable>: View {
                 )
                 #else
                 ZStack {
-                    RoundedRectangle(cornerRadius: 12).fill(Color(hex: "1A1B1E"))
+                    RoundedRectangle(cornerRadius: 12).fill(DSColor.card)
                     Text("Charts framework not available")
                         .foregroundStyle(isDark ? theme.tokens.textSecondaryDark : theme.tokens.textSecondaryLight)
                         .font(.footnote)

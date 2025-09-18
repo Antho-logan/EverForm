@@ -194,7 +194,9 @@ struct ScanSheetView: View {
                 .padding(.horizontal)
             
             Button("Generate Mock Result") {
-                generateMockScanResult()
+                Task {
+                    await generateMockScanResult()
+                }
             }
             .buttonStyle(.borderedProminent)
         }
@@ -289,7 +291,9 @@ struct ScanSheetView: View {
         } else {
             // For barcode/OCR modes, the DataScanner handles capture automatically
             // This button can trigger manual capture if needed
-            generateMockScanResult()
+            Task {
+                await generateMockScanResult()
+            }
         }
     }
     
@@ -361,7 +365,7 @@ struct ScanSheetView: View {
     
     // MARK: - Mock Data (Simulator)
     
-    private func generateMockScanResult() {
+    private func generateMockScanResult() async {
         DebugLog.d("Generating mock scan result for mode: \(selectedMode)")
         
         isScanning = true

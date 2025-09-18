@@ -23,7 +23,7 @@ class MediaPicker {
     func processSelectedImages(_ items: [PhotosPickerItem]) {
         Task {
             var newImages: [ImageAsset] = []
-            
+
             for item in items {
                 if let data = try? await item.loadTransferable(type: Data.self) {
                     let filename = "image_\(UUID().uuidString).jpg"
@@ -31,9 +31,11 @@ class MediaPicker {
                     newImages.append(imageAsset)
                 }
             }
-            
+
+            // Fix Swift 6 capture error - use immutable copy
+            let images = newImages
             await MainActor.run {
-                selectedImages.append(contentsOf: newImages)
+                selectedImages.append(contentsOf: images)
             }
         }
     }

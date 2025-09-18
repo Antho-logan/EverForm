@@ -1,17 +1,9 @@
 import SwiftUI
 import UIKit
 
-struct AnchorKey: PreferenceKey {
-    static var defaultValue: CGRect = .zero
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        value = nextValue()
-    }
-}
-
 struct OverviewView: View {
     @State private var route: LocalRoute?
     @State private var showProfileMenu = false
-    @State private var avatarAnchorRect: CGRect = .zero
     @Environment(HydrationService.self) private var hydrationService
     @EnvironmentObject private var journalStore: JournalStore
     @EnvironmentObject private var appearance: AppearanceStore
@@ -101,8 +93,13 @@ struct OverviewView: View {
             .toolbar(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) {
                 EFPinnedHeader("Overview") {
-                    Button {
-                        showProfileMenu = true
+                    Menu {
+                        Button("Profile", action: { route = .profile })
+                        Button("Display", action: { route = .display })
+                        Button("Security", action: { route = .security })
+                        Button("Export Data", action: { route = .export })
+                        Button("Help", action: { route = .help })
+                        Button("Report a Bug", action: { route = .report })
                     } label: {
                         ZStack {
                             Circle().fill(DSColor.card)
@@ -111,17 +108,13 @@ struct OverviewView: View {
                                 .foregroundStyle(DSColor.accentPrimary)
                                 .font(.system(size: 16, weight: .semibold))
                         }
-                        .background(GeometryReader { geometry in
-                            Color.clear
-                                .preference(key: AnchorKey.self, value: geometry.frame(in: .global))
-                        })
                     }
                 }
             }
             .onAppear { NavBlendLocal.apply() }
             .onDisappear { EFNavBarStyler.resetToDefault() }
             .sheet(item: $route) {
-                routeSheet(for: $0)
+                sheet(for: $0)
             }
             .overlay(alignment: .bottom) {
                 if let toastText = toastText {
@@ -131,26 +124,6 @@ struct OverviewView: View {
                         .background(isDark ? AnyShapeStyle(DSColor.cardElevated.opacity(0.3)) : AnyShapeStyle(.ultraThinMaterial), in: Capsule())
                         .padding(.bottom, 8)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
-                }
-            }
-              .onPreferenceChange(AnchorKey.self) { anchorRect in
-                self.avatarAnchorRect = anchorRect
-            }
-            .overlay(alignment: .topLeading) {
-                if showProfileMenu {
-                    ProfileMenuPopover(
-                        anchorRect: avatarAnchorRect,
-                        safeBounds: UIScreen.main.bounds,
-                        onDismiss: { showProfileMenu = false },
-                        name: "User",
-                        email: "user@example.com",
-                        onProfile: { route = .profile },
-                        onDisplay: { route = .display },
-                        onSecurity: { route = .security },
-                        onExport: { route = .export },
-                        onHelp: { route = .help },
-                        onReport: { route = .report }
-                    )
                 }
             }
             .confirmationDialog("Add water", isPresented: $showWaterOptions, titleVisibility: .visible) {
@@ -220,7 +193,7 @@ struct OverviewView: View {
         }
     }
 
-    @ViewBuilder private func routeSheet(for r: LocalRoute) -> some View {
+    @ViewBuilder private func sheet(for r: LocalRoute) -> some View {
         switch r {
         case .training, .nutrition, .recovery, .mobility:
             // These now use NavigationLink instead of sheets
@@ -298,6 +271,7 @@ struct OverviewView: View {
         }
         .buttonStyle(.plain)
     }
+}
 
 // MARK: - Overview-specific styling
 private extension View {

@@ -1,24 +1,37 @@
 import SwiftUI
 
 struct EFCard<Content: View>: View {
-    @Environment(\.colorScheme) private var scheme
-    var content: () -> Content
-
-    init(@ViewBuilder content: @escaping () -> Content) {
-        self.content = content
-    }
-
+    let content: () -> Content
+    init(@ViewBuilder content: @escaping () -> Content) { self.content = content }
     var body: some View {
         content()
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(DSColor.card)
-            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20, style: .continuous)
-                    .stroke(DSColor.borderHairline, lineWidth: 0.5)
+            .padding(14)
+            .background(
+                RoundedRectangle(cornerRadius: EFRadius.card, style: .continuous)
+                    .fill(EFColor.cardIfAvailable)
             )
-            .shadow(color: Color.black.opacity(ThemeManager.shared.scheme == .dark ? 0.4 : 0.1), radius: 12, x: 0, y: 6)
+            .overlay(
+                RoundedRectangle(cornerRadius: EFRadius.card, style: .continuous)
+                    .stroke(EFColor.strokeIfAvailable.opacity(0.7), lineWidth: 1)
+            )
+    }
+}
+
+// Use palette shim in System mode if assets aren't present.
+private extension EFColor {
+    static var cardIfAvailable: Color {
+        #if canImport(SwiftUI)
+        return EFPaletteLight.card ?? EFColor.card
+        #else
+        return EFColor.card
+        #endif
+    }
+    static var strokeIfAvailable: Color {
+        #if canImport(SwiftUI)
+        return EFPaletteLight.stroke ?? EFColor.stroke
+        #else
+        return EFColor.stroke
+        #endif
     }
 }
 
