@@ -19,17 +19,16 @@ struct ProfileMenuPopover: View {
         let action: () -> Void
     }
 
-    let anchorRect: CGRect
-    let safeBounds: CGRect
-    let onDismiss: () -> Void
-    var name: String
-    var email: String
     var onProfile: () -> Void
     var onDisplay: () -> Void
     var onSecurity: () -> Void
     var onExport: () -> Void
     var onHelp: () -> Void
     var onReport: () -> Void
+
+    let onDismiss: () -> Void
+    var name: String = "User"
+    var email: String = "user@example.com"
 
     @State private var appear = false
     @Environment(\.colorScheme) private var colorScheme
@@ -48,45 +47,12 @@ struct ProfileMenuPopover: View {
     /// Layout constants
     private let cardWidth: CGFloat = 300
     private let cardPadding: CGFloat = 12
-    private let arrowHeight: CGFloat = 10
     private let corner: CGFloat = 16
 
-    /// Computes final top-left for the card so it stays on-screen. Arrow comes from top edge.
-    private func cardOrigin() -> CGPoint {
-        var x = anchorRect.minX - 12 // slight shift right of avatar
-        var y = anchorRect.maxY + 8  // below avatar
-        // Clamp within safeBounds with 12pt margins
-        x = max(safeBounds.minX + 12, min(x, safeBounds.maxX - cardWidth - 12))
-        // Height estimate: header (~72) + rows (~52*6) + padding
-        let estimatedHeight: CGFloat = 72 + (52 * CGFloat(items.count)) + cardPadding*2 + arrowHeight
-        if y + estimatedHeight > safeBounds.maxY - 12 {
-            // If it would overflow bottom, pop upward from avatar
-            y = anchorRect.minY - estimatedHeight - 8
-        }
-        y = max(safeBounds.minY + 12, y)
-        return CGPoint(x: x, y: y)
-    }
-
     var body: some View {
-        let origin = cardOrigin()
-
-        ZStack(alignment: .topLeading) {
-            // Backdrop
-            Color.black.opacity(appear ? 0.35 : 0)
-                .ignoresSafeArea()
-                .onTapGesture { withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) { appear = false; onDismiss() } }
-
-            // Card + Arrow
+        VStack(spacing: 0) {
+            // Card
             VStack(spacing: 0) {
-                // Arrow
-                PopoverArrow(edge: .top)
-                    .fill(EFPalette.current(colorScheme).chrome)
-                    .frame(height: arrowHeight)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 28)
-
-                // Card
-                VStack(spacing: 0) {
                     // Header
                     HStack(spacing: 12) {
                         ZStack {
@@ -147,12 +113,7 @@ struct ProfileMenuPopover: View {
                 .shadow(color: EFPalette.current(colorScheme).shadow, radius: colorScheme == .light ? 18 : 12, x: 0, y: colorScheme == .light ? 12 : 8)
             }
             .frame(width: cardWidth)
-            .position(x: origin.x + cardWidth/2, y: origin.y + (arrowHeight + 1))
-            .scaleEffect(appear ? 1.0 : 0.92, anchor: .topLeading)
-            .opacity(appear ? 1 : 0)
-            .animation(.spring(response: 0.35, dampingFraction: 0.9), value: appear)
+            .onAppear { appear = true }
+            .accessibilityAddTraits(.isModal)
         }
-        .onAppear { appear = true }
-        .accessibilityAddTraits(.isModal)
     }
-}

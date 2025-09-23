@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum LocalRoute: Identifiable {
+enum LocalRoute: Identifiable, Hashable {
     case training, nutrition, recovery, mobility
     case addWater, breathwork, fixPain, lookMaxing
     case profile, display, security, export, help, report

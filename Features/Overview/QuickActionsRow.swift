@@ -2,59 +2,240 @@
 //  QuickActionsRow.swift
 //  EverForm
 //
-//  Quick actions row with uniform tiles and reorder functionality
+//  Quick actions with horizontal scrolling tiles and drag-to-reorder
 //
 
 import SwiftUI
 
-// A simple, in-content, single-row Quick Actions section (no floating dock).
 struct QuickActionsRow: View {
-    @Environment(\.colorScheme) private var scheme
+    @EnvironmentObject private var router: NavigationRouter
+    @State private var actions: [QuickAction] = []
+    @State private var draggingID: UUID?
+    @State private var isEditingReorder = false
+    @AppStorage("quickActionsOrder") private var quickActionsOrderData: Data?
+
     var onAddWater: () -> Void
-    var onBreathwork: () -> Void
-    var onFixPain: () -> Void
-    var onLookMaxing: () -> Void
+
+    private let dragThreshold: CGFloat = 18.0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: EFSpacing.section) {
             HStack {
-                Text("Quick Actions")
-                    .font(.headline)
+                EFSectionHeader("Quick Actions")
+                    .padding(.horizontal, EFSpacing.page)
                 Spacer()
-                Button("Reorder") {
-                    // leave hook for future reordering UI
+                Button(action: {
+                    withAnimation(.snappy) {
+                        isEditingReorder.toggle()
+                    }
+                }) {
+                    Image(systemName: isEditingReorder ? "checkmark.circle.fill" : "ellipsis.circle")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(isEditingReorder ? DSColor.accentSuccess : DSColor.textSecondary)
+                        .padding(.trailing, EFSpacing.page)
                 }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .buttonStyle(.plain)
             }
 
-            HStack(spacing: 12) {
-                actionTile(title: "Add Water", system: "drop.fill") { onAddWater() }
-                actionTile(title: "Breathwork", system: "wind") { onBreathwork() }
-                actionTile(title: "Fix Pain", system: "cross.case.fill") { onFixPain() }
-                actionTile(title: "Look Maxing", system: "person.fill.viewfinder") { onLookMaxing() }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(actions) { action in
+                        Group {
+                            if action.actionType == .addWater {
+                                Button(action: {
+                                    print("[QA] tapped \(action.title)")
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    onAddWater()
+                                }) {
+                                    QuickActionTile(
+                                        title: action.title,
+                                        systemName: action.icon,
+                                        tint: action.color,
+                                        isEditMode: isEditingReorder
+                                    )
+                                    .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
+                                    .animation(.snappy, value: draggingID == action.id)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                            } else {
+                                Button(action: {
+                                    print("[QA] tapped \(action.title)")
+                                    print("[QA] router instance: \(ObjectIdentifier(router))")
+                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    if let route = action.route {
+                                        router.navigate(to: route)
+                                    }
+                                }) {
+                                    QuickActionTile(
+                                        title: action.title,
+                                        systemName: action.icon,
+                                        tint: action.color,
+                                        isEditMode: isEditingReorder
+                                    )
+                                    .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
+                                    .animation(.snappy, value: draggingID == action.id)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                            }
+                        }
+                        // Only enable drag gestures when in edit mode - prevents stealing taps
+                        .gesture(
+                            DragGesture(minimumDistance: isEditingReorder ? dragThreshold : 1000)
+                                .onChanged { value in
+                                    guard isEditingReorder else { return }
+                                    if draggingID == nil {
+                                        draggingID = action.id
+                                        print("[QA] drag started for \(action.title)")
+                                    }
+                                }
+                                .onEnded { _ in
+                                    draggingID = nil
+                                    print("[QA] drag ended")
+                                }
+                        )
+                        // Drag source (only in edit mode)
+                        .onDrag {
+                            guard isEditingReorder else {
+                                print("[QA] drag prevented - not in edit mode")
+                                return NSItemProvider()
+                            }
+                            draggingID = action.id
+                            return NSItemProvider(object: action.id.uuidString as NSString)
+                        }
+                        // Drop target (side-to-side reorder)
+                        .onDrop(of: [.text], isTargeted: nil) { providers in
+                            guard isEditingReorder else { return false }
+                            guard let item = draggingID,
+                                  let from = actions.firstIndex(where: { $0.id == item }),
+                                  let to = actions.firstIndex(where: { $0.id == action.id })
+                            else { return false }
+
+                            if from != to {
+                                withAnimation(.snappy) {
+                                    let movedAction = actions.remove(at: from)
+                                    actions.insert(movedAction, at: to)
+                                    persistOrder()
+                                    print("[QA] reordered \(movedAction.title) from \(from) to \(to)")
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                }
+                            }
+                            draggingID = nil
+                            return true
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, EFSpacing.page)
+            .padding(.top, EFSpacing.section)
+            .onDrop(of: [.text], isTargeted: nil) { _ in
+                draggingID = nil
+                return false
+            }
+            .onAppear {
+                seedActionsAndApplySavedOrder()
             }
         }
-        .accessibilityElement(children: .contain)
     }
 
-    private func actionTile(title: String, system: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(spacing: 8) {
-                Image(systemName: system)
-                    .font(.title3.weight(.semibold))
-                Text(title)
-                    .font(.footnote)
-                    .foregroundStyle(.primary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .minimumScaleFactor(0.8)
+    // MARK: - Tile Component
+    private struct QuickActionTile: View {
+        let title: String
+        let systemName: String
+        let tint: Color
+        let isEditMode: Bool
+
+        var body: some View {
+            EFCard {
+                VStack(spacing: 6) {
+                    ZStack {
+                        Circle()
+                            .fill(tint.opacity(0.12))
+                            .frame(width: 32, height: 32)
+                        Image(systemName: systemName)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(tint)
+
+                        // Show reorder handle in edit mode
+                        if isEditMode {
+                            VStack {
+                                Spacer()
+                                HStack {
+                                    Spacer()
+                                    Image(systemName: "line.3.horizontal")
+                                        .font(.system(size: 10, weight: .medium))
+                                        .foregroundStyle(DSColor.textSecondary)
+                                        .padding(.bottom, 2)
+                                        .padding(.trailing, 2)
+                                }
+                            }
+                        }
+                    }
+                    Text(title)
+                        .font(.footnote)
+                        .foregroundStyle(DSColor.textSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.9)
+                }
+                .padding(10)
+                .frame(width: 120, height: 86)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(isEditMode ? DSColor.accentSuccess.opacity(0.5) : Color.clear, lineWidth: 2)
+                        .allowsHitTesting(false) // Decorative overlay shouldn't block taps
+                )
             }
-            .frame(maxWidth: .infinity, minHeight: 72)
-            .padding(12)
-            .efCard()
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(Text(title))
+    }
+
+    
+    // MARK: - Persistence
+    private func persistOrder() {
+        let ids = actions.map(\.id)
+        quickActionsOrderData = try? JSONEncoder().encode(ids)
+    }
+
+    private func seedActionsAndApplySavedOrder() {
+        if actions.isEmpty {
+            actions = [
+                QuickAction(
+                    id: UUID(),
+                    title: "Add Water",
+                    icon: "drop.fill",
+                    colorName: "accentRecovery",
+                    actionType: .addWater
+                ),
+                QuickAction(
+                    id: UUID(),
+                    title: "Breathwork",
+                    icon: "wind",
+                    colorName: "accentSuccess",
+                    actionType: .breathwork
+                ),
+                QuickAction(
+                    id: UUID(),
+                    title: "Fix Pain",
+                    icon: "cross.case.fill",
+                    colorName: "accentDanger",
+                    actionType: .fixPain
+                ),
+                QuickAction(
+                    id: UUID(),
+                    title: "Look Maxing",
+                    icon: "person.fill.viewfinder",
+                    colorName: "accentMobility",
+                    actionType: .lookMaxing
+                ),
+            ]
+        }
+
+        if let data = quickActionsOrderData,
+           let saved = try? JSONDecoder().decode([UUID].self, from: data) {
+            let map = Dictionary(uniqueKeysWithValues: actions.enumerated().map { ($1.id, $0) })
+            actions.sort { (lhs, rhs) in
+                (saved.firstIndex(of: lhs.id) ?? map[lhs.id]!) < (saved.firstIndex(of: rhs.id) ?? map[rhs.id]!)
+            }
+        }
     }
 }

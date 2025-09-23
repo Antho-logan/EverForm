@@ -12,9 +12,9 @@ struct RecoveryViewEF: View, Identifiable {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let isDark = theme.isDark(colorScheme)
+        let _ = theme.isDark(colorScheme)
         ZStack {
-            Color("AppBackground").ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -82,10 +82,11 @@ struct RecoveryViewEF: View, Identifiable {
                     .padding(.horizontal, 20)
                     .padding(.vertical, 16)
                 }
+                .scrollContentBackground(.hidden)
+                .background(DSColor.bg.ignoresSafeArea())
                 .navigationTitle("Recovery")
-                .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
-                .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
-                .efScreenBackground()
+                .toolbarBackground(DSColor.bg, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
             }
         }
     }

@@ -22,38 +22,49 @@ final class QuickActionsManager {
     
     private func loadQuickActions() {
         // Load saved order from UserDefaults
-        let savedOrder = userDefaults.stringArray(forKey: orderKey) ?? []
-        
-        if savedOrder.isEmpty {
+        guard let orderData = userDefaults.data(forKey: orderKey) else {
             // First time - use default order
             quickActions = QuickAction.defaultActions
             saveOrder()
-        } else {
+            return
+        }
+
+        do {
+            let savedIDs = try JSONDecoder().decode([UUID].self, from: orderData)
+            let defaultActionsDict = Dictionary(uniqueKeysWithValues: QuickAction.defaultActions.map { ($0.id, $0) })
+
             // Restore saved order
             var orderedActions: [QuickAction] = []
-            let defaultActionsDict = Dictionary(uniqueKeysWithValues: QuickAction.defaultActions.map { ($0.id, $0) })
-            
+
             // Add actions in saved order
-            for actionId in savedOrder {
+            for actionId in savedIDs {
                 if let action = defaultActionsDict[actionId] {
                     orderedActions.append(action)
                 }
             }
-            
+
             // Add any new actions that weren't in the saved order
             for defaultAction in QuickAction.defaultActions {
                 if !orderedActions.contains(where: { $0.id == defaultAction.id }) {
                     orderedActions.append(defaultAction)
                 }
             }
-            
+
             quickActions = orderedActions
+        } catch {
+            // If decoding fails, use default order
+            quickActions = QuickAction.defaultActions
         }
     }
     
     private func saveOrder() {
         let order = quickActions.map { $0.id }
-        userDefaults.set(order, forKey: orderKey)
+        do {
+            let data = try JSONEncoder().encode(order)
+            userDefaults.set(data, forKey: orderKey)
+        } catch {
+            print("Failed to save quick actions order: \(error)")
+        }
     }
     
     func startReordering() {

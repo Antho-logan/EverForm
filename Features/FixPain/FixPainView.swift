@@ -7,132 +7,55 @@
 
 import SwiftUI
 
-// MARK: - Local theme + nav bar helpers (file-scoped)
-fileprivate enum AppThemeUIV2 {
-    static let canvas: Color = DSColor.canvas
-    static let ctaNutrition: Color = DSColor.accentNutrition
-    static let ctaPain: Color = EFColor.painAccent
-}
-
-private let FIX_PAIN_TILE_HEIGHT: CGFloat = 124
-
 struct FixPainView: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var selectedRegion: PainRegion?
-    @State private var showingAssessment = false
     @State private var toastText: String?
-    
-    init() {
-        // Navigation styling now handled by global EFNavBarStyler
-    }
-    
-    enum PainRegion: String, CaseIterable {
-        case back = "Back"
-        case neck = "Neck"
-        case knees = "Knees"
-        case shoulders = "Shoulders"
-        case hips = "Hips"
-        case wrists = "Wrists"
-        
-        var icon: String {
-            switch self {
-            case .back: return "figure.stand"
-            case .knees: return "figure.walk"
-            case .shoulders: return "figure.arms.open"
-            case .hips: return "figure.flexibility"
-            case .wrists: return "hand.raised"
-            case .neck: return "" // Custom icon will be used
-            }
-        }
-        
-        var description: String {
-            switch self {
-            case .back: return "Lower or upper back discomfort"
-            case .neck: return "Neck tension or stiffness"
-            case .knees: return "Knee pain or soreness"
-            case .shoulders: return "Shoulder tension or pain"
-            case .hips: return "Hip tightness or discomfort"
-            case .wrists: return "Wrist pain or strain"
-            }
-        }
-        
-        var usesCustomIcon: Bool {
-            return self == .neck
-        }
-    }
-    
+    @State private var showingAssessment = false
+    @State private var selectedArea: PainArea? = nil
+
+    // Grid columns matching Today's Plan spacing
+    private let columns = [
+        GridItem(.flexible(), spacing: 14),
+        GridItem(.flexible(), spacing: 14)
+    ]
+
     var body: some View {
-        VStack(spacing: PainUI.Layout.vSpacing) {
-            // Header
-            VStack(spacing: 8) {
-                Text("Fix Pain")
-                    .font(.largeTitle.bold())
-                    .foregroundStyle(PainUI.Theme.textPrimary)
-
-                Text("Select the area where you're experiencing discomfort")
-                    .font(.subheadline)
-                    .foregroundStyle(PainUI.Theme.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-            .padding(.top, PainUI.Layout.vSpacing)
-
-            // Body region grid
-            LazyVGrid(columns: [
-                GridItem(.flexible(), spacing: 16, alignment: .top),
-                GridItem(.flexible(), spacing: 16, alignment: .top)
-            ], spacing: 16) {
-                ForEach(PainRegion.allCases, id: \.self) { region in
-                    PainTile(
-                        title: region.rawValue,
-                        subtitle: region.description,
-                        symbol: region.icon,
-                        isSelected: selectedRegion == region,
-                        usesCustomIcon: region.usesCustomIcon
-                    ) {
-                        selectedRegion = region
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 14) {
+                    ForEach(PainArea.allCases) { area in
+                        FixPainCard(area: area) {
+                            navigate(to: area)
+                        }
                     }
                 }
+                .padding(.horizontal, 16) // Page padding
+                .padding(.top, 8)
+                .padding(.bottom, 24)
             }
-            .padding(.horizontal, PainUI.Layout.hPadding)
-
-            Spacer()
-
-            // Continue button
-            if selectedRegion != nil {
-                Button(action: {
-                    showingAssessment = true
-                    let impact = UIImpactFeedbackGenerator(style: .medium)
-                    impact.impactOccurred()
-                }) {
-                    Text("Start Assessment")
-                }
-                .buttonStyle(.plain)
-                .background(AppThemeUIV2.ctaPain)
-                .foregroundStyle(Color.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .padding(.horizontal, PainUI.Layout.hPadding)
-                .padding(.bottom, 8)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+            .scrollContentBackground(.hidden)
+            .background(DSColor.bg.ignoresSafeArea(edges: .top))
+            .navigationTitle("Fix Pain")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(DSColor.bg, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
-        .padding(.top, PainUI.Layout.vSpacing)
-        .scrollContentBackground(.hidden)
-        .background(DSColor.bg.ignoresSafeArea())
-        .toolbar(.hidden, for: .navigationBar)
-        .onAppear { NavBlendLocal.apply() }
-        .onDisappear { EFNavBarStyler.resetToDefault() }
+        .onAppear {
+            NavBlendLocal.apply()
+        }
+        .onDisappear {
+            EFNavBarStyler.resetToDefault()
+        }
+        .ignoresSafeArea(edges: .top)
         .sheet(isPresented: $showingAssessment) {
-            if let selectedRegion = selectedRegion {
-                FixPainAssessmentView(area: convertToPainArea(selectedRegion)) { shouldShowToast in
+            if let selectedArea = selectedArea {
+                FixPainAssessmentView(area: selectedArea) { shouldShowToast in
                     if shouldShowToast {
                         toastText = "Relief plan saved"
                         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { toastText = nil }
                     }
                     showingAssessment = false
+                    // Reset selectedArea after assessment completes
+                    self.selectedArea = nil
                 }
             }
         }
@@ -147,82 +70,16 @@ struct FixPainView: View {
             }
         }
     }
-    
-    private func convertToPainArea(_ region: PainRegion) -> PainArea {
-        switch region {
-        case .back: return .back
-        case .neck: return .neck
-        case .knees: return .knees
-        case .shoulders: return .shoulders
-        case .hips: return .hips
-        case .wrists: return .wrists
-        }
-    }
-}
 
-struct PainTile: View {
-    @Environment(\.colorScheme) private var scheme
-    let title: String
-    let subtitle: String
-    let symbol: String
-    let isSelected: Bool
-    let usesCustomIcon: Bool
-    let action: () -> Void
+    // Direct navigation to pain assessment without intermediate screen
+    private func navigate(to area: PainArea) {
+        // Add haptic feedback
+        let impact = UIImpactFeedbackGenerator(style: .light)
+        impact.impactOccurred()
 
-    var body: some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 8) {
-                iconView
-                    .imageScale(.large)
-                    .font(.system(size: 24, weight: .regular))
-                    .foregroundColor(isSelected ? .white : DSColor.textPrimary)
-                    .frame(width: 32, height: 32)
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(isSelected ? .white : DSColor.textPrimary)
-                        .lineLimit(1)
-                        .allowsTightening(true)
-                        .minimumScaleFactor(0.9)
-                    
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundStyle(isSelected ? .white.opacity(0.8) : DSColor.textSecondary)
-                        .lineLimit(2)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                
-                Spacer(minLength: 0)
-            }
-            .padding(12)
-            .frame(maxWidth: .infinity,
-                   minHeight: FIX_PAIN_TILE_HEIGHT,
-                   maxHeight: FIX_PAIN_TILE_HEIGHT,
-                   alignment: .topLeading)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(isSelected ? AppThemeUIV2.ctaPain : DSColor.card)
-                    .shadow(color: .black.opacity(0.06), radius: 8, y: 4)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .scaleEffect(isSelected ? 0.98 : 1.0)
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
-    }
-    
-    @ViewBuilder
-    private var iconView: some View {
-        if usesCustomIcon {
-            PainGlyph {
-                NeckPainIcon()
-            }
-        } else {
-            PainGlyph {
-                Image(systemName: symbol)
-            }
-        }
+        // Set selected area and show assessment directly
+        selectedArea = area
+        showingAssessment = true
     }
 }
 

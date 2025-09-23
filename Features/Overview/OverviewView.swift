@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 struct OverviewView: View {
-    @State private var route: LocalRoute?
+    @EnvironmentObject private var router: NavigationRouter
     @State private var showProfileMenu = false
     @Environment(HydrationService.self) private var hydrationService
     @EnvironmentObject private var journalStore: JournalStore
@@ -60,30 +60,13 @@ struct OverviewView: View {
                     .padding(.horizontal, EFSpacing.page)
 
                     // Quick Actions
-                    EFSectionHeader("Quick Actions")
-                        .padding(.horizontal, EFSpacing.page)
-
-                    LazyVGrid(columns: actionsCols, spacing: EFSpacing.grid) {
-                        quickActionButton(icon: "drop.fill", title: "Add Water", color: DSColor.accentRecovery) {
+                    QuickActionsRow(
+                        onAddWater: {
                             hydrationService.addWater(ml: 250)
                             toastText = "+250 ml"
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { toastText = nil }
                         }
-                        .onLongPressGesture { showWaterOptions = true }
-
-                        quickActionButton(icon: "wind", title: "Breathwork", color: DSColor.accentSuccess) {
-                            route = .breathwork
-                        }
-
-                        quickActionButton(icon: "cross.case.fill", title: "Fix Pain", color: DSColor.accentDanger) {
-                            route = .fixPain
-                        }
-
-                        quickActionButton(icon: "person.fill.viewfinder", title: "Look Maxing", color: DSColor.accentMobility) {
-                            route = .lookMaxing
-                        }
-                    }
-                    .padding(.horizontal, EFSpacing.page)
+                    )
                 }
                 .padding(.top, 8)
                 .padding(.bottom, EFSafe.bottom)
@@ -97,22 +80,16 @@ struct OverviewView: View {
                     title: "Overview",
                     showMenu: $showProfileMenu,
                     onTapProfile: { showProfileMenu = true },
-                    onProfile: { route = .profile },
-                    onDisplay: { route = .display },
-                    onSecurity: { route = .security },
-                    onExport: { route = .export },
-                    onHelp: { route = .help },
-                    onReport: { route = .report }
+                    onProfile: { router.navigate(to: .profile) },
+                    onDisplay: { router.navigate(to: .display) },
+                    onSecurity: { router.navigate(to: .security) },
+                    onExport: { router.navigate(to: .export) },
+                    onHelp: { router.navigate(to: .help) },
+                    onReport: { router.navigate(to: .report) }
                 )
-                .padding(.horizontal, EFSpacing.page)
-                .padding(.bottom, 6)
-                .background(DSColor.bg)
             }
             .onAppear { NavBlendLocal.apply() }
             .onDisappear { EFNavBarStyler.resetToDefault() }
-            .sheet(item: $route) {
-                routeSheet(for: $0)
-            }
             .overlay(alignment: .bottom) {
                 if let toastText = toastText {
                     Text(toastText)
@@ -122,11 +99,6 @@ struct OverviewView: View {
                         .padding(.bottom, 8)
                         .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-            }
-            .onAppear { NavBlendLocal.apply() }
-            .onDisappear { EFNavBarStyler.resetToDefault() }
-            .sheet(item: $route) {
-                routeSheet(for: $0)
             }
             .confirmationDialog("Add water", isPresented: $showWaterOptions, titleVisibility: .visible) {
                 Button("+250 ml") {
@@ -192,28 +164,9 @@ struct OverviewView: View {
                 .padding()
                 .presentationDetents([.height(260), .medium])
             }
-        }
     }
 
-    @ViewBuilder private func routeSheet(for r: LocalRoute) -> some View {
-        switch r {
-        case .training, .nutrition, .recovery, .mobility:
-            // These now use NavigationLink instead of sheets
-            EmptyView()
-        case .addWater:        NavigationStack { AddWaterView() }
-        case .breathwork:      NavigationStack { BreathworkView() }
-        case .fixPain:         NavigationStack { FixPainView() }
-        case .lookMaxing:      NavigationStack { LookMaxingView() }
-
-        case .profile:         NavigationStack { ProfileView() }
-        case .display:         NavigationStack { DisplaySettingsView() }
-        case .security:        NavigationStack { SecuritySettingsView() }
-        case .export:          NavigationStack { ExportDataView() }
-        case .help:            NavigationStack { HelpView() }
-        case .report:          NavigationStack { ReportBugView() }
-        }
-    }
-
+    
     private func unitLabel() -> String {
         // Optional: infer from Profile units; fallback to kg
         return UserDefaults.standard.string(forKey: "ef.units") == "Imperial" ? "lb" : "kg"
@@ -226,8 +179,7 @@ struct OverviewView: View {
             EFCard {
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 8) {
-                        Image(systemName: system)
-                            .foregroundStyle(color)
+                        PlanIcon(systemName: system, tint: color)
                         Text(title)
                         .font(.headline)
                         .foregroundStyle(DSColor.textPrimary)
@@ -237,7 +189,7 @@ struct OverviewView: View {
                         .foregroundStyle(DSColor.textSecondary)
                     HStack {
                         Spacer()
-                        Text(title == "Training" ? "Start Workout" : (title == "Nutrition" ? "Log Meal" : (title == "Recovery" ? "Open" : "Start")))
+                        Text(title == "Training" ? "Start" : (title == "Nutrition" ? "Start" : (title == "Recovery" ? "Open" : "Start")))
                             .font(.callout.weight(.semibold))
                             .foregroundStyle(color)
                             .padding(.horizontal, 14)
@@ -250,29 +202,7 @@ struct OverviewView: View {
         }
         .buttonStyle(.plain)
     }
-
-    private func quickActionButton(icon: String, title: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            EFCard {
-                VStack(spacing: 8) {
-                    Image(systemName: icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(color)
-
-                    Text(title)
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(DSColor.textPrimary)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .minimumScaleFactor(0.8)
-                }
-                .frame(minWidth: 72, minHeight: 72)
-                .padding(12)
-                .contentShape(Rectangle())
-            }
-        }
-        .buttonStyle(.plain)
-    }
+}
 
 // MARK: - Overview-specific styling
 private extension View {
@@ -317,9 +247,8 @@ private struct KPICard: View {
 
                 Spacer()
             }
-            .frame(minHeight: 120)
+            .frame(height: EFSize.metricCardHeight)
             .padding(DS.Spacing.md)
         }
-        .background(DSColor.card)
     }
 }

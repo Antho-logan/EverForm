@@ -11,7 +11,7 @@ struct TrainingViewEF: View, Identifiable {
     var body: some View {
         let isDark = theme.isDark(colorScheme)
         ZStack {
-            Color(hex: "0B0B0D").ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -19,7 +19,7 @@ struct TrainingViewEF: View, Identifiable {
                             HStack(spacing: 12) {
                                 Image(systemName: "dumbbell.fill")
                                     .font(.system(size: 22, weight: .semibold))
-                                    .foregroundStyle(Color(hex: "32D74B"))
+                                    .foregroundStyle(DSColor.accentSuccess)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Session")
                                         .font(.headline)
@@ -77,10 +77,10 @@ struct TrainingViewEF: View, Identifiable {
                                 Text("Start Workout")
                                     .font(.system(size: 16, weight: .semibold))
                             }
-                            .foregroundStyle(.white)
+                            .foregroundStyle(DSColor.inverse)
                             .frame(maxWidth: .infinity)
                             .frame(height: 44)
-                            .background(Color(hex: "32D74B"))
+                            .background(DSColor.accentSuccess)
                             .clipShape(RoundedRectangle(cornerRadius: 22))
                         }
                         .buttonStyle(.plain)
@@ -90,10 +90,11 @@ struct TrainingViewEF: View, Identifiable {
                 }
                 .navigationTitle("Training")
                 .scrollContentBackground(.hidden)
-                .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
+                .toolbarBackground(DSColor.barBackground, for: .navigationBar)
                 .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
                 .navigationBarTitleDisplayMode(.large)
             }
         }
+        .presentationBackground(DSColor.bg)
     }
 }

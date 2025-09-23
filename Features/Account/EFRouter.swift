@@ -1,9 +1,10 @@
 import Foundation
+import SwiftUI
 
-enum EFRoute: Equatable, Identifiable {
+enum EFRoute: Equatable, Identifiable, Hashable {
     case profile, display, security, export, help, report
     case training, nutrition, recovery, mobility
-    case coachTab
+    case fixPain, breathwork, lookMaxing, coachTab
 
     var id: String {
         switch self {
@@ -17,8 +18,19 @@ enum EFRoute: Equatable, Identifiable {
         case .nutrition: return "nutrition"
         case .recovery: return "recovery"
         case .mobility: return "mobility"
+        case .fixPain: return "fixPain"
+        case .breathwork: return "breathwork"
+        case .lookMaxing: return "lookmaxing"
         case .coachTab: return "coachTab"
         }
+    }
+}
+
+class NavigationRouter: ObservableObject {
+    @Published var path = NavigationPath()
+
+    func navigate(to route: EFRoute) {
+        path.append(route)
     }
 }
 

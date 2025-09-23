@@ -11,7 +11,7 @@ import UIKit
 
 // MARK: - Local theme for this file only
 fileprivate enum NUTRThemeLocal {
-    static var canvas: Color { DesignSystem.Colors.backgroundSecondary }
+    static var canvas: Color { DSColor.bg }
     static var card: Color { DSColor.card }
     static var shadow: Color { Color.black.opacity(0.06) }
     static var cta: Color { DSColor.accentNutrition }
@@ -158,10 +158,10 @@ struct NutritionView: View {
             .navigationBarTitleDisplayMode(.large)
             // Blend header with page background and remove stripe
             .toolbarBackground(.visible, for: .navigationBar)
-            .toolbarBackground(NUTRThemeLocal.canvas, for: .navigationBar)
+            .toolbarBackground(DSColor.bg, for: .navigationBar)
             .scrollContentBackground(.hidden)
             .onAppear {
-                NUTRNavStylerLocal.apply(background: UIColor(NUTRThemeLocal.canvas))
+                NUTRNavStylerLocal.apply(background: UIColor(DSColor.bg))
             }
             .onDisappear {
                 NUTRNavStylerLocal.reset()
@@ -201,8 +201,8 @@ struct NutritionView: View {
                 }
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(selectedMealLocal == kind ? Color(DSColor.card) 
-                                                      : Color(DSColor.appBackground))
+                        .fill(selectedMealLocal == kind ? Color(DSColor.card)
+                                                      : Color(DSColor.bg))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)

@@ -31,9 +31,9 @@ struct MobilityView: View {
         let theme = EnvironmentValues().efTheme
 
         ZStack {
-            Color(hex: "0B0B0D").ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: EFSpacing.section) {
                 // Focus Section
                 EFCard {
                     VStack(alignment: .leading, spacing: Spacing.md) {
@@ -196,11 +196,11 @@ struct MobilityView: View {
 
                 Spacer(minLength: 100)
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 8)
+            .padding(.horizontal, EFSpacing.page)
+            .padding(.vertical, EFSpacing.section)
         }
         }
-        .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+        .toolbarBackground(DSColor.barBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationTitle("Mobility")
         .navigationBarTitleDisplayMode(.large)

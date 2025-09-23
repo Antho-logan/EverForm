@@ -44,10 +44,10 @@ fileprivate struct MealHistoryViewUIV2: View {
                 .padding(.vertical, 8)
             }
             .scrollContentBackground(.hidden)
-            .background(semanticColors.page.ignoresSafeArea())
+            .background(DSColor.bg.ignoresSafeArea())
             .navigationTitle("Meal History")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarBackground(Color(semanticColors.page), for: .navigationBar)
+            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .onAppear { NavBlendLocal.apply() }
             .onDisappear { EFNavBarStyler.resetToDefault() }
@@ -172,7 +172,9 @@ struct NutritionViewEF: View, Identifiable {
 
     var body: some View {
         let isDark = theme.isDark(colorScheme)
-        return NavigationStack {
+        ZStack {
+            DSColor.bg.ignoresSafeArea()
+            NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
                         // Smart Log (AI) CTA
@@ -300,8 +302,8 @@ struct NutritionViewEF: View, Identifiable {
                 .padding(.vertical, 16)
             }
             .scrollContentBackground(.hidden)
-            .background(Color(hex: "0B0B0D").ignoresSafeArea())
-            .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
+            .background(DSColor.bg.ignoresSafeArea())
+            .toolbarBackground(DSColor.barBackground, for: .navigationBar)
             .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .navigationTitle("Nutrition")
@@ -322,8 +324,8 @@ struct NutritionViewEF: View, Identifiable {
             .sheet(isPresented: $showMealHistory) {
                 MealHistoryViewUIV2()
                     .scrollContentBackground(.hidden)
-                    .background(Color(hex: "0B0B0D").ignoresSafeArea())
-                    .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+                    .background(DSColor.bg.ignoresSafeArea())
+                    .toolbarBackground(DSColor.barBackground, for: .navigationBar)
                     .toolbarBackground(.visible, for: .navigationBar)
                     .onAppear { NavBlendLocal.apply() }
                     .onDisappear { EFNavBarStyler.resetToDefault() }
@@ -331,6 +333,8 @@ struct NutritionViewEF: View, Identifiable {
             .sheet(isPresented: $showSmartLogSheet) {
                 SmartMealLoggerSheet()
                     .environmentObject(journalStore)
+                    .presentationBackground(DSColor.bg)
             }
+          }
         }
     }

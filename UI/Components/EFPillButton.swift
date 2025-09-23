@@ -16,7 +16,7 @@ struct EFPillButton: View {
     @Environment(\.colorScheme) private var colorScheme
 
     enum Style {
-        case primary, secondary
+        case primary, secondary, tinted
     }
 
     init(title: String, style: Style, color: Color? = nil, action: @escaping () -> Void) {
@@ -33,17 +33,48 @@ struct EFPillButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(style == .primary ? .white : buttonColor)
+                .foregroundStyle(foregroundColor(for: buttonColor))
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
-                .background(style == .primary ? buttonColor : buttonColor.opacity(0.1))
+                .background(backgroundColor(for: buttonColor))
                 .clipShape(RoundedRectangle(cornerRadius: Radius.pill))
                 .overlay(
                     RoundedRectangle(cornerRadius: Radius.pill)
-                        .stroke(style == .primary ? Color.clear : buttonColor, lineWidth: 1)
+                        .stroke(strokeColor(for: buttonColor), lineWidth: 1)
                 )
         }
         .buttonStyle(.plain)
+    }
+
+    private func foregroundColor(for buttonColor: Color) -> Color {
+        switch style {
+        case .primary:
+            return .white
+        case .secondary, .tinted:
+            return buttonColor
+        }
+    }
+
+    private func backgroundColor(for buttonColor: Color) -> Color {
+        switch style {
+        case .primary:
+            return buttonColor
+        case .secondary:
+            return buttonColor.opacity(0.1)
+        case .tinted:
+            return buttonColor.opacity(0.08)
+        }
+    }
+
+    private func strokeColor(for buttonColor: Color) -> Color {
+        switch style {
+        case .primary:
+            return Color.clear
+        case .secondary:
+            return buttonColor
+        case .tinted:
+            return buttonColor.opacity(0.2)
+        }
     }
 }
 
@@ -52,13 +83,17 @@ struct EFPillButton: View {
         EFPillButton(title: "Primary Button", style: .primary) {
             print("Primary tapped")
         }
-        
+
         EFPillButton(title: "Secondary Button", style: .secondary) {
             print("Secondary tapped")
         }
-        
-        EFPillButton(title: "Green Button", style: .primary, color: .green) {
-            print("Green tapped")
+
+        EFPillButton(title: "Tinted Button", style: .tinted) {
+            print("Tinted tapped")
+        }
+
+        EFPillButton(title: "Green Tinted", style: .tinted, color: .green) {
+            print("Green tinted tapped")
         }
     }
     .padding()

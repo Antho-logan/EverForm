@@ -16,8 +16,10 @@ struct NutritionDiaryView: View {
     @State private var showWeeklyTrends = false
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        ZStack {
+            DSColor.bg.ignoresSafeArea()
+            NavigationStack {
+                VStack(spacing: 0) {
                 // Header with calorie ring
                 CalorieRingHeader(nutritionStore: nutritionStore)
                     .padding(.horizontal, DesignSystem.Spacing.screenPadding)
@@ -51,12 +53,15 @@ struct NutritionDiaryView: View {
             }
             .navigationTitle("Today's Diary")
             .navigationBarTitleDisplayMode(.large)
+            }
         }
         .sheet(isPresented: $showGoalEditor) {
             GoalEditorSheet(nutritionStore: nutritionStore)
+                .presentationBackground(DSColor.bg)
         }
         .sheet(isPresented: $showWeeklyTrends) {
             WeeklyTrendsView(onClose: { showWeeklyTrends = false })
+                .presentationBackground(DSColor.bg)
         }
         .onAppear {
             TelemetryService.shared.track("nutrition_diary_viewed")
@@ -220,7 +225,7 @@ struct EntryRow: View {
             }
         }
         .padding(DesignSystem.Spacing.md)
-        .background(DesignSystem.Colors.cardBackground)
+        .background(DSColor.card)
         .clipShape(RoundedRectangle(cornerRadius: DesignSystem.Radius.md))
         .overlay(
             RoundedRectangle(cornerRadius: DesignSystem.Radius.md)
@@ -311,7 +316,7 @@ struct DiaryFooter: View {
             .padding(.bottom, DesignSystem.Spacing.md)
         }
         .padding(.horizontal, DesignSystem.Spacing.screenPadding)
-        .background(DesignSystem.Colors.background)
+        .background(DSColor.bg)
     }
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct FixPainDetailView: View {
-    let region: FixPainView.PainRegion
+    let area: PainArea
     
     @Environment(\.dismiss) private var dismiss
     @State private var isStarted = false
@@ -17,7 +17,7 @@ struct FixPainDetailView: View {
     @State private var timeRemaining = 30
     
     var routine: [RoutineStep] {
-        switch region {
+        switch area {
         case .back:
             return [
                 RoutineStep(name: "Cat-Cow Stretch", duration: 30, description: "Gentle spinal mobility"),
@@ -79,11 +79,11 @@ struct FixPainDetailView: View {
                     // Routine overview
                     VStack(spacing: Spacing.lg) {
                         VStack(spacing: Spacing.sm) {
-                            Text("\(region.rawValue) Relief")
+                            Text("\(area.rawValue) Relief")
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundStyle(palette.textPrimary)
-                            
-                            Text("A targeted routine to help relieve \(region.rawValue.lowercased()) discomfort")
+
+                            Text("A targeted routine to help relieve \(area.rawValue.lowercased()) discomfort")
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundStyle(palette.textSecondary)
                                 .multilineTextAlignment(.center)
@@ -266,5 +266,5 @@ struct FixPainDetailView: View {
 }
 
 #Preview {
-    FixPainDetailView(region: .back)
+    FixPainDetailView(area: .back)
 }

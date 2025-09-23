@@ -30,8 +30,7 @@ struct SmartMealLoggerSheet: View {
 
   var body: some View {
     ZStack {
-      Color(hex: "0B0B0D")
-        .ignoresSafeArea()
+      DSColor.bg.ignoresSafeArea()
       NavigationStack {
         ScrollView {
           VStack(spacing: 16) {
@@ -40,7 +39,7 @@ struct SmartMealLoggerSheet: View {
             PhotosPicker(selection: $pickerItem, matching: .images, photoLibrary: .shared()) {
               ZStack {
                 RoundedRectangle(cornerRadius: 16)
-                  .fill(Color(hex: "232529"))
+                  .fill(DSColor.card)
                   .shadow(color: EnvironmentValues().efTheme.shadow.opacity(0.06), radius: 12, y: 4)
                   .frame(maxWidth: .infinity, minHeight: 200)
                 if let image = uiImage {
@@ -67,32 +66,36 @@ struct SmartMealLoggerSheet: View {
             }
 
             // Text prompt
-            VStack(alignment: .leading, spacing: 8) {
-              Text("Describe your meal")
-                .font(.headline)
-                .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
-                .efText(.primary)
-              EFInputField(placeholder: "e.g., 2 eggs, avocado, buttered toast", text: $textPrompt)
+            EFCard {
+              VStack(alignment: .leading, spacing: 8) {
+                Text("Describe your meal")
+                  .font(.headline)
+                  .foregroundStyle(EnvironmentValues().efTheme.textPrimary)
+                  .efText(.primary)
+                EFInputField(placeholder: "e.g., 2 eggs, avocado, buttered toast", text: $textPrompt)
+              }
             }
 
             // Analyze button
             let canAnalyze = !isAnalyzing && (uiImage != nil || !textPrompt.trimmingCharacters(in: .whitespaces).isEmpty)
-            Button {
-              Task { await analyze() }
-            } label: {
-              HStack {
-                if isAnalyzing { ProgressView().padding(.trailing, 8) }
-                Text(isAnalyzing ? "Analyzing…" : "Analyze")
+            EFCard {
+              Button {
+                Task { await analyze() }
+              } label: {
+                HStack {
+                  if isAnalyzing { ProgressView().padding(.trailing, 8) }
+                  Text(isAnalyzing ? "Analyzing…" : "Analyze")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
               }
-              .frame(maxWidth: .infinity)
-              .padding(.vertical, 14)
+              .buttonStyle(.plain)
+              .background(canAnalyze ? AppThemeUIV2.ctaNutrition : AppThemeUIV2.ctaNutrition.opacity(0.4))
+              .foregroundStyle(Color.white)
+              .efText(.inverse)
+              .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+              .disabled(!canAnalyze)
             }
-            .buttonStyle(.plain)
-            .background(canAnalyze ? AppThemeUIV2.ctaNutrition : AppThemeUIV2.ctaNutrition.opacity(0.4))
-            .foregroundStyle(Color.white)
-            .efText(.inverse)
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .disabled(!canAnalyze)
 
             // Result card
             if let e = estimate {
@@ -129,7 +132,8 @@ struct SmartMealLoggerSheet: View {
                 .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
               }
               .padding(16)
-              .efDarkCardBackground()
+              .background(DSColor.card)
+              .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
           }
           .padding(16)
@@ -139,12 +143,13 @@ struct SmartMealLoggerSheet: View {
           ToolbarItem(placement: .topBarTrailing) { Button("Done") { dismiss() } }
         }
         .scrollContentBackground(.hidden)
-        .background(Color(hex: "0B0B0D").ignoresSafeArea())
-        .toolbarBackground(Color(hex: "111214"), for: .navigationBar)
+        .background(DSColor.bg.ignoresSafeArea())
+        .toolbarBackground(DSColor.barBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .onAppear { NavBlendLocal.apply() }
         .onDisappear { EFNavBarStyler.resetToDefault() }
       }
+      .presentationBackground(DSColor.bg)
     }
   }
 

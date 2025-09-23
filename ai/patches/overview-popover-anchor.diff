@@ -1,0 +1,132 @@
+diff --git a/Features/Overview/OverviewHeader.swift b/Features/Overview/OverviewHeader.swift
+index 0000000..0000000 100644
+--- a/Features/Overview/OverviewHeader.swift
++++ b/Features/Overview/OverviewHeader.swift
+@@ -14,35 +14,34 @@ struct OverviewHeader: View {
+     var onHelp: () -> Void
+     var onReport: () -> Void
+
++    @State private var showMenu = false
++
+     var body: some View {
+         HStack(spacing: 12) {
+-            Button(action: onTapProfile) {
+-                Image(systemName: "person.crop.circle.fill")
+-                    .font(.system(size: 22, weight: .semibold))
+-                    .symbolRenderingMode(.multicolor)
+-                    .accessibilityLabel("Profile")
+-            }
+-            .popover(
+-                isPresented: $showMenu,
+-                attachmentAnchor: .rect(.bounds),
+-                arrowEdge: .top
+-            ) {
+-                ProfileMenuPopover(
+-                    anchorRect: .zero,
+-                    safeBounds: UIScreen.main.bounds,
+-                    onDismiss: { showMenu = false },
+-                    name: "User",
+-                    email: "user@example.com",
+-                    onProfile: onProfile,
+-                    onDisplay: onDisplay,
+-                    onSecurity: onSecurity,
+-                    onExport: onExport,
+-                    onHelp: onHelp,
+-                    onReport: onReport
+-                )
+-                .frame(width: 250, height: 400)
+-            }
+-
+             Text(title)
+                 .font(.system(size: 34, weight: .bold))
+                 .tracking(-0.3)
+
+             Spacer()
++
++            Button {
++                showMenu.toggle()
++            } label: {
++                Image(systemName: "person.crop.circle.fill")
++                    .font(.system(size: 22, weight: .semibold))
++                    .symbolRenderingMode(.multicolor)
++                    .accessibilityLabel("Profile")
++            }
++            .accessibilityIdentifier("profile-button")
++            .popover(isPresented: $showMenu,
++                     attachmentAnchor: .rect(.bounds),
++                     arrowEdge: .top) {
++                ProfileMenuPopover(
++                    onDismiss: { showMenu = false },
++                    onProfile: onProfile,
++                    onDisplay: onDisplay,
++                    onSecurity: onSecurity,
++                    onExport: onExport,
++                    onHelp: onHelp,
++                    onReport: onReport
++                )
++                .presentationCompactAdaptation(.popover)
++                .frame(width: 320)
++            }
+         }
+         .contentShape(Rectangle())
+diff --git a/Features/Overview/OverviewView.swift b/Features/Overview/OverviewView.swift
+index 0000000..0000000 100644
+--- a/Features/Overview/OverviewView.swift
++++ b/Features/Overview/OverviewView.swift
+@@ -95,15 +95,16 @@
+             .safeAreaInset(edge: .top, spacing: 0) {
+                 OverviewHeader(
+                     title: "Overview",
+-                    showMenu: $showProfileMenu,
+-                    onTapProfile: { showProfileMenu = true },
++                    showMenu: .constant(false),
++                    onTapProfile: {},
+                     onProfile: { route = .profile },
+                     onDisplay: { route = .display },
+                     onSecurity: { route = .security },
+                     onExport: { route = .export },
+                     onHelp: { route = .help },
+                     onReport: { route = .report }
+                 )
+-                .padding(.horizontal, EFSpacing.page)
+-                .padding(.bottom, 6)
+-                .background(DSColor.bg)
++                .padding(.horizontal, EFSpacing.page)
++                .background(DSColor.bg.ignoresSafeArea(edges: .top))
++                .zIndex(10)
+             }
+diff --git a/UI/Components/ProfileMenuPopover.swift b/UI/Components/ProfileMenuPopover.swift
+index 0000000..0000000 100644
+--- a/UI/Components/ProfileMenuPopover.swift
++++ b/UI/Components/ProfileMenuPopover.swift
+@@ -12,16 +12,11 @@
+ struct ProfileMenuPopover: View {
+     struct Item: Identifiable {
+         let id = UUID()
+-        let icon: String
+-        let title: String
+-        let trailing: String?
++        let icon: String
++        let title: String
++        let trailing: String?
+         let action: () -> Void
+     }
+
+-    let anchorRect: CGRect
+-    let safeBounds: CGRect
+-    let onDismiss: () -> Void
+-    var name: String
+-    var email: String
+     var onProfile: () -> Void
+     var onDisplay: () -> Void
+     var onSecurity: () -> Void
+@@ -48,6 +43,9 @@
+         ]
+     }
+
++    let onDismiss: () -> Void
++    var name: String = "User"
++    var email: String = "user@example.com"
+     /// Layout constants
+     private let cardWidth: CGFloat = 300
+     private let cardPadding: CGFloat = 12

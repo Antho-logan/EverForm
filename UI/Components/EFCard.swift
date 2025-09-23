@@ -4,16 +4,18 @@ struct EFCard<Content: View>: View {
     let content: () -> Content
     init(@ViewBuilder content: @escaping () -> Content) { self.content = content }
     var body: some View {
-        content()
+        let shape = RoundedRectangle(cornerRadius: EFRadius.card, style: .continuous)
+
+        return content()
             .padding(14)
             .background(
-                RoundedRectangle(cornerRadius: EFRadius.card, style: .continuous)
-                    .fill(EFColor.cardIfAvailable)
+                shape.fill(EFColor.cardIfAvailable)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: EFRadius.card, style: .continuous)
-                    .stroke(EFColor.strokeIfAvailable.opacity(0.7), lineWidth: 1)
+                shape.stroke(EFColor.strokeIfAvailable.opacity(0.12), lineWidth: 1)
             )
+            .clipShape(shape)
+            .compositingGroup()
     }
 }
 

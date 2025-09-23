@@ -4,6 +4,7 @@ import UIKit
 struct RootTabView: View {
     @EnvironmentObject private var journalStore: JournalStore
     @EnvironmentObject private var appearance: AppearanceStore
+    @EnvironmentObject private var router: NavigationRouter
     @Environment(\.colorScheme) private var colorScheme
     @State private var selectedTab: Int = 0
     @State private var activeRoute: EFRoute?
@@ -11,6 +12,7 @@ struct RootTabView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             OverviewView()
+                .environmentObject(router)
                 .tabItem { Label("Overview", systemImage: "house.fill") }
                 .tag(0)
 
@@ -43,9 +45,9 @@ struct RootTabView: View {
         .sheet(item: $activeRoute) { route in
             switch route {
             case .training: TrainingViewEF()
-            case .nutrition: NutritionViewEF().environmentObject(journalStore)
-            case .recovery: RecoveryViewEF()
-            case .mobility: MobilityViewEF()
+            case .nutrition: NutritionViewEF().environmentObject(journalStore).presentationBackground(DSColor.bg)
+            case .recovery: RecoveryViewEF().presentationBackground(DSColor.bg)
+            case .mobility: MobilityViewEF().presentationBackground(DSColor.bg)
             default: EmptyView()
             }
         }

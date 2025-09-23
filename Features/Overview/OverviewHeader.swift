@@ -11,41 +11,47 @@ struct OverviewHeader: View {
     var onHelp: () -> Void
     var onReport: () -> Void
 
-    var body: some View {
-        HStack(spacing: 12) {
-            Button(action: onTapProfile) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.system(size: 22, weight: .semibold))
-                    .symbolRenderingMode(.multicolor)
-                    .accessibilityLabel("Profile")
-            }
-            .popover(
-                isPresented: $showMenu,
-                attachmentAnchor: .rect(.bounds),
-                arrowEdge: .top
-            ) {
-                ProfileMenuPopover(
-                    anchorRect: .zero,
-                    safeBounds: UIScreen.main.bounds,
-                    onDismiss: { showMenu = false },
-                    name: "User",
-                    email: "user@example.com",
-                    onProfile: onProfile,
-                    onDisplay: onDisplay,
-                    onSecurity: onSecurity,
-                    onExport: onExport,
-                    onHelp: onHelp,
-                    onReport: onReport
-                )
-                .frame(width: 250, height: 400)
-            }
+    @State private var showProfileMenu = false
 
+    var body: some View {
+        ZStack(alignment: .center) {
+            // Centered title
             Text(title)
                 .font(.system(size: 34, weight: .bold))
-                .tracking(-0.3)
+                .foregroundStyle(DSColor.textPrimary)
 
-            Spacer()
+            // Row for leading controls
+            HStack(spacing: 12) {
+                // Left avatar button – larger and matching popover avatar style
+                ProfileAvatarButton(size: 36) {
+                    showProfileMenu.toggle()
+                }
+                .accessibilityIdentifier("overview.avatarButton")
+                .popover(
+                    isPresented: $showProfileMenu,
+                    attachmentAnchor: .rect(.bounds),
+                    arrowEdge: .top
+                ) {
+                    ProfileMenuPopover(
+                        onProfile: onProfile,
+                        onDisplay: onDisplay,
+                        onSecurity: onSecurity,
+                        onExport: onExport,
+                        onHelp: onHelp,
+                        onReport: onReport,
+                        onDismiss: { showProfileMenu = false }
+                    )
+                    .presentationCompactAdaptation(.popover)
+                    .frame(width: 300)
+                }
+
+                Spacer(minLength: 0)
+            }
         }
-        .contentShape(Rectangle())
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, EFSpacing.page)
+        .padding(.bottom, 6)
+        .background(DSColor.bg)
+        .zIndex(10)
     }
 }

@@ -12,9 +12,9 @@ struct MobilityViewEF: View, Identifiable {
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        let isDark = theme.isDark(colorScheme)
+        let _ = theme.isDark(colorScheme)
         ZStack {
-            Color("AppBackground").ignoresSafeArea()
+            DSColor.bg.ignoresSafeArea()
             NavigationStack {
                 ScrollView {
                     VStack(spacing: 16) {
@@ -106,9 +106,10 @@ struct MobilityViewEF: View, Identifiable {
                     .padding(.vertical, 16)
                 }
                 .navigationTitle("Mobility")
-                .toolbarBackground(isDark ? theme.tokens.darkBG : Color.clear, for: .navigationBar)
-                .toolbarColorScheme(isDark ? .dark : nil, for: .navigationBar)
-                .efScreenBackground()
+                .scrollContentBackground(.hidden)
+                .background(DSColor.bg.ignoresSafeArea())
+                .toolbarBackground(DSColor.bg, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
             }
         }
     }

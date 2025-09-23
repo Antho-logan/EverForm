@@ -13,7 +13,7 @@ import EFDesignSystem
 #endif
 
 extension Color {
-    static var efCanvas: Color { DSColor.appBackground }
+    static var efCanvas: Color { DSColor.bg }
     static var efCardFill: Color { DSColor.card }
     static var efCardStroke: Color { Color.black.opacity(0.06) }
     static var efShadow: Color { Color.black.opacity(0.07) }
@@ -184,6 +184,7 @@ struct LogMealView: View {
         }
         .background(Color.efCanvas.ignoresSafeArea())
         .toolbar(.hidden, for: .navigationBar)
+        .presentationBackground(DSColor.bg)
     }
     
     // MARK: - Small helpers
@@ -195,7 +196,7 @@ struct LogMealView: View {
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.leading)
                 .padding(10)
-                .background(RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemBackground)))
+                .background(RoundedRectangle(cornerRadius: 10).fill(DSColor.input))
         }
         .frame(maxWidth: .infinity)
     }

@@ -21,17 +21,19 @@ struct ProgressViewScreen: View {
                     .padding(.top, 8)
 
                 // Range selector
-                HStack(spacing: 10) {
-                    ForEach(RangeOption.allCases, id: \.self) { opt in
-                        Button {
-                            range = opt
-                        } label: {
-                            Text(opt.label)
-                                .font(.callout.weight(.semibold))
-                                .efText(.primary)
-                                .padding(.horizontal, 14).padding(.vertical, 8)
-                                .background(range == opt ? Color.blue.opacity(0.2) : Color.clear)
-                                .clipShape(Capsule())
+                EFCard {
+                    HStack(spacing: 10) {
+                        ForEach(RangeOption.allCases, id: \.self) { opt in
+                            Button {
+                                range = opt
+                            } label: {
+                                Text(opt.label)
+                                    .font(.callout.weight(.semibold))
+                                    .efText(.primary)
+                                    .padding(.horizontal, 14).padding(.vertical, 8)
+                                    .background(range == opt ? DSColor.bgElevated : Color.clear)
+                                    .clipShape(Capsule())
+                            }
                         }
                     }
                 }

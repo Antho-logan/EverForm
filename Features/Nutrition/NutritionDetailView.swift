@@ -58,7 +58,7 @@ struct NutritionDetailView: View {
 
             }.padding(16)
         }
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .background(DSColor.bg.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
     }
 }
