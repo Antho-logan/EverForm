@@ -37,29 +37,33 @@ struct OverviewView: View {
             VStack(alignment: .leading, spacing: EFSpacing.section) {
                     // Stats Grid - 2x2 grid with large cards
                     LazyVGrid(columns: statColumns, alignment: .center, spacing: 16) {
-                        EFStatCard(
+                        EFStatCardView(
                             icon: "figure.walk",
-                            tint: DSColor.accentSuccess,
+                            iconTint: DSColor.accentSuccess,
+                            title: "Steps",
                             value: "8.4K",
-                            label: "Steps"
+                            subtitle: ""
                         )
-                        EFStatCard(
+                        EFStatCardView(
                             icon: "drop.fill",
-                            tint: DSColor.accentNutrition,
+                            iconTint: DSColor.accentNutrition,
+                            title: "Calories",
                             value: "\(ov_todayCalories) / 2661",
-                            label: "Calories"
+                            subtitle: ""
                         )
-                        EFStatCard(
+                        EFStatCardView(
                             icon: "bed.double.fill",
-                            tint: DSColor.accentRecovery,
+                            iconTint: DSColor.accentRecovery,
+                            title: "Sleep",
                             value: "7h 30m",
-                            label: "Sleep"
+                            subtitle: ""
                         )
-                        EFStatCard(
+                        EFStatCardView(
                             icon: "drop.circle.fill",
-                            tint: DSColor.accentMobility,
+                            iconTint: DSColor.accentMobility,
+                            title: "Hydration",
                             value: "\(hydrationService.todayMl) ml",
-                            label: "Hydration"
+                            subtitle: ""
                         )
                     }
                     .padding(.horizontal, 20)

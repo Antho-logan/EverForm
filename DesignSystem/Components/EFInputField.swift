@@ -1,12 +1,13 @@
 import SwiftUI
 
-struct EFInputField: View {
+// Renamed to avoid conflict with UI/Foundation/EFInputField
+struct EFDesignSystemInputField: View {
   @EnvironmentObject private var theme: EFThemeManager
   @Environment(\.colorScheme) private var colorScheme
   var placeholder: String
   @Binding var text: String
   var axis: Axis = .vertical
-  
+
   var body: some View {
     let dark = theme.isDark(colorScheme)
     TextField("", text: $text, axis: axis, prompt: Text(placeholder).foregroundColor(dark ? theme.tokens.textSecondaryDark : theme.tokens.textSecondaryLight))
