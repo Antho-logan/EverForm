@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EFDisplaySettingsView: View {
-    @EnvironmentObject private var theme: EFTheme
+    @EnvironmentObject private var theme: ThemeManager
     @State private var color = 0 // 0 green, 1 teal, 2 orange
 
     var body: some View {
@@ -31,7 +31,7 @@ struct EFDisplaySettingsView: View {
             }
         }
         .navigationTitle("Display")
-        .background(DSColor.appBackground.ignoresSafeArea())
+        .background(EFTheme.appBackground.ignoresSafeArea())
     }
 }
 

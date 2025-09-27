@@ -75,7 +75,7 @@ struct BreathworkSessionView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 32)
         }
-        .background(DSColor.bg.ignoresSafeArea())
+        .background(EFTheme.appBackground.ignoresSafeArea())
         .onAppear {
             if isRunning {
                 startSession()

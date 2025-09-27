@@ -2,7 +2,7 @@ import SwiftUI
 
 // Legacy compatibility aliases
 typealias EFColor = DSColor
-typealias EFTheme = ThemeManager
+// Note: EFTheme is now an enum in Theme+Semantic.swift - not a typealias
 
 // Legacy EFAppearance enum
 enum EFAppearance: String, CaseIterable {

@@ -14,7 +14,7 @@ struct EFModalSheetScaffold<Content: View>: View {
     var body: some View {
         // Outer sand background to match the app
         ZStack {
-            DSColor.bg.ignoresSafeArea()
+            EFTheme.appBackground.ignoresSafeArea()
 
             // Sheet body with rounded top, same as Fix Pain
             VStack(spacing: 0) {
@@ -36,7 +36,7 @@ struct EFModalSheetScaffold<Content: View>: View {
             }
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color(hex: "#EAD6BF"))
+                    .fill(EFTheme.sheetBackground)
                     .ignoresSafeArea(edges: .bottom)
             )
             .padding(.top, 12)   // match Fix Pain spacing to status bar

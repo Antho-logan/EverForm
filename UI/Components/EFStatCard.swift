@@ -33,7 +33,7 @@ struct EFStatCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(DSColor.card)
+                .fill(EFTheme.cardBackground)
         )
         .overlay(
             // subtle hairline to match other cards if used in the app

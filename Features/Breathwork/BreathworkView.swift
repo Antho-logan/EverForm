@@ -112,7 +112,7 @@ struct BreathworkView: View {
                 pattern: selectedPattern,
                 isRunning: $showingSession
             )
-            .presentationBackground(DSColor.bg)
+            .presentationBackground(EFTheme.appBackground)
             .presentationDetents([.large])
             .presentationCornerRadius(28)
             .interactiveDismissDisabled(false)

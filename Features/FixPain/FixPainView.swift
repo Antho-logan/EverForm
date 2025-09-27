@@ -72,7 +72,7 @@ struct FixPainView: View {
             .padding(.bottom, 24)
         }
         .scrollContentBackground(.hidden)
-        .background(DSColor.bg.ignoresSafeArea())
+        .background(EFTheme.appBackground.ignoresSafeArea())
         .navigationBarBackButtonHidden(true)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {

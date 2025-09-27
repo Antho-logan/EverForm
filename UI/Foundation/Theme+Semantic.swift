@@ -1,5 +1,12 @@
 import SwiftUI
 
+public enum EFTheme {
+    public static let appBackground: Color   = DSColor.bg
+    public static let cardBackground: Color  = DSColor.card
+    public static let sheetBackground: Color = DSColor.bg
+    public static let accent: Color          = DSColor.accentPrimary
+}
+
 extension LegacyTheme {
     struct SemanticColors {
         public let page: Color
@@ -23,8 +30,8 @@ extension LegacyTheme {
             return Color(red: r, green: g, blue: b)
         }
 
-        let beigePage   = DSColor.appBackground ?? DesignSystem.Colors.backgroundSecondary ?? rgb(0xEAD8C2)
-        let beigeCard   = DSColor.card ?? rgb(0xF7EFE6)
+        let beigePage   = DSColor.appBackground
+        let beigeCard   = DSColor.card
         let beigeStroke = Color.black.opacity(0.06)
 
         let lightPage   = Color.white
@@ -35,7 +42,7 @@ extension LegacyTheme {
         let darkCard    = rgb(0x1A1B1E)
         let darkStroke  = rgb(0x25262B)
 
-        let accent      = DSColor.accentPrimary ?? Color.accentColor
+        let accent      = DSColor.accentPrimary
         let textPrimaryLight   = Color.black
         let textSecondaryLight = Color.black.opacity(0.6)
         let textPrimaryDark    = Color.white
