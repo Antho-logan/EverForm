@@ -59,25 +59,64 @@ struct QuickActionsRow: View {
                                 .buttonStyle(.plain)
                                 .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
                             } else {
-                                Button(action: {
-                                    print("[QA] tapped \(action.title)")
-                                    print("[QA] router instance: \(ObjectIdentifier(router))")
-                                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                    if let route = action.route {
-                                        router.navigate(to: route)
+                                Group {
+                                    switch action.actionType {
+                                case .breathwork:
+                                    Button(action: {
+                                        print("[QA] tapped \(action.title)")
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        router.presentModal(.breathwork)
+                                    }) {
+                                        QuickActionTile(
+                                            title: action.title,
+                                            systemName: action.icon,
+                                            tint: action.color,
+                                            isEditMode: isEditingReorder
+                                        )
+                                        .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
+                                        .animation(.snappy, value: draggingID == action.id)
                                     }
-                                }) {
-                                    QuickActionTile(
-                                        title: action.title,
-                                        systemName: action.icon,
-                                        tint: action.color,
-                                        isEditMode: isEditingReorder
-                                    )
-                                    .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
-                                    .animation(.snappy, value: draggingID == action.id)
+                                    .buttonStyle(.plain)
+                                    .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                                case .fixPain:
+                                    Button(action: {
+                                        print("[QA] tapped \(action.title)")
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        router.presentModal(.fixPain)
+                                    }) {
+                                        QuickActionTile(
+                                            title: action.title,
+                                            systemName: action.icon,
+                                            tint: action.color,
+                                            isEditMode: isEditingReorder
+                                        )
+                                        .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
+                                        .animation(.snappy, value: draggingID == action.id)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                                case .lookMaxing:
+                                    Button(action: {
+                                        print("[QA] tapped \(action.title)")
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                        router.presentModal(.lookMaxing)
+                                    }) {
+                                        QuickActionTile(
+                                            title: action.title,
+                                            systemName: action.icon,
+                                            tint: action.color,
+                                            isEditMode: isEditingReorder
+                                        )
+                                        .scaleEffect(draggingID == action.id ? 0.96 : 1.0)
+                                        .animation(.snappy, value: draggingID == action.id)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                                default:
+                                    // This should never be reached as all cases are handled above
+                                    EmptyView()
                                 }
-                                .buttonStyle(.plain)
-                                .accessibilityIdentifier("qa_\(action.title.lowercased().replacingOccurrences(of: " ", with: ""))")
+                                }
                             }
                         }
                         // Only enable drag gestures when in edit mode - prevents stealing taps

@@ -103,7 +103,7 @@ extension QuickAction {
         case .breathwork:
             return .breathwork
         case .fixPain:
-            return .fixPain
+            return nil // Now uses sheet, not navigation
         case .lookMaxing:
             return .lookMaxing
         }

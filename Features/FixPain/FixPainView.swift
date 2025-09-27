@@ -8,81 +8,91 @@
 import SwiftUI
 
 struct FixPainView: View {
-    @State private var toastText: String?
-    @State private var showingAssessment = false
-    @State private var selectedArea: PainArea? = nil
+    @EnvironmentObject private var router: NavigationRouter
+    @Environment(\.dismiss) private var dismiss
 
-    // Grid columns matching Today's Plan spacing
-    private let columns = [
-        GridItem(.flexible(), spacing: 14),
-        GridItem(.flexible(), spacing: 14)
+    private let twoCols = [
+        GridItem(.flexible(), spacing: EFSpacing.grid, alignment: .top),
+        GridItem(.flexible(), spacing: EFSpacing.grid, alignment: .top)
     ]
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 14) {
-                    ForEach(PainArea.allCases) { area in
-                        FixPainCard(area: area) {
-                            navigate(to: area)
-                        }
-                    }
+        ScrollView(.vertical, showsIndicators: true) {
+            LazyVGrid(columns: twoCols, spacing: EFSpacing.grid) {
+                FixPainCard(
+                    title: "Back",
+                    subtitle: "Lower or upper back",
+                    systemIcon: "dumbbell.fill",
+                    color: .red
+                ) {
+                    router.present(.painArea(PainArea.back))
                 }
-                .padding(.horizontal, 16) // Page padding
-                .padding(.top, 8)
-                .padding(.bottom, 24)
-            }
-            .scrollContentBackground(.hidden)
-            .background(DSColor.bg.ignoresSafeArea(edges: .top))
-            .navigationTitle("Fix Pain")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbarBackground(DSColor.bg, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
-        }
-        .onAppear {
-            NavBlendLocal.apply()
-        }
-        .onDisappear {
-            EFNavBarStyler.resetToDefault()
-        }
-        .ignoresSafeArea(edges: .top)
-        .sheet(isPresented: $showingAssessment) {
-            if let selectedArea = selectedArea {
-                FixPainAssessmentView(area: selectedArea) { shouldShowToast in
-                    if shouldShowToast {
-                        toastText = "Relief plan saved"
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { toastText = nil }
-                    }
-                    showingAssessment = false
-                    // Reset selectedArea after assessment completes
-                    self.selectedArea = nil
+                FixPainCard(
+                    title: "Neck",
+                    subtitle: "Neck tension or stiffness",
+                    systemIcon: "circle.dotted",
+                    color: .teal
+                ) {
+                    router.present(.painArea(PainArea.neck))
+                }
+                FixPainCard(
+                    title: "Knees",
+                    subtitle: "Knee pain or soreness",
+                    systemIcon: "figure.walk",
+                    color: .orange
+                ) {
+                    router.present(.painArea(PainArea.knees))
+                }
+                FixPainCard(
+                    title: "Shoulders",
+                    subtitle: "Shoulder tension or pain",
+                    systemIcon: "figure.stand",
+                    color: .purple
+                ) {
+                    router.present(.painArea(PainArea.shoulders))
+                }
+                FixPainCard(
+                    title: "Hips",
+                    subtitle: "Hip tightness or discomfort",
+                    systemIcon: "figure.cooldown",
+                    color: .blue
+                ) {
+                    router.present(.painArea(PainArea.hips))
+                }
+                FixPainCard(
+                    title: "Wrists",
+                    subtitle: "Wrist pain or strain",
+                    systemIcon: "hand.raised",
+                    color: .green
+                ) {
+                    router.present(.painArea(PainArea.wrists))
                 }
             }
+            .padding(.horizontal, EFSpacing.page)
+            .padding(.bottom, 24)
         }
-        .overlay(alignment: .bottom) {
-            if let toastText = toastText {
-                Text(toastText)
-                    .font(.subheadline).bold()
-                    .padding(.horizontal, 14).padding(.vertical, 10)
-                    .background(.ultraThinMaterial, in: Capsule())
-                    .padding(.bottom, 8)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+        .scrollContentBackground(.hidden)
+        .background(DSColor.bg.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+        .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+          ToolbarItem(placement: .topBarLeading) {
+            Button(action: { dismiss() }) {
+              Image(systemName: "chevron.left")
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(Color.primary)
             }
+            .buttonStyle(.plain)
+          }
+          ToolbarItem(placement: .principal) {
+            Text("Fix Pain")
+              .font(.system(size: 24, weight: .bold, design: .rounded))
+          }
         }
-    }
-
-    // Direct navigation to pain assessment without intermediate screen
-    private func navigate(to area: PainArea) {
-        // Add haptic feedback
-        let impact = UIImpactFeedbackGenerator(style: .light)
-        impact.impactOccurred()
-
-        // Set selected area and show assessment directly
-        selectedArea = area
-        showingAssessment = true
     }
 }
 
 #Preview {
     FixPainView()
+        .environmentObject(NavigationRouter())
 }

@@ -13,7 +13,7 @@ struct FixPainAssessmentView: View {
     @State private var assessment: PainAssessment
     @State private var showPlanView = false
     @State private var planResult: PainAssessmentResult?
-    
+
     let area: PainArea
     let onComplete: (Bool) -> Void
     
@@ -22,7 +22,7 @@ struct FixPainAssessmentView: View {
     init(area: PainArea, onComplete: @escaping (Bool) -> Void) {
         self.area = area
         self.onComplete = onComplete
-        self._assessment = State(initialValue: PainAssessment(area: area, date: Date()))
+        self._assessment = State(initialValue: PainAssessment(area: area))
     }
     
     var body: some View {
@@ -153,7 +153,7 @@ struct FixPainAssessmentView: View {
 
 struct StepLocationDetail: View {
     @Binding var assessment: PainAssessment
-    
+
     var body: some View {
         VStack(spacing: 20) {
             Text("Where exactly is your \(assessment.area.rawValue.lowercased()) pain?")

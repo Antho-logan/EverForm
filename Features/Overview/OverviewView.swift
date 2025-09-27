@@ -1,6 +1,62 @@
 import SwiftUI
 import UIKit
 
+private struct TopStatsSection: View {
+  @Environment(HydrationService.self) private var hydrationService
+  @EnvironmentObject private var journalStore: JournalStore
+
+  private var columns: [GridItem] = [
+    GridItem(.flexible(), spacing: 12),
+    GridItem(.flexible(), spacing: 12)
+  ]
+
+  // --- Format helpers ---
+  private func formatSteps(_ n: Int) -> String {
+    if n >= 10000 { return String(format: "%.1fK", Double(n)/1000).replacingOccurrences(of: ".0", with: "") }
+    if n >= 1000  { return String(format: "%.1fK", Double(n)/1000) }
+    return "\(n)"
+  }
+  private func formatSleep(hours: Int, minutes: Int) -> String { "\(hours)h \(minutes)m" }
+
+  var body: some View {
+    LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
+      // STEPS
+      EFStatCard(model: .init(
+        iconName: "figure.walk",
+        iconTint: .green,
+        valueText: formatSteps(8400), // Using placeholder value for now
+        subtitle: "Steps"
+      ))
+
+      // CALORIES (current / target or just target if that's what you track)
+      EFStatCard(model: .init(
+        iconName: "drop.fill",
+        iconTint: .teal,
+        valueText: "\(journalStore.todaysTotalCalories) / 2661",
+        subtitle: "Calories"
+      ))
+
+      // SLEEP
+      EFStatCard(model: .init(
+        iconName: "bed.double.fill",
+        iconTint: .blue,
+        valueText: formatSleep(hours: 7, minutes: 30),
+        subtitle: "Sleep"
+      ))
+
+      // HYDRATION
+      EFStatCard(model: .init(
+        iconName: "drop.circle.fill",
+        iconTint: .blue.opacity(0.85),
+        valueText: "\(hydrationService.todayMl) ml",
+        subtitle: "Hydration"
+      ))
+    }
+    .padding(.horizontal, 16)
+    .padding(.top, 6) // small breathing room under the header
+  }
+}
+
 struct OverviewView: View {
     @EnvironmentObject private var router: NavigationRouter
     @State private var showProfileMenu = false
@@ -30,14 +86,8 @@ struct OverviewView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: true) {
             VStack(alignment: .leading, spacing: EFSpacing.section) {
-                    // Vitals — 2x2 grid
-                    LazyVGrid(columns: twoCols, spacing: EFSpacing.grid) {
-                        KPICard(icon: "figure.walk", title: "8.4K", subtitle: "STEPS")
-                        KPICard(icon: "drop.fill", title: "\(ov_todayCalories) / 2661", subtitle: "CALORIES")
-                        KPICard(icon: "bed.double.fill", title: "7h 30m", subtitle: "SLEEP")
-                        KPICard(icon: "drop", title: "\(hydrationService.todayMl) ml", subtitle: "HYDRATION")
-                    }
-                    .padding(.horizontal, EFSpacing.page)
+                    // Top Stats Section - 2x2 grid with large cards
+                    TopStatsSection()
 
                     // Today's Plan
                     EFSectionHeader("Today's Plan")
@@ -72,7 +122,7 @@ struct OverviewView: View {
                 .padding(.bottom, EFSafe.bottom)
             }
             .scrollContentBackground(.hidden)
-            .background(DSColor.bg.ignoresSafeArea())
+            .background(Color(hex: "#EAD6BF").ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .toolbarBackground(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) {
@@ -80,12 +130,12 @@ struct OverviewView: View {
                     title: "Overview",
                     showMenu: $showProfileMenu,
                     onTapProfile: { showProfileMenu = true },
-                    onProfile: { router.navigate(to: .profile) },
-                    onDisplay: { router.navigate(to: .display) },
-                    onSecurity: { router.navigate(to: .security) },
-                    onExport: { router.navigate(to: .export) },
-                    onHelp: { router.navigate(to: .help) },
-                    onReport: { router.navigate(to: .report) }
+                    onProfile: { router.go(.profile) },
+                    onDisplay: { router.go(.display) },
+                    onSecurity: { router.go(.security) },
+                    onExport: { router.go(.export) },
+                    onHelp: { router.go(.help) },
+                    onReport: { router.go(.report) }
                 )
             }
             .onAppear { NavBlendLocal.apply() }
@@ -218,37 +268,5 @@ private struct OverviewSectionTitleStyle: ViewModifier {
         content
             .foregroundStyle(DSColor.textPrimary)
             .background(Color.clear)
-    }
-}
-
-private struct KPICard: View {
-    let icon: String, title: String, subtitle: String
-    var body: some View {
-        EFCard {
-            VStack(alignment: .leading, spacing: DS.Spacing.sm) {
-                HStack {
-                    Image(systemName: icon)
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(DS.ColorToken.accent)
-                    Spacer()
-                }
-
-                VStack(alignment: .leading, spacing: DS.Spacing.xs) {
-                    Text(title)
-                        .font(.system(size: 24, weight: .semibold))
-                        .foregroundStyle(DSColor.textPrimary)
-                        .lineLimit(1)
-
-                    Text(subtitle)
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(DSColor.textSecondary)
-                        .lineLimit(1)
-                }
-
-                Spacer()
-            }
-            .frame(height: EFSize.metricCardHeight)
-            .padding(DS.Spacing.md)
-        }
     }
 }

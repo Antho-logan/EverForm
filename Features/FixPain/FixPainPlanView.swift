@@ -405,8 +405,8 @@ struct ActivityRow: View {
 }
 
 #Preview {
-    let assessment = PainAssessment(area: .back, date: Date())
+    let assessment = PainAssessment(area: .back)
     let result = PainReasoner.generateResult(from: assessment)
-    
+
     FixPainPlanView(result: result) { _ in }
 }

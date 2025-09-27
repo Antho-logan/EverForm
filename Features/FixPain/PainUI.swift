@@ -149,7 +149,7 @@ struct PainUI {
             Button(action: action) {
                 VStack(spacing: 12) {
                     // Icon
-                    Image(systemName: area.icon)
+                    Image(systemName: area.iconName)
                         .font(.system(size: 24, weight: .semibold))
                         .foregroundColor(isSelected ? .white : Theme.textPrimary)
                     

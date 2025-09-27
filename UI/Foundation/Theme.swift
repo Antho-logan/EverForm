@@ -133,7 +133,7 @@ extension ThemeMode {
 // MARK: - Hex helpers
 extension Color {
     init(hex: String, alpha: Double = 1.0) {
-        var hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let r, g, b: UInt64
@@ -148,7 +148,7 @@ extension Color {
 
 extension UIColor {
     convenience init(hex: String, alpha: CGFloat = 1.0) {
-        var hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
         let r, g, b: UInt64
