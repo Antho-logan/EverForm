@@ -50,7 +50,6 @@ public struct EFStatCardView: View {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .stroke(DSColor.borderHairline.opacity(0.12), lineWidth: 1)
         )
-        .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
     }
 }
 

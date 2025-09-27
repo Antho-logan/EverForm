@@ -101,7 +101,7 @@ struct OverviewView: View {
                 .padding(.bottom, EFSafe.bottom)
             }
             .scrollContentBackground(.hidden)
-            .background(EFTheme.appBackground.ignoresSafeArea())
+            .background(DSColor.bg.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .toolbarBackground(.hidden, for: .navigationBar)
             .safeAreaInset(edge: .top, spacing: 0) {
