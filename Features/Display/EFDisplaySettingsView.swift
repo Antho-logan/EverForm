@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EFDisplaySettingsView: View {
-    @EnvironmentObject private var theme: ThemeManager
+    @EnvironmentObject private var theme: AppThemeManager
     @State private var color = 0 // 0 green, 1 teal, 2 orange
 
     var body: some View {

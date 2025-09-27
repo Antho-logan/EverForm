@@ -53,7 +53,7 @@ final class PremiumDashboardViewModel {
 
 // MARK: - Premium Dashboard View
 struct PremiumDashboardView: View {
-    let themeManager: ThemeManager
+    let themeManager: AppThemeManager
     let onLogout: () -> Void
     @State private var viewModel = PremiumDashboardViewModel()
     @State private var selectedTabIndex = 0
@@ -413,7 +413,7 @@ struct PremiumContentCard: View {
 // MARK: - Preview
 #Preview {
     PremiumDashboardView(
-        themeManager: ThemeManager(),
+        themeManager: AppThemeManager(),
         onLogout: { print("Logout preview") }
     )
 }

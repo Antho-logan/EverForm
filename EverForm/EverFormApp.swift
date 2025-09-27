@@ -10,9 +10,9 @@ import Observation
 
 @main
 struct EverFormApp: App {
-    @StateObject private var theme = EFTheme.shared
+    @StateObject private var theme = EFThemeShared.shared
     @State private var appearance = AppearanceStore()
-    @State private var themeManager = ThemeManager()
+    @State private var themeManager = AppThemeManager()
     @State private var efThemeManager = EFThemeManager()
     @State private var forceDiag = ProcessInfo.processInfo.environment["EF_FORCE_DIAG"] == "1"
 
@@ -60,7 +60,7 @@ struct EverFormApp: App {
 
                     print("EverForm launched; stores injected")
                     // Initialize theme manager after app is fully loaded to avoid circular dependency
-                    ThemeManager.shared.initialize()
+                    AppThemeManager.shared.initialize()
                     if !forceDiag {
                         checkOnboardingStatus()
                     }

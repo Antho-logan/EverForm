@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct EFInputField: View {
-  @EnvironmentObject private var theme: ThemeManager
+  @EnvironmentObject private var theme: AppThemeManager
   @Environment(\.colorScheme) private var colorScheme
   var placeholder: String
   @Binding var text: String
