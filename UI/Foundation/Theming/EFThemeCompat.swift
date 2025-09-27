@@ -9,6 +9,8 @@ public enum EFThemeStyle {
 public struct EFCompatColorTokens {
     public init() {}
     public var bg: Color { DSColor.bg }
+    public var appBG: Color { DSColor.bg }  // alias for sand background
+    public var darkBG: Color { appBG }  // compatibility alias for older code
     public var card: Color { DSColor.card }
     public var textPrimary: Color { DSColor.textPrimary }
     public var textSecondary: Color { DSColor.textSecondary }
@@ -46,6 +48,8 @@ public final class EFThemeManager: ObservableObject {
     public var accentDanger: Color { DSColor.accentDanger }
     public var textPrimary: Color { tokens.textPrimary }
     public var textSecondary: Color { tokens.textSecondary }
+    public var inputBackground: Color { tokens.bg }
+    public var surface: Color { tokens.card }
 
     public func isDark(_ scheme: ColorScheme) -> Bool { scheme == .dark }
     public func apply(style: EFThemeStyle) {

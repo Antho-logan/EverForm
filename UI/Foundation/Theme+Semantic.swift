@@ -5,9 +5,6 @@ public enum EFTheme {
     public static let cardBackground: Color  = DSColor.card
     public static let sheetBackground: Color = DSColor.bg
     public static let accent: Color          = DSColor.accentPrimary
-
-    // Add shared instance for compatibility with @StateObject
-    public static let shared = EFThemeManager()
 }
 
 extension LegacyTheme {
