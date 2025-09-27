@@ -1,61 +1,10 @@
 import SwiftUI
 import UIKit
 
-private struct TopStatsSection: View {
-  @Environment(HydrationService.self) private var hydrationService
-  @EnvironmentObject private var journalStore: JournalStore
-
-  private var columns: [GridItem] = [
-    GridItem(.flexible(), spacing: 12),
-    GridItem(.flexible(), spacing: 12)
-  ]
-
-  // --- Format helpers ---
-  private func formatSteps(_ n: Int) -> String {
-    if n >= 10000 { return String(format: "%.1fK", Double(n)/1000).replacingOccurrences(of: ".0", with: "") }
-    if n >= 1000  { return String(format: "%.1fK", Double(n)/1000) }
-    return "\(n)"
-  }
-  private func formatSleep(hours: Int, minutes: Int) -> String { "\(hours)h \(minutes)m" }
-
-  var body: some View {
-    LazyVGrid(columns: columns, alignment: .leading, spacing: 12) {
-      // STEPS
-      EFStatCard(model: .init(
-        iconName: "figure.walk",
-        iconTint: .green,
-        valueText: formatSteps(8400), // Using placeholder value for now
-        subtitle: "Steps"
-      ))
-
-      // CALORIES (current / target or just target if that's what you track)
-      EFStatCard(model: .init(
-        iconName: "drop.fill",
-        iconTint: .teal,
-        valueText: "\(journalStore.todaysTotalCalories) / 2661",
-        subtitle: "Calories"
-      ))
-
-      // SLEEP
-      EFStatCard(model: .init(
-        iconName: "bed.double.fill",
-        iconTint: .blue,
-        valueText: formatSleep(hours: 7, minutes: 30),
-        subtitle: "Sleep"
-      ))
-
-      // HYDRATION
-      EFStatCard(model: .init(
-        iconName: "drop.circle.fill",
-        iconTint: .blue.opacity(0.85),
-        valueText: "\(hydrationService.todayMl) ml",
-        subtitle: "Hydration"
-      ))
-    }
-    .padding(.horizontal, 16)
-    .padding(.top, 6) // small breathing room under the header
-  }
-}
+private let statColumns = [
+    GridItem(.flexible(), spacing: 16),
+    GridItem(.flexible(), spacing: 16)
+]
 
 struct OverviewView: View {
     @EnvironmentObject private var router: NavigationRouter
@@ -86,8 +35,34 @@ struct OverviewView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: true) {
             VStack(alignment: .leading, spacing: EFSpacing.section) {
-                    // Top Stats Section - 2x2 grid with large cards
-                    TopStatsSection()
+                    // Stats Grid - 2x2 grid with large cards
+                    LazyVGrid(columns: statColumns, alignment: .center, spacing: 16) {
+                        EFStatCard(
+                            icon: "figure.walk",
+                            tint: DSColor.accentSuccess,
+                            value: "8.4K",
+                            label: "Steps"
+                        )
+                        EFStatCard(
+                            icon: "drop.fill",
+                            tint: DSColor.accentNutrition,
+                            value: "\(ov_todayCalories) / 2661",
+                            label: "Calories"
+                        )
+                        EFStatCard(
+                            icon: "bed.double.fill",
+                            tint: DSColor.accentRecovery,
+                            value: "7h 30m",
+                            label: "Sleep"
+                        )
+                        EFStatCard(
+                            icon: "drop.circle.fill",
+                            tint: DSColor.accentMobility,
+                            value: "\(hydrationService.todayMl) ml",
+                            label: "Hydration"
+                        )
+                    }
+                    .padding(.horizontal, 20)
 
                     // Today's Plan
                     EFSectionHeader("Today's Plan")
