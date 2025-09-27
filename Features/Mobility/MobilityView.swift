@@ -7,6 +7,31 @@
 
 import SwiftUI
 
+// MARK: - Type Definitions
+private struct MobilityRegionItem: Identifiable, Hashable {
+    let id: UUID = UUID()
+    let region: JournalBodyRegion
+    let isSelected: Bool
+    let action: () -> Void
+
+    // MARK: - Hashable Conformance
+    static func == (lhs: MobilityRegionItem, rhs: MobilityRegionItem) -> Bool {
+        lhs.id == rhs.id && lhs.region == rhs.region && lhs.isSelected == rhs.isSelected
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(region)
+        hasher.combine(isSelected)
+    }
+}
+
+private struct SessionDurationItem: Identifiable, Hashable {
+    let id: Int
+    let minutes: Int
+    var title: String { "\(minutes) min" }
+}
+
 struct MobilityView: View {
     @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var journalStore: JournalStore
@@ -21,184 +46,25 @@ struct MobilityView: View {
     @State private var showingSaveConfirmation = false
     @State private var autoStartSession = false
 
-    private let durations = [5, 10, 15, 20, 30]
+    // MARK: - Grid Configuration
+    private let regionColumns: [GridItem] = [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
+    ]
+
+    private let durations: [SessionDurationItem] = [5, 10, 15, 20, 30].map { SessionDurationItem(id: $0, minutes: $0) }
 
     init(autoStartSession: Bool = false) {
         self._autoStartSession = State(initialValue: autoStartSession)
     }
 
+    
+    // MARK: - Main Body
     var body: some View {
-        let theme = EnvironmentValues().efTheme
-
         ZStack {
             DSColor.bg.ignoresSafeArea()
-            ScrollView {
-            VStack(spacing: EFSpacing.section) {
-                // Focus Section
-                EFCard {
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        HStack {
-                            Image(systemName: "figure.flexibility")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.purple)
-
-                            Text("Focus")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(theme.textPrimary)
-
-                            Spacer()
-                        }
-
-                        VStack(spacing: Spacing.md) {
-                            Text("Select body regions to focus on")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundStyle(theme.textSecondary)
-
-                            LazyVGrid(columns: [
-                                GridItem(.flexible(), spacing: 8),
-                                GridItem(.flexible(), spacing: 8),
-                                GridItem(.flexible(), spacing: 8)
-                            ], spacing: 8) {
-                                ForEach(JournalBodyRegion.allCases, id: \.self) { region in
-                                    Button(action: {
-                                        toggleRegion(region)
-                                    }) {
-                                        Text(region.rawValue)
-                                            .font(.system(size: 14, weight: .medium))
-                                            .foregroundStyle(selectedRegions.contains(region) ? .white : theme.textPrimary)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(selectedRegions.contains(region) ? theme.accent : theme.surface)
-                                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 16)
-                                                    .stroke(theme.borderHairline, lineWidth: selectedRegions.contains(region) ? 0 : 1)
-                                            )
-                                    }
-                                    .buttonStyle(.plain)
-                                    .frame(minHeight: 44)
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Routine Section
-                EFCard {
-                    VStack(alignment: .leading, spacing: Spacing.md) {
-                        HStack {
-                            Image(systemName: "list.bullet")
-                                .font(.system(size: 20, weight: .medium))
-                                .foregroundStyle(.green)
-
-                            Text("Routine")
-                                .font(.system(size: 18, weight: .semibold))
-                                .foregroundStyle(theme.textPrimary)
-
-                            Spacer()
-
-                            Button(action: addRoutineStep) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(theme.accent)
-                            }
-                            .accessibilityLabel("Add routine step")
-                        }
-
-                        ForEach(routineSteps.indices, id: \.self) { index in
-                            MobilityStepRow(
-                                step: $routineSteps[index],
-                                onDelete: { removeRoutineStep(at: index) }
-                            )
-                        }
-                    }
-                }
-
-                // Session Section
-                if isSessionActive {
-                    EFCard {
-                        VStack(spacing: Spacing.md) {
-                            HStack {
-                                Image(systemName: "timer")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(.orange)
-
-                                Text("Session Active")
-                                    .font(.system(size: 18, weight: .semibold))
-                                    .foregroundStyle(theme.textPrimary)
-
-                                Spacer()
-                            }
-
-                            Text(formatTime(sessionSeconds))
-                                .font(.system(size: 32, weight: .bold, design: .monospaced))
-                                .foregroundStyle(theme.textPrimary)
-
-                            HStack(spacing: Spacing.md) {
-                                EFPillButton(
-                                    title: "Pause",
-                                    style: .secondary
-                                ) {
-                                    pauseSession()
-                                }
-
-                                EFPillButton(
-                                    title: "Complete",
-                                    style: .primary,
-                                    color: .green
-                                ) {
-                                    completeSession()
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Action Buttons
-                VStack(spacing: Spacing.md) {
-                    if !isSessionActive {
-                        // Duration picker
-                        EFCard {
-                            VStack(alignment: .leading, spacing: Spacing.md) {
-                                Text("Session Duration")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundStyle(theme.textPrimary)
-
-                                Picker("Duration", selection: $selectedDuration) {
-                                    ForEach(durations, id: \.self) { duration in
-                                        Text("\(duration) min").tag(duration)
-                                    }
-                                }
-                                .pickerStyle(.segmented)
-                            }
-                        }
-
-                        EFPillButton(
-                            title: "Start Session",
-                            style: .primary,
-                            color: .purple
-                        ) {
-                            startSession()
-                        }
-                        .disabled(selectedRegions.isEmpty)
-                    }
-
-                    if !isSessionActive {
-                        EFPillButton(
-                            title: "Save Routine",
-                            style: .primary
-                        ) {
-                            saveMobility()
-                        }
-                        .disabled(selectedRegions.isEmpty)
-                    }
-                }
-
-                Spacer(minLength: 100)
-            }
-            .padding(.horizontal, EFSpacing.page)
-            .padding(.vertical, EFSpacing.section)
-        }
+            content
         }
         .toolbarBackground(DSColor.barBackground, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
@@ -217,6 +83,46 @@ struct MobilityView: View {
         }
     }
 
+    // MARK: - Content Builder
+    @ViewBuilder
+    private var content: some View {
+        ScrollView {
+            VStack(spacing: EFSpacing.section) {
+                FocusSectionView(
+                    selectedRegions: $selectedRegions,
+                    columns: regionColumns,
+                    onRegionToggle: toggleRegion
+                )
+
+                RoutineSectionView(
+                    routineSteps: $routineSteps,
+                    onAddStep: addRoutineStep,
+                    onRemoveStep: removeRoutineStep
+                )
+
+                if isSessionActive {
+                    ActiveSessionView(
+                        sessionSeconds: sessionSeconds,
+                        onPause: pauseSession,
+                        onComplete: completeSession
+                    )
+                }
+
+                SessionControlsView(
+                    isSessionActive: isSessionActive,
+                    selectedDuration: $selectedDuration,
+                    durations: durations,
+                    selectedRegions: selectedRegions,
+                    onStartSession: startSession,
+                    onSaveMobility: saveMobility
+                )
+
+                Spacer(minLength: 100)
+            }
+            .padding(.horizontal, EFSpacing.page)
+            .padding(.vertical, EFSpacing.section)
+        }
+    }
 
     // MARK: - Helper Methods
 
@@ -279,12 +185,6 @@ struct MobilityView: View {
         saveMobility()
     }
 
-    private func formatTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let remainingSeconds = seconds % 60
-        return String(format: "%02d:%02d", minutes, remainingSeconds)
-    }
-
     private func saveMobility() {
         let entry = JournalMobilityEntry(
             date: selectedDate,
@@ -299,6 +199,253 @@ struct MobilityView: View {
         // Reset form
         selectedRegions.removeAll()
         routineSteps = JournalMobilityStep.defaultSteps
+    }
+}
+
+// MARK: - Focus Section View
+private struct FocusSectionView: View {
+    @Binding var selectedRegions: Set<JournalBodyRegion>
+    let columns: [GridItem]
+    let onRegionToggle: (JournalBodyRegion) -> Void
+
+    
+    var body: some View {
+        EFCard {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                headerView
+
+                VStack(spacing: Spacing.md) {
+                    Text("Select body regions to focus on")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(DSColor.textSecondary)
+
+                    regionGrid
+                }
+            }
+        }
+    }
+
+    private var headerView: some View {
+        HStack {
+            Image(systemName: "figure.flexibility")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(.purple)
+
+            Text("Focus")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(DSColor.textPrimary)
+
+            Spacer()
+        }
+    }
+
+    private var regionGrid: some View {
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(regionItems) { item in
+                RegionButton(item: item)
+            }
+        }
+    }
+
+    private var regionItems: [MobilityRegionItem] {
+        JournalBodyRegion.allCases.map { region in
+            MobilityRegionItem(
+                region: region,
+                isSelected: selectedRegions.contains(region)
+            ) {
+                onRegionToggle(region)
+            }
+        }
+    }
+}
+
+// MARK: - Region Button
+private struct RegionButton: View {
+    let item: MobilityRegionItem
+
+    
+    var body: some View {
+        Button(action: item.action) {
+            Text(item.region.rawValue)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(item.isSelected ? .white : DSColor.textPrimary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(item.isSelected ? DSColor.accentPrimary : DSColor.card)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.clear, lineWidth: item.isSelected ? 0 : 1)
+                )
+        }
+        .buttonStyle(.plain)
+        .frame(minHeight: 44)
+    }
+}
+
+// MARK: - Routine Section View
+private struct RoutineSectionView: View {
+    @Binding var routineSteps: [JournalMobilityStep]
+    let onAddStep: () -> Void
+    let onRemoveStep: (Int) -> Void
+
+    
+    var body: some View {
+        EFCard {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                headerView
+
+                ForEach(routineSteps.indices, id: \.self) { index in
+                    MobilityStepRow(
+                        step: $routineSteps[index],
+                        onDelete: { onRemoveStep(index) }
+                    )
+                }
+            }
+        }
+    }
+
+    private var headerView: some View {
+        HStack {
+            Image(systemName: "list.bullet")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(.green)
+
+            Text("Routine")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(DSColor.textPrimary)
+
+            Spacer()
+
+            Button(action: onAddStep) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundStyle(DSColor.accentPrimary)
+            }
+            .accessibilityLabel("Add routine step")
+        }
+    }
+}
+
+// MARK: - Active Session View
+private struct ActiveSessionView: View {
+    let sessionSeconds: Int
+    let onPause: () -> Void
+    let onComplete: () -> Void
+
+    
+    var body: some View {
+        EFCard {
+            VStack(spacing: Spacing.md) {
+                headerView
+
+                Text(formatTime(sessionSeconds))
+                    .font(.system(size: 32, weight: .bold, design: .monospaced))
+                    .foregroundStyle(DSColor.textPrimary)
+
+                HStack(spacing: Spacing.md) {
+                    EFPillButton(
+                        title: "Pause",
+                        style: .secondary
+                    ) {
+                        onPause()
+                    }
+
+                    EFPillButton(
+                        title: "Complete",
+                        style: .primary,
+                        color: .green
+                    ) {
+                        onComplete()
+                    }
+                }
+            }
+        }
+    }
+
+    private var headerView: some View {
+        HStack {
+            Image(systemName: "timer")
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(.orange)
+
+            Text("Session Active")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(DSColor.textPrimary)
+
+            Spacer()
+        }
+    }
+
+    private func formatTime(_ seconds: Int) -> String {
+        let minutes = seconds / 60
+        let remainingSeconds = seconds % 60
+        return String(format: "%02d:%02d", minutes, remainingSeconds)
+    }
+}
+
+// MARK: - Session Controls View
+private struct SessionControlsView: View {
+    let isSessionActive: Bool
+    @Binding var selectedDuration: Int
+    let durations: [SessionDurationItem]
+    let selectedRegions: Set<JournalBodyRegion>
+    let onStartSession: () -> Void
+    let onSaveMobility: () -> Void
+
+    
+    var body: some View {
+        VStack(spacing: Spacing.md) {
+            if !isSessionActive {
+                DurationPickerView(
+                    selectedDuration: $selectedDuration,
+                    durations: durations
+                )
+
+                EFPillButton(
+                    title: "Start Session",
+                    style: .primary,
+                    color: .purple
+                ) {
+                    onStartSession()
+                }
+                .disabled(selectedRegions.isEmpty)
+            }
+
+            if !isSessionActive {
+                EFPillButton(
+                    title: "Save Routine",
+                    style: .primary
+                ) {
+                    onSaveMobility()
+                }
+                .disabled(selectedRegions.isEmpty)
+            }
+        }
+    }
+}
+
+// MARK: - Duration Picker View
+private struct DurationPickerView: View {
+    @Binding var selectedDuration: Int
+    let durations: [SessionDurationItem]
+
+    
+    var body: some View {
+        EFCard {
+            VStack(alignment: .leading, spacing: Spacing.md) {
+                Text("Session Duration")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(DSColor.textPrimary)
+
+                Picker("Duration", selection: $selectedDuration) {
+                    ForEach(durations) { duration in
+                        Text(duration.title).tag(duration.minutes)
+                    }
+                }
+                .pickerStyle(.segmented)
+            }
+        }
     }
 }
 
@@ -331,7 +478,7 @@ private struct MobilityStepRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Duration/Reps")
                         .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(theme.textSecondary)
+                        .foregroundStyle(DSColor.textSecondary)
 
                     TextField("30s", text: $step.repsOrSecs)
                         .textFieldStyle(.roundedBorder)

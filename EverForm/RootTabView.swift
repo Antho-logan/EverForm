@@ -9,6 +9,16 @@ struct RootTabView: View {
     @State private var selectedTab: Int = 0
     @State private var activeRoute: EFRoute?
 
+    init() {
+        // Configure Tab Bar appearance
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithOpaqueBackground()
+        tabBarAppearance.backgroundColor = UIColor(DSColor.bg)
+        tabBarAppearance.shadowColor = .clear
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+    }
+
     var body: some View {
         TabView(selection: $selectedTab) {
             OverviewView()
@@ -30,8 +40,10 @@ struct RootTabView: View {
         }
         .tint(DSColor.brand)
         .scrollContentBackground(.hidden)
-        .background(AppTheme.bg(for: colorScheme, appearance.appAppearance).ignoresSafeArea())
-        .toolbarBackground(AppTheme.bg(for: colorScheme, appearance.appAppearance), for: .navigationBar)
+        .background(DSColor.bg.ignoresSafeArea())
+        .toolbarBackground(DSColor.bg, for: .tabBar)
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(DSColor.bg, for: .navigationBar)
         .toolbarColorScheme(colorScheme, for: .navigationBar)
         .onReceive(NotificationCenter.default.publisher(for: .efRoute)) { note in
             guard let route = note.object as? EFRoute else { return }
