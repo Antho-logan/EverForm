@@ -86,7 +86,7 @@ public struct EFStatCardView: View {
     }
 
     public var body: some View {
-        let bg = style?.background ?? DSColor.surface     // use metric background or fallback to surface
+        let bg = DSColor.surface                           // use surface background (light beige)
         let iconTint = style?.iconTint ?? self.iconTint
         let labelTint = style?.labelTint ?? DSColor.textSecondary
 
