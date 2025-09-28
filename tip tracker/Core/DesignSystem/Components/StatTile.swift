@@ -44,7 +44,7 @@ public struct EFStatCardView: View {
         .padding(14)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(DSColor.card)
+                .fill(DSColor.surface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
