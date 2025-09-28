@@ -86,7 +86,7 @@ public struct EFStatCardView: View {
     }
 
     public var body: some View {
-        let bg = DSColor.card                              // use standard card background
+        let bg = Color(hex: "F3E6D6")                    // match Today's Plan card background exactly
         let iconTint = style?.iconTint ?? self.iconTint
         let labelTint = style?.labelTint ?? DSColor.textSecondary
 
