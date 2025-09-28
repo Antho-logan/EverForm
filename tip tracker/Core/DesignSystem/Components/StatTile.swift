@@ -46,15 +46,43 @@ public struct EFStatCardView: View {
     let title: String
     let value: String
     let subtitle: String
+    let kind: StatKind
     var style: StatCardStyle? = nil   // default preserves previous behavior
 
-    public init(icon: String, iconTint: Color, title: String, value: String, subtitle: String, style: StatCardStyle? = nil) {
+    public init(icon: String, iconTint: Color, title: String, value: String, subtitle: String, kind: StatKind, style: StatCardStyle? = nil) {
         self.icon = icon
         self.iconTint = iconTint
         self.title = title
         self.value = value
         self.subtitle = subtitle
+        self.kind = kind
         self.style = style
+    }
+
+    @ViewBuilder
+    private var valueView: some View {
+        switch kind {
+        case .calories:
+            // One-line value: "current / target"
+            Text("\(value)")
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(DSColor.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
+                .truncationMode(.tail)
+                .layoutPriority(1)
+
+        default:
+            // Existing rendering for other kinds (Steps, Sleep, Hydration)
+            Text(value)
+                .font(.system(size: 28, weight: .bold))
+                .foregroundStyle(DSColor.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .allowsTightening(true)
+                .layoutPriority(1)
+        }
     }
 
     public var body: some View {
@@ -65,7 +93,7 @@ public struct EFStatCardView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 16, style: .continuous) // keep existing radius
                 .fill(bg) // <- use the metric background
-                .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+                .shadow(color: Color.black.opacity(0.04), radius: 10, y: 6)
 
             // existing content...
             HStack(alignment: .top, spacing: 12) {
@@ -80,7 +108,7 @@ public struct EFStatCardView: View {
                     )
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(value).font(.system(size: 28, weight: .bold)).foregroundStyle(DSColor.textPrimary)
+                    valueView
                     Text(title.uppercased())
                         .font(.system(size: 13, weight: .semibold))
                         .tracking(0.5)

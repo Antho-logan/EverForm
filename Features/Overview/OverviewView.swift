@@ -43,6 +43,7 @@ struct OverviewView: View {
                             title: "Steps",
                             value: "8.4K",
                             subtitle: "",
+                            kind: .steps,
                             style: StatCardStyle.forKind(.steps)
                         )
                         EFStatCardView(
@@ -51,6 +52,7 @@ struct OverviewView: View {
                             title: "Calories",
                             value: "\(ov_todayCalories) / 2661",
                             subtitle: "",
+                            kind: .calories,
                             style: StatCardStyle.forKind(.calories)
                         )
                         EFStatCardView(
@@ -59,6 +61,7 @@ struct OverviewView: View {
                             title: "Sleep",
                             value: "7h 30m",
                             subtitle: "",
+                            kind: .sleep,
                             style: StatCardStyle.forKind(.sleep)
                         )
                         EFStatCardView(
@@ -67,6 +70,7 @@ struct OverviewView: View {
                             title: "Hydration",
                             value: "\(hydrationService.todayMl) ml",
                             subtitle: "",
+                            kind: .hydration,
                             style: StatCardStyle.forKind(.hydration)
                         )
                     }
