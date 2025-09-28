@@ -1,6 +1,44 @@
 // EFStatCardView.swift
 import SwiftUI
 
+// MARK: - Styles
+public enum StatKind { case steps, calories, sleep, hydration }
+
+public struct StatCardStyle {
+    let background: Color
+    let iconTint: Color
+    let labelTint: Color
+
+    static func forKind(_ kind: StatKind) -> StatCardStyle {
+        switch kind {
+        case .steps:
+            return .init(
+                background: DSColor.accentSuccess.opacity(0.10),   // soft mint/green
+                iconTint: DSColor.accentSuccess.opacity(0.75),
+                labelTint: Color.gray.opacity(0.9)
+            )
+        case .calories:
+            return .init(
+                background: DSColor.accentNutrition.opacity(0.10),  // soft orange
+                iconTint: DSColor.accentNutrition.opacity(0.75),
+                labelTint: Color.gray.opacity(0.9)
+            )
+        case .sleep:
+            return .init(
+                background: DSColor.accentRecovery.opacity(0.10),    // soft blue
+                iconTint: DSColor.accentRecovery.opacity(0.75),
+                labelTint: Color.gray.opacity(0.9)
+            )
+        case .hydration:
+            return .init(
+                background: DSColor.accentMobility.opacity(0.10),  // soft purple
+                iconTint: DSColor.accentMobility.opacity(0.75),
+                labelTint: Color.gray.opacity(0.9)
+            )
+        }
+    }
+}
+
 // MARK: - Stat Card View (matches Today's Plan card styling)
 public struct EFStatCardView: View {
     let icon: String
@@ -8,48 +46,50 @@ public struct EFStatCardView: View {
     let title: String
     let value: String
     let subtitle: String
+    var style: StatCardStyle? = nil   // default preserves previous behavior
 
-    public init(icon: String, iconTint: Color, title: String, value: String, subtitle: String) {
+    public init(icon: String, iconTint: Color, title: String, value: String, subtitle: String, style: StatCardStyle? = nil) {
         self.icon = icon
         self.iconTint = iconTint
         self.title = title
         self.value = value
         self.subtitle = subtitle
+        self.style = style
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Icon with circular background
-            ZStack {
+        let bg = style?.background ?? DSColor.surface     // use metric background or fallback to surface
+        let iconTint = style?.iconTint ?? self.iconTint
+        let labelTint = style?.labelTint ?? DSColor.textSecondary
+
+        ZStack {
+            RoundedRectangle(cornerRadius: 16, style: .continuous) // keep existing radius
+                .fill(bg) // <- use the metric background
+                .shadow(color: Color.black.opacity(0.04), radius: 8, y: 4)
+
+            // existing content...
+            HStack(alignment: .top, spacing: 12) {
+                // Icon bubble (tinted)
                 Circle()
-                    .fill(iconTint.opacity(0.12))
-                    .frame(width: 36, height: 36)
-                Image(systemName: icon)
-                    .font(.system(size: 18, weight: .semibold))
-                    .foregroundStyle(iconTint)
+                    .fill(iconTint.opacity(0.2))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Image(systemName: icon)
+                            .font(.system(size: 20, weight: .semibold))
+                            .foregroundColor(iconTint)
+                    )
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(value).font(.system(size: 28, weight: .bold)).foregroundStyle(DSColor.textPrimary)
+                    Text(title.uppercased())
+                        .font(.system(size: 13, weight: .semibold))
+                        .tracking(0.5)
+                        .foregroundColor(labelTint)
+                }
+                Spacer()
             }
-
-            // Value (large text)
-            Text(value)
-                .font(.system(size: 28, weight: .bold))
-                .foregroundStyle(DSColor.textPrimary)
-
-            // Title (subtitle)
-            Text(title.uppercased())
-                .font(.system(size: 13, weight: .semibold))
-                .tracking(0.5)
-                .foregroundStyle(DSColor.textSecondary)
+            .padding(16)
         }
-        .frame(maxWidth: .infinity, minHeight: 132, alignment: .leading)
-        .padding(14)
-        .background(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(DSColor.surface)
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(DSColor.borderHairline.opacity(0.12), lineWidth: 1)
-        )
     }
 }
 

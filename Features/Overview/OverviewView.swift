@@ -42,28 +42,32 @@ struct OverviewView: View {
                             iconTint: DSColor.accentSuccess,
                             title: "Steps",
                             value: "8.4K",
-                            subtitle: ""
+                            subtitle: "",
+                            style: StatCardStyle.forKind(.steps)
                         )
                         EFStatCardView(
                             icon: "drop.fill",
                             iconTint: DSColor.accentNutrition,
                             title: "Calories",
                             value: "\(ov_todayCalories) / 2661",
-                            subtitle: ""
+                            subtitle: "",
+                            style: StatCardStyle.forKind(.calories)
                         )
                         EFStatCardView(
                             icon: "bed.double.fill",
                             iconTint: DSColor.accentRecovery,
                             title: "Sleep",
                             value: "7h 30m",
-                            subtitle: ""
+                            subtitle: "",
+                            style: StatCardStyle.forKind(.sleep)
                         )
                         EFStatCardView(
                             icon: "drop.circle.fill",
                             iconTint: DSColor.accentMobility,
                             title: "Hydration",
                             value: "\(hydrationService.todayMl) ml",
-                            subtitle: ""
+                            subtitle: "",
+                            style: StatCardStyle.forKind(.hydration)
                         )
                     }
                     .padding(.horizontal, 20)
